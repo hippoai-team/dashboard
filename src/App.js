@@ -19,7 +19,7 @@ function App() {
             <Routes>
 
                 // <Route path="/dashboard" element={<PrivateRoute />} >
-                  <Route path='' element={<Dashboard />} />
+                  <Route path='/dashboard' element={<Dashboard />} />
                 // </Route>
 
                 <Route path="/books" element={<PrivateRoute />} >
