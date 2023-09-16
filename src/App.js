@@ -18,9 +18,9 @@ function App() {
 
             <Routes>
 
-                <Route path="/dashboard" element={<PrivateRoute />} >
+                // <Route path="/dashboard" element={<PrivateRoute />} >
                   <Route path='' element={<Dashboard />} />
-                </Route>
+                // </Route>
 
                 <Route path="/books" element={<PrivateRoute />} >
                   <Route path='' element={<BookList />} />
