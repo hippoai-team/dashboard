@@ -17,7 +17,7 @@ dotenv.config();
 
 
 // Use your provided MongoDB connection URL
-const MONGO_URL = 'mongodb+srv://shani:shanidev@cluster0.jrdugnd.mongodb.net/newbooks';
+const MONGO_URL = process.env.MONGO_URL;
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URL, {
