@@ -18,9 +18,9 @@ function App() {
 
             <Routes>
 
-                // <Route path="/dashboard" element={<PrivateRoute />} >
+                <Route path="/dashboard" element={<PrivateRoute />} >
                    <Route path='/dashboard' element={<Dashboard />} />
-                // </Route>
+                </Route>
 
     
                 // <Route path={`${process.env.REACT_APP_API_URL}/dashboard`} element={<Dashboard />} />
