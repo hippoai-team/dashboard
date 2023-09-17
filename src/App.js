@@ -19,12 +19,12 @@ function App() {
             <Routes>
 
                 <Route path="/dashboard" element={<PrivateRoute />} >
-                   <Route path='/dashboard' element={<Dashboard />} />
+                   <Route path='' element={<Dashboard />} />
                 </Route>
 
-    
-                // <Route path={`${process.env.REACT_APP_API_URL}/dashboard`} element={<Dashboard />} />
-
+                <Route path="/" element={<PrivateRoute />} >
+                  <Route path='' element={<Dashboard />} />
+                </Route>
 
                 <Route path="/books" element={<PrivateRoute />} >
                   <Route path='' element={<BookList />} />
