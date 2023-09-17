@@ -26,13 +26,7 @@ mongoose.connect(MONGO_URL, {
 });
 
 // Middleware
-app.use(cors(
-  {
-    origin: [""],
-    methods: ["POST", "GET"],
-    credentials: true
-  }
-));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
