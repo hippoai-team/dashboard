@@ -84,7 +84,8 @@ exports.index = async (req, res) => {
     // Calculate the skip value based on the requested page
     const skip = (page - 1) * perPage;
 
-    let query = {}; // Initializing the search query
+    // Initializing the search query to exclude soft-deleted books
+    let query = { isDeleted: { $ne: true } };
 
     // Handle text search
     const search = req.query.search || "";
@@ -103,7 +104,7 @@ exports.index = async (req, res) => {
         searchQueries.push({ year: parseInt(search) });
       }
 
-      query = { $or: searchQueries };
+      query.$or = searchQueries;
     }
 
     // Handle source type filtering
@@ -113,7 +114,7 @@ exports.index = async (req, res) => {
     }
 
     // Get distinct source types
-    const allSourceTypes = await Book.distinct("source_type");
+    const allSourceTypes = await Book.distinct("source_type", query); // Exclude soft-deleted books when fetching distinct source types
 
     // Get the number of books for each type of status based on search or filter
     const statusTypes = [
@@ -160,17 +161,22 @@ exports.deleteMultiple = async (req, res) => {
   const { bookIds } = req.body;
 
   try {
-    const result = await Book.deleteMany({ _id: { $in: bookIds } });
+    const result = await Book.updateMany(
+      { _id: { $in: bookIds } },
+      { $set: { isDeleted: true } }
+    );
 
-    if (result.deletedCount > 0) {
-      res.status(200).json({ message: "Selected books deleted successfully." });
+    if (result.nModified > 0) {
+      res.status(200).json({ message: "Selected books soft deleted successfully."});
     } else {
-      res.status(404).json({ message: "No books found for deletion." });
+      res.status(404).json({ message: "No books were modified. They might already be deleted or not found." });
     }
+
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete selected books." });
+    res.status(500).json({ error: `Failed to soft delete selected books: ${error.message}` });
   }
 };
+
 
 exports.show = async (req, res) => {
   try {
@@ -207,12 +213,9 @@ exports.update = async (req, res) => {
 
 exports.destroy = async (req, res) => {
   try {
-    const book = await Book.findByIdAndDelete(req.params.id);
-    if (!book) {
-      return res.status(404).json({ error: "Book not found" });
-    }
-    res.json({ message: "Book deleted successfully" });
+    await Book.updateOne({ _id: req.params.id }, { isDeleted: true });
+    res.status(200).send('Book soft deleted successfully');
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete book" });
+      res.status(500).send('Server error');
   }
 };
