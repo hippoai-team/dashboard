@@ -13,7 +13,7 @@ function App() {
   return (
     <Router>
         <div className="wrapper">
-           <h1> React frontend </h1>
+
             <ToastContainer />
 
             <Routes>
