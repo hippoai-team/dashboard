@@ -169,7 +169,7 @@ exports.deleteMultiple = async (req, res) => {
     if (result.nModified > 0) {
       res.status(200).json({ message: "Selected books soft deleted successfully."});
     } else {
-      res.status(404).json({ message: "No books were modified. They might already be deleted or not found." });
+      res.status(200).json({ message: "No books were modified. They might already be deleted or not found." });
     }
 
   } catch (error) {
