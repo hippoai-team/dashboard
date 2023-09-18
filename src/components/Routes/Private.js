@@ -10,7 +10,7 @@ export default function PrivateRoute() {
     useEffect(() => {
         const authCheck = async () => {
             if (!auth.isAuthenticated) {
-                const res = await axios.get('http://localhost:5000/admin/user-auth');
+                const res = await axios.get('/admin/user-auth');
                 if(res.data.ok) {
                     setAuth(prevAuth => ({ ...prevAuth, isAuthenticated: true }));
                 } else {
