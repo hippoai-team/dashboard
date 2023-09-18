@@ -20,7 +20,7 @@ function EditBook() {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/books/${id}`);
+        const response = await axios.get(`/books/${id}`);
         setFormData(response.data);
       } catch (error) {
         toast.error('Error fetching book data: ' + error.message);
@@ -42,7 +42,7 @@ function EditBook() {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`http://localhost:5000/api/books/edit/${id}`, formData);
+      const response = await axios.put(`/books/edit/${id}`, formData);
 
       if (response.status === 200) {
         toast.success("Book successfully updated!", {
