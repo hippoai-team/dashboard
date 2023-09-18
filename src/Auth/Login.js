@@ -16,7 +16,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('https://mern-bookstore.vercel.app/admin/login', {
+            const res = await axios.post('https://mern-bookstore.vercel.app/api/admin/login', {
                 email,
                 password
             });
