@@ -26,7 +26,13 @@ mongoose.connect(MONGO_URL, {
 });
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: ['http://localhost:3000', 'https://mern-bookstore.vercel.app/'],
+  optionsSuccessStatus: 200,
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
