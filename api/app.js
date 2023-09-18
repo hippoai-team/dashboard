@@ -38,7 +38,7 @@ app.use(morgan('dev'));
 
 
 // Routes
-app.use('/api/books', bookRoutes);
+app.use('/books', bookRoutes);
 app.use('/admin', authRoutes);
 
 app.use('/', (req, res) => {
