@@ -27,7 +27,7 @@ mongoose.connect(MONGO_URL, {
 
 // Middleware
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://mern-bookstore.vercel.app/'],
+  origin: ['http://localhost:3000', 'https://mern-bookstore.vercel.app'],
   methods: ["POST", "GET"],
   optionsSuccessStatus: 200,
   credentials: true,
