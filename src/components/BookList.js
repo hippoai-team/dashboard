@@ -29,7 +29,7 @@ const BookList = () => {
 
   const fetchBooks = async () => {
     // Base endpoint
-    let endpoint = `/api/api/books?page=${currentPage}`;
+    let endpoint = `/api/books?page=${currentPage}`;
 
     // If there's a search query, append it to the endpoint
     if (search) {
@@ -83,7 +83,7 @@ const BookList = () => {
 
   const handleDeleteSelected = () => {
     axios
-      .delete("/api/api/books/delete-multiple", {
+      .delete("/api/books/delete-multiple", {
         data: { bookIds: selectedBookIds },
       })
       .then((response) => {
@@ -122,7 +122,7 @@ const BookList = () => {
   const handleDelete = async (bookId) => {
     try {
       const response = await axios.delete(
-        `/api/api/books/destroy/${bookId}`
+        `/api/books/destroy/${bookId}`
       );
 
       if (response.status === 200) {
