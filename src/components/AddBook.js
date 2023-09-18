@@ -42,7 +42,7 @@ function AddBook() {
     try {
       console.log("Sending formData:", formData);
       const response = await axios.post(
-        "http://localhost:5000/api/books/store",
+        "/books/store",
         formData
       );
 
