@@ -29,7 +29,7 @@ const BookList = () => {
 
   const fetchBooks = async () => {
     // Base endpoint
-    let endpoint = `https://express-vercel-demo-six.vercel.app/books?page=${currentPage}`;
+    let endpoint = `https://express-vercel-demo-six.vercel.app/api/books?page=${currentPage}`;
 
     // If there's a search query, append it to the endpoint
     if (search) {
@@ -83,7 +83,7 @@ const BookList = () => {
 
   const handleDeleteSelected = () => {
     axios
-      .delete("https://express-vercel-demo-six.vercel.app/books/delete-multiple", {
+      .delete("https://express-vercel-demo-six.vercel.app/api/books/delete-multiple", {
         data: { bookIds: selectedBookIds },
       })
       .then((response) => {
@@ -122,7 +122,7 @@ const BookList = () => {
   const handleDelete = async (bookId) => {
     try {
       const response = await axios.delete(
-        `https://express-vercel-demo-six.vercel.app/books/destroy/${bookId}`
+        `https://express-vercel-demo-six.vercel.app/api/books/destroy/${bookId}`
       );
 
       if (response.status === 200) {
