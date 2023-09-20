@@ -81,78 +81,17 @@ function AddBook() {
           <div className="card-body">
             {/* Consider adding a component or logic here for rendering errors */}
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="topic">Topic</label>
-                <input
-                  type="text"
-                  name="topic"
+            <div className="form-group">
+                <label htmlFor="source_type">Source Type</label>
+                <select
+                  name="source_type"
                   className="form-control"
                   onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="category">Category</label>
-                <input
-                  type="text"
-                  name="category"
-                  className="form-control"
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="subspeciality">Subspeciality</label>
-                <input
-                  type="text"
-                  name="subspecialty"
-                  className="form-control"
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="title">Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  className="form-control"
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="publisher">Publisher</label>
-                <input
-                  type="text"
-                  name="publisher"
-                  className="form-control"
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="year">Year</label>
-                <input
-                  type="text"
-                  name="year"
-                  className="form-control"
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="source">Source</label>
-                <input
-                  type="text"
-                  name="source"
-                  className="form-control"
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="status">Status</label>
-                <input
-                  type="text"
-                  name="status"
-                  className="form-control"
-                  value={formData.status}
-                  onChange={handleChange}
-                />
+                >
+                  <option value="">Select a source type</option>
+                  <option value="guidelines">Guidelines</option>
+                  <option value="drugs">Drugs</option>
+                </select>
               </div>
               <div className="form-group">
                 <label>Paywall status</label>
@@ -168,44 +107,86 @@ function AddBook() {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="load_type">Load Type</label>
+                <label htmlFor="topic">Topic</label>
                 <input
                   type="text"
-                  name="load_type"
+                  name="topic"
+                  className="form-control"
+                  placeholder="Optional topic"
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="category">Category</label>
+                <input
+                  type="text"
+                  name="category"
+                  placeholder="Optional category"
                   className="form-control"
                   onChange={handleChange}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="patient_population">Patient Population</label>
+                <label htmlFor="subspeciality">Subspeciality</label>
                 <input
                   type="text"
-                  name="patient_population"
+                  name="subspecialty"
+                  placeholder="Required subspeciality"
                   className="form-control"
                   onChange={handleChange}
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="source_type">Source Type</label>
-                <select
-                  name="source_type"
-                  className="form-control"
-                  onChange={handleChange}
-                >
-                  <option value="">Select a source type</option>
-                  <option value="guidelines">Guidelines</option>
-                  <option value="drugs">Drugs</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>IDs</label>
+                <label htmlFor="title">Title</label>
                 <input
                   type="text"
-                  name="ids"
+                  name="title"
+                  placeholder="Required title"
                   className="form-control"
                   onChange={handleChange}
                 />
               </div>
+              <div className="form-group">
+                <label htmlFor="publisher">Publisher</label>
+                <input
+                  type="text"
+                  name="publisher"
+                  placeholder="Required publisher"
+                  className="form-control"
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="year">Year</label>
+                <input
+                  type="text"
+                  name="year"
+                  placeholder="Required year"
+                  className="form-control"
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="source">Source</label>
+                <input
+                  type="text"
+                  name="source"
+                  placeholder="Required source"
+                  className="form-control"
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="status">Status</label>
+                <input
+                  type="text"
+                  name="status"
+                  className="form-control"
+                  value={formData.status}
+                  onChange={handleChange}
+                />
+              </div>
+
               <button type="submit" className="btn btn-primary btn-block">
                 Add
               </button>
