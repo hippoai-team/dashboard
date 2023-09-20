@@ -26,15 +26,15 @@ function App() {
                   <Route path='' element={<Dashboard />} />
                 </Route>
 
-                <Route path="/books" element={<PrivateRoute />} >
+                <Route path="/sources" element={<PrivateRoute />} >
                   <Route path='' element={<SourceList />} />
                 </Route>
 
-                <Route path="/books/add" element={<PrivateRoute />} >
+                <Route path="/sources/add" element={<PrivateRoute />} >
                   <Route path='' element={<AddSource />} />
                 </Route>
 
-                <Route path="/books/edit/:id" element={<PrivateRoute />} >
+                <Route path="/sources/edit/:id" element={<PrivateRoute />} >
                   <Route path='' element={<EditSource />} />
                 </Route>
 
