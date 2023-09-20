@@ -44,7 +44,7 @@ function EditSource() {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/api/books/edit/${id}`, formData);
+      const response = await axios.put(`${API_BASE_URL}/api/sources/edit/${id}`, formData);
 
       if (response.status === 200) {
         toast.success("Source successfully updated!", {
