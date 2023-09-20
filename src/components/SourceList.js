@@ -368,6 +368,7 @@ const SourceList = () => {
                             className="btn btn-primary"
                           >
                             <i className="fas fa-sync"></i>
+                          </button>
                           </td>
                           <td>{source.topic}</td>
                           <td>{source.category}</td>
