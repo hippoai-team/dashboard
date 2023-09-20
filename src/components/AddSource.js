@@ -16,7 +16,7 @@ function AddBook() {
     publisher: "",
     year: "",
     source: "",
-    status: "",
+    status: "new",
     is_paid: false,
     load_type: "",
     patient_population: "",
@@ -150,6 +150,7 @@ function AddBook() {
                   type="text"
                   name="status"
                   className="form-control"
+                  value={formData.status}
                   onChange={handleChange}
                 />
               </div>
@@ -159,7 +160,7 @@ function AddBook() {
                   name="is_paid"
                   className="form-control"
                   onChange={handleChange}
-                  value={false}
+                  value={formData.is_paid}
                 >
                   <option value="">Select paid status</option>
                   <option value={false}>No</option>
