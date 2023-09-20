@@ -33,7 +33,7 @@ const Sidebar = () => {
           <li className="nav-item">
             <Link to="/books" className="nav-link">
               <i className="nav-icon fas fa-book"></i>
-              <p>Books</p>
+              <p>Sources</p>
             </Link>
           </li>
           </ul>

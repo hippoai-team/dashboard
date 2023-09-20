@@ -1,4 +1,4 @@
-// src/components/BookList.js
+// src/components/SourceList.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -7,18 +7,18 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
 
-const BookList = () => {
+const SourceList = () => {
   const navigate = useNavigate();
-  const [books, setBooks] = useState([]);
+  const [sources, setSources] = useState([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
 
-  const [selectedBookIds, setSelectedBookIds] = useState([]);
-  const [totalBooks, setTotalBooks] = useState(0); // Initialize totalBooks state
+  const [selectedSourceIds, setSelectedSourceIds] = useState([]);
+  const [totalSources, setTotalSources] = useState(0); // Initialize totalSources state
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const toastDuration = 2000; // 2 seconds
-  const API_BASE_URL = process.env.NODE_API_URL || 'https://express-vercel-demo-six.vercel.app';
+  const API_BASE_URL = process.env.NODE_API_URL 
 
 
   const [statusCounts, setStatusCounts] = useState({
@@ -29,9 +29,9 @@ const BookList = () => {
     New: 0,
   });
 
-  const fetchBooks = async () => {
+  const fetchSources = async () => {
     // Base endpoint
-    let endpoint = `${API_BASE_URL}/api/books?page=${currentPage}`;
+    let endpoint = `${API_BASE_URL}/api/sources?page=${currentPage}`;
 
     // If there's a search query, append it to the endpoint
     if (search) {
@@ -48,64 +48,64 @@ const BookList = () => {
 
       // Destructure the response data
       const {
-        books: fetchedBooks,
-        totalBooks,
+        sources: fetchedSources,
+        totalSources,
         statusCounts,
         allSourceTypes,
       } = response.data;
 
       // Update the state
-      setBooks(fetchedBooks);
-      setTotalBooks(totalBooks);
+      setSources(fetchedSources);
+      setTotalSources(totalSources);
       setStatusCounts(statusCounts);
       setAllSourceTypes(allSourceTypes);
     } catch (error) {
-      console.error("Error fetching books:", error);
+      console.error("Error fetching sources:", error);
     }
   };
 
-  // useEffect for fetching books on initial load and when currentPage changes
+  // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
-    fetchBooks();
+    fetchSources();
   }, [currentPage, search, sourceTypeFilter]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
   };
 
-  const handleCheckboxChange = (event, bookId) => {
+  const handleCheckboxChange = (event, sourceId) => {
     if (event.target.checked) {
-      setSelectedBookIds((prevSelected) => [...prevSelected, bookId]);
+      setSelectedSourceIds((prevSelected) => [...prevSelected, sourceId]);
     } else {
-      setSelectedBookIds((prevSelected) =>
-        prevSelected.filter((id) => id !== bookId)
+      setSelectedSourceIds((prevSelected) =>
+        prevSelected.filter((id) => id !== sourceId)
       );
     }
   };
 
   const handleDeleteSelected = () => {
     axios
-      .delete(`${API_BASE_URL}/api/books/delete-multiple`, {
-        data: { bookIds: selectedBookIds },
+      .delete(`${API_BASE_URL}/api/sources/delete-multiple`, {
+        data: { sourceIds: selectedSourceIds },
       })
       .then((response) => {
         // Display success toast
-        toast.success("Selected books deleted successfully!", {
+        toast.success("Selected sources deleted successfully!", {
           autoClose: toastDuration,
         });
 
         // Refresh the list after the toast disappears
         setTimeout(() => {
-          fetchBooks();
-          setSelectedBookIds([]); // Clear the selectedBookIds state
+          fetchSources();
+          setSelectedSourceIds([]); // Clear the selectedSourceIds state
         }, toastDuration);
       })
       .catch((error) => {
         // Display error toast
-        toast.error("Error deleting selected books!", {
+        toast.error("Error deleting selected sources!", {
           autoClose: toastDuration,
         });
-        console.error("Error deleting selected books:", error);
+        console.error("Error deleting selected sources:", error);
       });
   };
 
@@ -121,29 +121,29 @@ const BookList = () => {
     }
   };
 
-  const handleDelete = async (bookId) => {
+  const handleDelete = async (sourceId) => {
     try {
       const response = await axios.delete(
-        `${API_BASE_URL}/api/books/destroy/${bookId}`
+        `${API_BASE_URL}/api/sources/destroy/${sourceId}`
       );
 
       if (response.status === 200) {
         // Display success toast
-        toast.success("Book successfully deleted!", {
+        toast.success("Source successfully deleted!", {
           autoClose: toastDuration,
         });
 
         // Refresh the list after the toast disappears
         setTimeout(() => {
-          fetchBooks();
+          fetchSources();
         }, toastDuration);
       } else {
-        console.error("Failed to delete book:", response.data);
+        console.error("Failed to delete source:", response.data);
       }
     } catch (error) {
       // Display error toast
-      toast.error("Error deleting the book!", { autoClose: toastDuration });
-      console.error("Error deleting the book:", error);
+      toast.error("Error deleting the source!", { autoClose: toastDuration });
+      console.error("Error deleting the source:", error);
     }
   };
 
@@ -155,7 +155,7 @@ const BookList = () => {
             {/* Your code for filters and statistics */}
             <div className="card">
               <div className="card-header">
-                <h1>Books</h1>
+                <h1>Sources</h1>
               </div>
               <div className="card-body mt-4">
                 <div className="row">
@@ -198,7 +198,7 @@ const BookList = () => {
                         </select>
                         {/* <button 
                               className="btn btn-primary mt-2 rounded-pill"
-                              onClick={fetchBooks}
+                              onClick={fetchSources}
                           >
                               Filter by Source Type
                           </button> */}
@@ -210,10 +210,10 @@ const BookList = () => {
 
                   <div className="col-2">
                     <Link
-                      to="/books/add"
+                      to="/sources/add"
                       className="btn btn-primary btn-lg rounded-pill"
                     >
-                      <i className="fas fa-plus mr-2"></i>Add Book
+                      <i className="fas fa-plus mr-2"></i>Add Source
                     </Link>
                   </div>
                 </div>
@@ -222,7 +222,7 @@ const BookList = () => {
                   <div className="row">
                     <div className="col">
                       <h3>Statistics</h3>
-                      <p>Total number of books = {totalBooks}</p>
+                      <p>Total number of sources = {totalSources}</p>
                       <ul>
                         <li>Indexed: {statusCounts.indexed}</li>
                         <li>Failed Index: {statusCounts.failed_index}</li>
@@ -239,7 +239,7 @@ const BookList = () => {
                     <button
                       className="btn btn-dark mb-2"
                       onClick={handleDeleteSelected}
-                      disabled={selectedBookIds.length === 0}
+                      disabled={selectedSourceIds.length === 0}
                     >
                       Delete Selected
                     </button>
@@ -276,43 +276,43 @@ const BookList = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {books.map((book) => (
-                        <tr key={book._id}>
+                      {sources.map((source) => (
+                        <tr key={source._id}>
                           <td>
                             <input
                               type="checkbox"
-                              name={`ids[${book._id}]`}
+                              name={`ids[${source._id}]`}
                               className="checkbox_ids"
-                              value={book._id}
-                              checked={selectedBookIds.includes(book._id)}
-                              onChange={(e) => handleCheckboxChange(e, book._id)}
+                              value={source._id}
+                              checked={selectedSourceIds.includes(source._id)}
+                              onChange={(e) => handleCheckboxChange(e, source._id)}
                             />
                           </td>
-                          <td>{book.topic}</td>
-                          <td>{book.category}</td>
-                          <td>{book.subspecialty}</td>
-                          <td>{book.title}</td>
-                          <td>{book.publisher}</td>
-                          <td>{book.year}</td>
-                          <td>{book.status}</td>
-                          <td>{book.is_paid ? "Yes" : "No"}</td>
-                          <td>{book.load_type}</td>
-                          <td>{book.patient_population}</td>
-                          <td>{book.source}</td>
-                          <td>{book.source_type}</td>
+                          <td>{source.topic}</td>
+                          <td>{source.category}</td>
+                          <td>{source.subspecialty}</td>
+                          <td>{source.title}</td>
+                          <td>{source.publisher}</td>
+                          <td>{source.year}</td>
+                          <td>{source.status}</td>
+                          <td>{source.is_paid ? "Yes" : "No"}</td>
+                          <td>{source.load_type}</td>
+                          <td>{source.patient_population}</td>
+                          <td>{source.source}</td>
+                          <td>{source.source_type}</td>
                           <td>
-                            {book.date_added
-                              ? new Date(book.date_added).toLocaleDateString()
+                            {source.date_added
+                              ? new Date(source.date_added).toLocaleDateString()
                               : ""}
                           </td>
                           <td>
-                            {book.date_modified
-                              ? new Date(book.date_modified).toLocaleDateString()
+                            {source.date_modified
+                              ? new Date(source.date_modified).toLocaleDateString()
                               : ""}
                           </td>
                           <td>
                             <Link
-                              to={`/books/edit/${book._id}`}
+                              to={`/sources/edit/${source._id}`}
                               className="btn btn-success"
                             >
                               <i className="fas fa-pencil-alt"></i>
@@ -320,7 +320,7 @@ const BookList = () => {
                           </td>
                           <td>
                             <button
-                              onClick={() => handleDelete(book._id)}
+                              onClick={() => handleDelete(source._id)}
                               className="btn btn-danger"
                             >
                               <i className="fas fa-trash"></i>
@@ -345,7 +345,7 @@ const BookList = () => {
                     <button
                       className="btn btn-dark mb-2 ml-2"
                       onClick={handleNextPage}
-                      disabled={books.length < 5} // Disable if there are no more pages
+                      disabled={sources.length < 5} // Disable if there are no more pages
                     >
                       Next
                     </button>
@@ -360,4 +360,4 @@ const BookList = () => {
   );
 };
 
-export default BookList;
+export default SourceList;

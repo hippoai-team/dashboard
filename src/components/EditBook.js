@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import Layout from './Layout';
 
 
-function EditBook() {
+function EditSource() {
   const [formData, setFormData] = useState({
     // ... initial empty state
   });
@@ -20,16 +20,16 @@ function EditBook() {
 
   // Load book data when component mounts
   useEffect(() => {
-    const fetchBook = async () => {
+    const fetchSource = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/books/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/api/sources/${id}`);
         setFormData(response.data);
       } catch (error) {
         toast.error('Error fetching book data: ' + error.message);
       }
     };
 
-    fetchBook();
+    fetchSource();
   }, [id]);
 
   const handleChange = (e) => {
@@ -47,7 +47,7 @@ function EditBook() {
       const response = await axios.put(`${API_BASE_URL}/api/books/edit/${id}`, formData);
 
       if (response.status === 200) {
-        toast.success("Book successfully updated!", {
+        toast.success("Source successfully updated!", {
           autoClose: toastDuration,
         });
 
@@ -69,7 +69,7 @@ function EditBook() {
       <Layout>
         <div className="content-wrapper">
             <div className="card">
-                <div className="card-header">Edit Book</div>
+                <div className="card-header">Edit Source</div>
                 <div className="card-body">
                     {/* Consider adding a component or logic here for rendering errors */}
                     <form onSubmit={handleSubmit}>
@@ -140,4 +140,4 @@ function EditBook() {
 
 }
 
-export default EditBook;
+export default EditSource;

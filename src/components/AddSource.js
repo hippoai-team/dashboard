@@ -26,7 +26,7 @@ function AddBook() {
     date_modified: "",
   });
 
-  const API_BASE_URL = process.env.NODE_API_URL || 'https://express-vercel-demo-six.vercel.app';
+  const API_BASE_URL = process.env.NODE_API_URL
 
 
   const toastDuration = 2000; // 2 seconds or any duration you want
@@ -45,23 +45,23 @@ function AddBook() {
     try {
       console.log("Sending formData:", formData);
       const response = await axios.post(
-        `${API_BASE_URL}/api/books/store`,
+        `${API_BASE_URL}/api/sources/store`,
         formData
       );
 
       if (response.status === 201) {
         // Show success toast
-        toast.success("Book successfully created!", {
+        toast.success("source successfully created!", {
           autoClose: toastDuration,
         });
 
-        // Navigate to books page after toast disappears
+        // Navigate to sources page after toast disappears
         setTimeout(() => {
-          navigate("/books");
+          navigate("/sources");
         }, toastDuration);
       } else {
         // Show error toast
-        toast.error("Failed to create book: " + response.data.error, {
+        toast.error("Failed to create source: " + response.data.error, {
           autoClose: toastDuration,
         });
       }
@@ -204,7 +204,7 @@ function AddBook() {
               <button type="submit" className="btn btn-primary btn-block">
                 Add
               </button>
-              <a href="/books" className="btn btn-danger btn-block">
+              <a href="/sources" className="btn btn-danger btn-block">
                 Cancel
               </a>
             </form>

@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import BookList from './components/BookList';
-import AddBook from './components/AddBook';
-import EditBook from './components/EditBook';
+import SourceList from './components/SourceList';
+import AddSource from './components/AddSource';
+import EditSource from './components/EditSource';
 import Dashboard from './components/Dashboard';
 import { ToastContainer } from 'react-toastify';
 import Login from './Auth/Login';
@@ -27,15 +27,15 @@ function App() {
                 </Route>
 
                 <Route path="/books" element={<PrivateRoute />} >
-                  <Route path='' element={<BookList />} />
+                  <Route path='' element={<SourceList />} />
                 </Route>
 
                 <Route path="/books/add" element={<PrivateRoute />} >
-                  <Route path='' element={<AddBook />} />
+                  <Route path='' element={<AddSource />} />
                 </Route>
 
                 <Route path="/books/edit/:id" element={<PrivateRoute />} >
-                  <Route path='' element={<EditBook />} />
+                  <Route path='' element={<EditSource />} />
                 </Route>
 
 

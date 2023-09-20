@@ -14,14 +14,14 @@ export default class Dashboard extends Component {
                           <div className="d-flex justify-content-between align-items-center">
                             <div className="mr-3">
                               <div className="text-lg font-weight-bold">
-                                Books
+                                Sources
                               </div>
                             </div>
-                            <i className="fa fa-book" />
+                            <i className="fa fa-source" />
                           </div>
                         </div>
                         <div className="card-footer d-flex align-items-center justify-content-end">
-                          <a className="small m-2 text-white stretched-link" href="/books">View books</a>
+                          <a className="small m-2 text-white stretched-link" href="/sources">View sources</a>
                           <div className="small text-white">
                             <i className="fas fa-angle-right" />
                           </div>
