@@ -147,6 +147,57 @@ const SourceList = () => {
     }
   };
 
+  const handleProcess = async (sourceId) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/sources/process/${sourceId}`);
+      if (response.status === 200) {
+        // Display success toast
+        toast.success("Source processing started successfully!", {
+          autoClose: toastDuration,
+        });
+        // Refresh the list after the toast disappears
+        setTimeout(() => {
+          fetchSources();
+        }, toastDuration);
+      } else {
+        console.error("Failed to start source processing:", response.data);
+      }
+    } catch (error) {
+      // Display error toast
+      toast.error("Error starting source processing!", {
+        autoClose: toastDuration,
+      });
+      console.error("Error starting source processing:", error);
+    }
+  };
+
+  const handleProcessSelected = () => {
+    axios
+      .post(`${API_BASE_URL}/api/sources/process-multiple`, {
+        data: { sourceIds: selectedSourceIds },
+      })
+      .then((response) => {
+        // Display success toast
+        toast.success("Selected sources processing started successfully!", {
+          autoClose: toastDuration,
+        });
+
+        // Refresh the list after the toast disappears
+        setTimeout(() => {
+          fetchSources();
+          setSelectedSourceIds([]); // Clear the selectedSourceIds state
+        }, toastDuration);
+      })
+      .catch((error) => {
+        // Display error toast
+        toast.error("Error starting selected source processing!", {
+          autoClose: toastDuration,
+        });
+        console.error("Error starting selected source processing:", error);
+      });
+  };
+  
+
   return (
     <Layout>
       <div className="">
@@ -243,6 +294,13 @@ const SourceList = () => {
                     >
                       Delete Selected
                     </button>
+                    <button
+                      className="btn btn-dark mb-2"
+                      onClick={handleProcessSelected}
+                      disabled={selectedSourceIds.length === 0}
+                    >
+                      Process Selected
+                    </button>
                   </div>
                 </div>
 
@@ -288,6 +346,29 @@ const SourceList = () => {
                               onChange={(e) => handleCheckboxChange(e, source._id)}
                             />
                           </td>
+                          <td>
+                            <Link
+                              to={`/sources/edit/${source._id}`}
+                              className="btn btn-success"
+                            >
+                              <i className="fas fa-pencil-alt"></i>
+                            </Link>
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => handleDelete(source._id)}
+                              className="btn btn-danger"
+                            >
+                              <i className="fas fa-trash"></i>
+                            </button>
+                          </td>
+                          <td>
+                            <button
+                            onClick={() => handleProcess(`/sources/process/${source._id}`)}
+                            className="btn btn-primary"
+                          >
+                            <i className="fas fa-sync"></i>
+                          </td>
                           <td>{source.topic}</td>
                           <td>{source.category}</td>
                           <td>{source.subspecialty}</td>
@@ -310,22 +391,7 @@ const SourceList = () => {
                               ? new Date(source.date_modified).toLocaleDateString()
                               : ""}
                           </td>
-                          <td>
-                            <Link
-                              to={`/sources/edit/${source._id}`}
-                              className="btn btn-success"
-                            >
-                              <i className="fas fa-pencil-alt"></i>
-                            </Link>
-                          </td>
-                          <td>
-                            <button
-                              onClick={() => handleDelete(source._id)}
-                              className="btn btn-danger"
-                            >
-                              <i className="fas fa-trash"></i>
-                            </button>
-                          </td>
+                         
                         </tr>
                       ))}
                     </tbody>
