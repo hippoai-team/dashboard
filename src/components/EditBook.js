@@ -14,13 +14,15 @@ function EditBook() {
   const navigate = useNavigate();
   const { id } = useParams(); // This captures the ID from the URL
   const toastDuration = 2000; // 2 seconds or any duration you want
+  const API_BASE_URL = process.env.NODE_API_URL || 'https://www.express-vercel-demo-six.vercel.app';
+
 
 
   // Load book data when component mounts
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const response = await axios.get(`${process.env.NODE_API_URL}/api/books/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/api/books/${id}`);
         setFormData(response.data);
       } catch (error) {
         toast.error('Error fetching book data: ' + error.message);
@@ -42,7 +44,7 @@ function EditBook() {
     e.preventDefault();
 
     try {
-      const response = await axios.put(`${process.env.NODE_API_URL}/api/books/edit/${id}`, formData);
+      const response = await axios.put(`${API_BASE_URL}/api/books/edit/${id}`, formData);
 
       if (response.status === 200) {
         toast.success("Book successfully updated!", {
