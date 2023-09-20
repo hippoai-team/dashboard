@@ -154,13 +154,17 @@ function AddBook() {
                 />
               </div>
               <div className="form-group">
-                <label>Payment Status</label>
-                <input
-                  type="text"
+                <label>Paywall status</label>
+                <select
                   name="is_paid"
                   className="form-control"
                   onChange={handleChange}
-                />
+                  value={false}
+                >
+                  <option value="">Select paid status</option>
+                  <option value={false}>No</option>
+                  <option value={true}>Yes</option>
+                </select>
               </div>
               <div className="form-group">
                 <label htmlFor="load_type">Load Type</label>
