@@ -6,7 +6,7 @@ import Spinner from "../Spinner";
 
 export default function PrivateRoute() {
     const [auth, setAuth] = useAuth();
-    const API_BASE_URL = process.env.NODE_API_URL
+    const API_BASE_URL = process.env.NODE_API_URL || "https://dashboard-api-woad.vercel.app"
 
 
     

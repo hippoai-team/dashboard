@@ -26,7 +26,7 @@ function AddBook() {
     date_modified: "",
   });
 
-  const API_BASE_URL = process.env.NODE_API_URL
+  const API_BASE_URL = process.env.NODE_API_URL || 'https://dashboard-api-woad.vercel.app'
 
 
   const toastDuration = 2000; // 2 seconds or any duration you want
