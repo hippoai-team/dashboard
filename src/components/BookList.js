@@ -18,6 +18,7 @@ const BookList = () => {
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const toastDuration = 2000; // 2 seconds
+  const API_BASE_URL = process.env.NODE_API_URL
 
   const [statusCounts, setStatusCounts] = useState({
     indexed: 0,
@@ -29,7 +30,7 @@ const BookList = () => {
 
   const fetchBooks = async () => {
     // Base endpoint
-    let endpoint = `${process.env.NODE_API_URL}/api/books?page=${currentPage}`;
+    let endpoint = `${API_BASE_URL}/api/books?page=${currentPage}`;
 
     // If there's a search query, append it to the endpoint
     if (search) {
@@ -83,7 +84,7 @@ const BookList = () => {
 
   const handleDeleteSelected = () => {
     axios
-      .delete(`${process.env.NODE_API_URL}/api/books/delete-multiple`, {
+      .delete(`${API_BASE_URL}/api/books/delete-multiple`, {
         data: { bookIds: selectedBookIds },
       })
       .then((response) => {
@@ -122,7 +123,7 @@ const BookList = () => {
   const handleDelete = async (bookId) => {
     try {
       const response = await axios.delete(
-        `${process.env.NODE_API_URL}/api/books/destroy/${bookId}`
+        `${API_BASE_URL}/api/books/destroy/${bookId}`
       );
 
       if (response.status === 200) {
