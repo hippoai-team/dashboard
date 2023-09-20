@@ -18,7 +18,7 @@ const SourceList = () => {
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const toastDuration = 2000; // 2 seconds
-  const API_BASE_URL = process.env.NODE_API_URL 
+  const API_BASE_URL = process.env.NODE_API_URL ||'https://express-vercel-demo-six.vercel.app';
 
 
   const [statusCounts, setStatusCounts] = useState({
