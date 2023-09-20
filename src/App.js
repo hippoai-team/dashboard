@@ -11,6 +11,7 @@ import PrivateRoute from './components/Routes/Private';
 
 function App() {
   return (
+    console.log(process.env.NODE_API_URL),
     <Router>
         <div className="wrapper">
 
