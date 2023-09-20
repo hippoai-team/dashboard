@@ -18,14 +18,14 @@ function EditSource() {
 
 
 
-  // Load book data when component mounts
+  // Load source data when component mounts
   useEffect(() => {
     const fetchSource = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/sources/${id}`);
         setFormData(response.data);
       } catch (error) {
-        toast.error('Error fetching book data: ' + error.message);
+        toast.error('Error fetching source data: ' + error.message);
       }
     };
 
@@ -51,12 +51,12 @@ function EditSource() {
           autoClose: toastDuration,
         });
 
-        // Navigate to books page after toast disappears
+        // Navigate to sources page after toast disappears
         setTimeout(() => {
-          navigate("/books");
+          navigate("/sources");
         }, toastDuration);
       } else {
-        toast.error("Failed to update book: " + response.data.error, {
+        toast.error("Failed to update source: " + response.data.error, {
           autoClose: toastDuration,
         });
       }
@@ -126,7 +126,7 @@ function EditSource() {
                             </select>
                         </div>
                         <button type="submit" className="btn btn-primary btn-block">Update</button>
-                        <a href="/books" className="btn btn-danger btn-block">
+                        <a href="/sources" className="btn btn-danger btn-block">
                             Cancel
                         </a>
                     </form>
