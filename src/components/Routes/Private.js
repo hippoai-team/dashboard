@@ -6,11 +6,14 @@ import Spinner from "../Spinner";
 
 export default function PrivateRoute() {
     const [auth, setAuth] = useAuth();
+    const API_BASE_URL = process.env.NODE_API_URL || 'https://express-vercel-demo-six.vercel.app';
+
+
     
     useEffect(() => {
         const authCheck = async () => {
             if (!auth.isAuthenticated) {
-                const res = await axios.get('${process.env.NODE_API_URL}/admin/user-auth');
+                const res = await axios.get('${API_BASE_URL}/admin/user-auth');
                 if(res.data.ok) {
                     setAuth(prevAuth => ({ ...prevAuth, isAuthenticated: true }));
                 } else {
