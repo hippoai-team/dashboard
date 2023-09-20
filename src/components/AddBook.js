@@ -26,6 +26,8 @@ function AddBook() {
     date_modified: "",
   });
 
+  const API_BASE_URL = process.env.NODE_API_URL || 'https://www.express-vercel-demo-six.vercel.app';
+
   const toastDuration = 2000; // 2 seconds or any duration you want
   const navigate = useNavigate();
 
@@ -42,7 +44,7 @@ function AddBook() {
     try {
       console.log("Sending formData:", formData);
       const response = await axios.post(
-        `${process.env.NODE_API_URL}/api/books/store`,
+        `${API_BASE_URL}/api/books/store`,
         formData
       );
 
