@@ -315,6 +315,9 @@ const SourceList = () => {
                         <th style={{ width: "50px" }}>
                           <input type="checkbox" id="select_all_ids" />
                         </th>
+                        <th style={{ width: "50px" }}>Edit</th>
+                        <th style={{ width: "50px" }}>Delete</th>
+                        <th style={{ width: "50px" }}>Process</th>
                         <th style={{ width: "100px" }}>Topic</th>
                         <th style={{ width: "100px" }}>Category</th>
                         <th style={{ width: "130px" }}>Subspeciality</th>
@@ -329,8 +332,7 @@ const SourceList = () => {
                         <th style={{ width: "100px" }}>Source Type</th>
                         <th style={{ width: "100px" }}>Date Added</th>
                         <th style={{ width: "100px" }}>Last Modified</th>
-                        <th style={{ width: "70px" }}>Edit</th>
-                        <th style={{ width: "70px" }}>Delete</th>
+                        
                       </tr>
                     </thead>
                     <tbody>
