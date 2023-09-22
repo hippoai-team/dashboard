@@ -111,11 +111,20 @@ function EditSource() {
                         </div>
                         <div className="form-group">
                             <label htmlFor="load_type">Load Type</label>
-                            <input type="text" name="load_type" className="form-control" value={formData.load_type} onChange={handleChange} />
+                            <select name="load_type" className="form-control" value={formData.load_type} onChange={handleChange}>
+                                <option value="">Select a load type</option>
+                                <option value="pdf">PDF (from disk or url)</option>
+                                <option value="web-pdf">Web PDF (drug monograph)</option>
+                                <option value='url'>Website</option>
+                            </select>
                         </div>
                         <div className="form-group">
                             <label htmlFor="patient_population">Patient Population</label>
-                            <input type="text" name="patient_population" className="form-control" value={formData.patient_population} onChange={handleChange} />
+                            <select name="patient_population" className="form-control" value={formData.patient_population} onChange={handleChange}>
+                                <option value="">Select a patient population</option>
+                                <option value="Adult">Adult</option>
+                                <option value="Pediatric">Pediatric</option>
+                            </select>
                         </div>
                         <div className="form-group">
                             <label htmlFor="source_type">Source Type</label>

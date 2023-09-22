@@ -66,8 +66,7 @@ function AddBook() {
         });
       }
     } catch (error) {
-      console.log("Error creating source: ", error);
-      toast.error("There was an exception: " + error.message, {
+      toast.error("There was an exception: " + error.response.data.error, {
         autoClose: toastDuration,
       });
     }
