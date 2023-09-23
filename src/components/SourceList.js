@@ -382,9 +382,8 @@ const SourceList = () => {
                           <td>{source.is_paid ? "Yes" : "No"}</td>
                           <td>{source.load_type}</td>
                           <td>{source.patient_population}</td>
-                          <td><a href={source.source}>{source.source}</a></td>
+                          <td><a href={source.source} target='_blank'>{source.source}</a></td>
                           <td>{source.source_type}</td>
-+                          <td><a href={source.source} target="_blank" rel="noopener noreferrer">Open in new tab</a></td>
                           <td>
                             {source.date_added
                               ? new Date(source.date_added).toLocaleDateString()
