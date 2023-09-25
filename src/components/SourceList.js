@@ -204,7 +204,7 @@ const SourceList = () => {
       sourceList += source.source + ',';
     });
     navigator.clipboard.writeText(sourceList);
-  
+  }
 
   return (
     <Layout>
