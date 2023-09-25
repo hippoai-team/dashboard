@@ -99,6 +99,7 @@ const SourceList = () => {
     } else {
       setSelectedSourceIds([]);
     }
+  };
 
   const handleDeleteSelected = () => {
     axios
