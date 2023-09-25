@@ -71,7 +71,7 @@ const SourceList = () => {
   // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
     fetchSources();
-  }, [currentPage, search, sourceTypeFilter]);
+  }, [currentPage, search, sourceTypeFilter, perPage]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
