@@ -279,7 +279,7 @@ const SourceList = () => {
                         <li>Failed Index: {statusCounts.failed_index}</li>
                         <li>Failed Download: {statusCounts.failed_download}</li>
                         <li>Failed Load: {statusCounts.failed_load}</li>
-                        <li>New: {statusCounts.New}</li>
+                        <li>New: {statusCounts.new}</li>
                       </ul>
                     </div>
                   </div>
