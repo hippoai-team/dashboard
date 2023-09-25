@@ -92,6 +92,14 @@ const SourceList = () => {
     }
   };
 
+  const handleAllCheckboxChange = (event) => {
+    if (event.target.checked) {
+      const allSourceIds = sources.map((source) => source._id);
+      setSelectedSourceIds(allSourceIds);
+    } else {
+      setSelectedSourceIds([]);
+    }
+
   const handleDeleteSelected = () => {
     axios
       .delete(`${API_BASE_URL}/api/sources/delete-multiple`, {
@@ -368,7 +376,10 @@ const SourceList = () => {
                     <thead>
                       <tr className="table-active">
                         <th style={{ width: "50px" }}>
-                          <input type="checkbox" id="select_all_ids" />
+                          <input type="checkbox" id="select_all_ids" 
+                          onChange={handleAllCheckboxChange}
+                          checked={selectedSourceIds.length === sources.length}
+                          />
                         </th>
                         <th style={{ width: "70px" }}>Edit</th>
                         <th style={{ width: "70px" }}>Delete</th>
