@@ -348,21 +348,22 @@ const SourceList = () => {
                         <th style={{ width: "70px" }}>Edit</th>
                         <th style={{ width: "70px" }}>Delete</th>
                         <th style={{ width: "70px" }}>Run</th>
-                        <th style={{ width: "100px" }}>Topic</th>
-                        <th style={{ width: "100px" }}>Category</th>
-                        <th style={{ width: "130px" }}>Subspeciality</th>
                         <th style={{ width: "210px" }}>Title</th>
                         <th style={{ width: "200px" }}>Publisher</th>
-                        <th style={{ width: "100px" }}>Year</th>
-                        <th style={{ width: "100px" }}>Status</th>
-                        <th style={{ width: "80px" }}>is_paid</th>
-                        <th style={{ width: "100px" }}>Load type</th>
-                        <th style={{ width: "110px" }}>Patient Population</th>
                         <th style={{ width: "150px" }}>Source
                         
                         <button className='fas fa-copy' onClick={() => handleCopy()}>
                           
                           </button></th>
+                        <th style={{ width: "100px" }}>Status</th>
+                        <th style={{ width: "100px" }}>Year</th>
+                        <th style={{ width: "100px" }}>Topic</th>
+                        <th style={{ width: "100px" }}>Category</th>
+                        <th style={{ width: "130px" }}>Subspeciality</th>
+                        <th style={{ width: "80px" }}>is_paid</th>
+                        <th style={{ width: "100px" }}>Load type</th>
+                        <th style={{ width: "110px" }}>Patient Population</th>
+                       
                         <th style={{ width: "100px" }}>Source Type</th>
                         <th style={{ width: "100px" }}>Date Added</th>
                         <th style={{ width: "100px" }}>Last Modified</th>
@@ -406,17 +407,17 @@ const SourceList = () => {
                             <i className="fas fa-sync"></i>
                           </button>
                           </td>
+                          <td>{source.title}</td>
+                          <td>{source.publisher}</td>
+                          <td><a href={source.source} target='_blank'>{source.source}</a></td>
+                          <td>{source.status}</td>
+                          <td>{source.year}</td>
                           <td>{source.topic}</td>
                           <td>{source.category}</td>
                           <td>{source.subspecialty}</td>
-                          <td>{source.title}</td>
-                          <td>{source.publisher}</td>
-                          <td>{source.year}</td>
-                          <td>{source.status}</td>
                           <td>{source.is_paid ? "Yes" : "No"}</td>
                           <td>{source.load_type}</td>
                           <td>{source.patient_population}</td>
-                          <td><a href={source.source} target='_blank'>{source.source}</a></td>
                           <td>{source.source_type}</td>
                           <td>
                             {source.date_added
