@@ -14,6 +14,7 @@ const SourceList = () => {
   const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
   const [perPage, setPerPage] = useState(10); // Initialize perPage state
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("");
   const [totalSources, setTotalSources] = useState(0); // Initialize totalSources state
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
@@ -46,6 +47,10 @@ const SourceList = () => {
       endpoint += `&perPage=${perPage}`;
     }
 
+    if (statusFilter) {
+      endpoint += `&status=${statusFilter}`;
+    }
+
     try {
       // Make a GET request to the endpoint using async/await
       const response = await axios.get(endpoint);
@@ -71,7 +76,7 @@ const SourceList = () => {
   // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
     fetchSources();
-  }, [currentPage, search, sourceTypeFilter, perPage]);
+  }, [currentPage, search, sourceTypeFilter, perPage, statusFilter]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -268,6 +273,26 @@ const SourceList = () => {
                       </div>
                     </form>
                   </div>
+                  <div className="col-4">
+                    <form onSubmit={(e) => e.preventDefault()}>
+                      <div className="form-group">
+                        <select
+                          name="status_filter"
+                          className="form-control"
+                          value={statusFilter}
+                          onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                          <option value="">Status Filter</option>
+                          <option value="indexed">Indexed</option>
+                          <option value="failed_index">Failed Index</option>
+                          <option value="failed_download">Failed Download</option>
+                          <option value="failed_load">Failed Load</option>
+                          <option value="new">New</option>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                  
                   <div className="col-4">
                     <form onSubmit={(e) => e.preventDefault()}>
                       <div className="form-group">
