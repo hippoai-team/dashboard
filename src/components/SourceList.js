@@ -12,7 +12,7 @@ const SourceList = () => {
   const [sources, setSources] = useState([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
-
+  const [perPage, setPerPage] = useState(10); // Initialize perPage state
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
   const [totalSources, setTotalSources] = useState(0); // Initialize totalSources state
   const [allSourceTypes, setAllSourceTypes] = useState([]);
@@ -40,6 +40,10 @@ const SourceList = () => {
 
     if (sourceTypeFilter) {
       endpoint += `&source_type=${sourceTypeFilter}`;
+    }
+
+    if (perPage) {
+      endpoint += `&perPage=${perPage}`;
     }
 
     try {
@@ -264,6 +268,24 @@ const SourceList = () => {
                       </div>
                     </form>
                   </div>
+                  <div className="col-4">
+                    <form onSubmit={(e) => e.preventDefault()}>
+                      <div className="form-group">
+                        <select
+                          name="per_page"
+                          className="form-control"
+                          value={perPage}
+                          onChange={(e) => setPerPage(e.target.value)}
+                        >
+                          <option value="10">10 per page</option>
+                          <option value="20">20 per page</option>
+                          <option value="50">50 per page</option>
+                          <option value="100">100 per page</option>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                  
 
                   <div className="col-2"></div>
 
