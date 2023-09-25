@@ -196,6 +196,14 @@ const SourceList = () => {
         console.error("Error starting selected source processing:", error);
       });
   };
+
+  const handleCopy = () => {
+    //copy all the sources .source fields to clipboard in a comma separated list
+    let sourceList = '';
+    sources.forEach(source => {
+      sourceList += source.source + ',';
+    });
+    navigator.clipboard.writeText(sourceList);
   
 
   return (
@@ -328,7 +336,11 @@ const SourceList = () => {
                         <th style={{ width: "80px" }}>is_paid</th>
                         <th style={{ width: "100px" }}>Load type</th>
                         <th style={{ width: "110px" }}>Patient Population</th>
-                        <th style={{ width: "150px" }}>Source</th>
+                        <th style={{ width: "150px" }}>Source
+                        
+                        <button className='fas fa-copy' onClick={() => handleCopy()}>
+                          
+                          </button></th>
                         <th style={{ width: "100px" }}>Source Type</th>
                         <th style={{ width: "100px" }}>Date Added</th>
                         <th style={{ width: "100px" }}>Last Modified</th>
