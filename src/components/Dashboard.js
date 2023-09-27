@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Layout from './Layout';
-
+import { Link } from 'react-router-dom';
 export default class Dashboard extends Component {
     render() {
         return (
@@ -21,7 +21,7 @@ export default class Dashboard extends Component {
                           </div>
                         </div>
                         <div className="card-footer d-flex align-items-center justify-content-end">
-                          <a className="small m-2 text-white stretched-link" href="/sources">View sources</a>
+                          <Link className="small m-2 text-white stretched-link" to="/sources">View sources</Link>
                           <div className="small text-white">
                             <i className="fas fa-angle-right" />
                           </div>
