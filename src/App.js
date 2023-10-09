@@ -31,6 +31,10 @@ function App() {
                   <Route path='' element={<SourceList />} />
                 </Route>
 
+                <Route path="/betalist" element={<PrivateRoute />} >
+                  <Route path='' element={<BetaList />} />
+                </Route>
+
                 <Route path="/sources/add" element={<PrivateRoute />} >
                   <Route path='' element={<AddSource />} />
                 </Route>

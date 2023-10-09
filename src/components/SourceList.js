@@ -385,6 +385,7 @@ const SourceList = () => {
                         <th style={{ width: "70px" }}>Edit</th>
                         <th style={{ width: "70px" }}>Delete</th>
                         <th style={{ width: "70px" }}>Run</th>
+                        <th style={{ width: "100px" }}>ID</th>
                         <th style={{ width: "210px" }}>Title</th>
                         <th style={{ width: "200px" }}>Publisher</th>
                         <th style={{ width: "150px" }}>Source
@@ -444,6 +445,7 @@ const SourceList = () => {
                             <i className="fas fa-sync"></i>
                           </button>
                           </td>
+                          <td>{source._id}</td>
                           <td>{source.title}</td>
                           <td>{source.publisher}</td>
                           <td><a href={source.source} target='_blank'>{source.source}</a></td>

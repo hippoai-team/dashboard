@@ -36,6 +36,12 @@ const Sidebar = () => {
               <p>Sources</p>
             </Link>
           </li>
+          <li className="nav-item">
+            <Link to="/betalist" className="nav-link">
+              <i className="nav-icon fas fa-source"></i>
+              <p>Beta List</p>
+            </Link>
+          </li>
           </ul>
         </nav>
         {/* /.sidebar-menu */}

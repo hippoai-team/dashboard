@@ -27,6 +27,24 @@ export default class Dashboard extends Component {
                           </div>
                         </div>
                       </div>
+                      <div className="card bg-primary text-white mb-3">
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div className="mr-3">
+                              <div className="text-lg font-weight-bold">
+                                Beta List
+                              </div>
+                            </div>
+                            <i className="fa fa-source" />
+                          </div>
+                        </div>
+                        <div className="card-footer d-flex align-items-center justify-content-end">
+                          <Link className="small m-2 text-white stretched-link" to="/betalist">View Betalist</Link>
+                          <div className="small text-white">
+                            <i className="fas fa-angle-right" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
               </section>
@@ -36,3 +54,4 @@ export default class Dashboard extends Component {
         )
     }
 }
+
