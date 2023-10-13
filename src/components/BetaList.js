@@ -1,4 +1,4 @@
-// src/components/SourceList.js
+// src/components/UserList.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -14,11 +14,11 @@ const BetaList = () => {
     const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
     const [perPage, setPerPage] = useState(10); // Initialize perPage state
     const [selectedIds, setSelectedIds] = useState([]);
-    const [totalIds, setTotalIds] = useState(0); // Initialize totalSources state
+    const [totalIds, setTotalIds] = useState(0); // Initialize totalUsers state
     const toastDuration = 1000; // 2 seconds
     const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
     
-    const fetchSources = async () => {
+    const fetchUsers = async () => {
         // Base endpoint
         let endpoint = `${API_BASE_URL}/api/betalist?page=${currentPage}`;
     
@@ -43,18 +43,18 @@ const BetaList = () => {
           // Destructure the response data
         const { data, totalIds } = response.data;
     
-          // Use the response data to update sources state
+          // Use the response data to update users state
           setIds(data);
           setTotalIds(totalIds);
 
         } catch (error) {
-          console.error("Error fetching sources:", error);
+          console.error("Error fetching users:", error);
         }
       };
     
-      // useEffect for fetching sources on initial load and when currentPage changes
+      // useEffect for fetching users on initial load and when currentPage changes
       useEffect(() => {
-        fetchSources();
+        fetchUsers();
       }, [currentPage, search, perPage, statusFilter]);
   
 
@@ -66,7 +66,7 @@ const BetaList = () => {
                 {/* Your code for filters and statistics */}
                 <div className="card">
                   <div className="card-header">
-                    <h1>Sources</h1>
+                    <h1>Users</h1>
                   </div>
                   <div className="card-body mt-4">
                     <div className="row">
@@ -95,42 +95,17 @@ const BetaList = () => {
                         <form onSubmit={(e) => e.preventDefault()}>
                           <div className="form-group">
                             <select
-                              name="source_type"
-                              className="form-control"
-                              value={sourceTypeFilter}
-                              onChange={(e) => setSourceTypeFilter(e.target.value)}
-                            >
-                              <option value="">Source Types</option>
-                              {allSourceTypes.map((type) => (
-                                <option key={type} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </select>
-                            {/* <button 
-                                  className="btn btn-primary mt-2 rounded-pill"
-                                  onClick={fetchSources}
-                              >
-                                  Filter by Source Type
-                              </button> */}
-                          </div>
-                        </form>
-                      </div>
-                      <div className="col-4">
-                        <form onSubmit={(e) => e.preventDefault()}>
-                          <div className="form-group">
-                            <select
                               name="status_filter"
                               className="form-control"
                               value={statusFilter}
                               onChange={(e) => setStatusFilter(e.target.value)}
                             >
                               <option value="">Status Filter</option>
-                              <option value="indexed">Indexed</option>
-                              <option value="failed_index">Failed Index</option>
-                              <option value="failed_download">Failed Download</option>
-                              <option value="failed_load">Failed Load</option>
-                              <option value="new">New</option>
+                              <option value="signed_up">Signed Up</option>
+                              <option value="logged_in">Logged In</option>
+                              <option value="used">Used Hippo</option>
+                              <option value="not_used">Not Used Hippo</option>
+                              <option value="not_signed_up">Never signed up</option>
                             </select>
                           </div>
                         </form>
@@ -159,10 +134,10 @@ const BetaList = () => {
     
                       <div className="col-2">
                         <Link
-                          to="/sources/add"
+                          to="/users/add"
                           className="btn btn-primary btn-lg rounded-pill"
                         >
-                          <i className="fas fa-plus mr-2"></i>Add Source
+                          <i className="fas fa-plus mr-2"></i>Add User
                         </Link>
                       </div>
                     </div>
@@ -171,13 +146,13 @@ const BetaList = () => {
                       <div className="row">
                         <div className="col">
                           <h3>Statistics</h3>
-                          <p>Total number of sources = {totalSources}</p>
+                          <p>Total number of beta testers = {totalUsers}</p>
                           <ul>
-                            <li>Indexed: {statusCounts.indexed}</li>
-                            <li>Failed Index: {statusCounts.failed_index}</li>
-                            <li>Failed Download: {statusCounts.failed_download}</li>
-                            <li>Failed Load: {statusCounts.failed_load}</li>
-                            <li>New: {statusCounts.new}</li>
+                            <li>Signed Up: {statusCounts.signed_up}</li>
+                            <li>Logged in: {statusCounts.logged_in}</li>
+                            <li>Used Hippo: {statusCounts.used_hippo}</li>
+                            <li>Never used Hippo: {statusCounts.never_used_hippo}</li>
+                            <li>Never Signed up: {statusCounts.never_signed_up}</li>
                           </ul>
                         </div>
                       </div>
@@ -188,17 +163,11 @@ const BetaList = () => {
                         <button
                           className="btn btn-dark mb-2"
                           onClick={handleDeleteSelected}
-                          disabled={selectedSourceIds.length === 0}
+                          disabled={selectedUserIds.length === 0}
                         >
                           Delete Selected
                         </button>
-                        <button
-                          className="btn btn-dark mb-2"
-                          onClick={handleProcessSelected}
-                          disabled={selectedIds.length === 0}
-                        >
-                          Process Selected
-                        </button>
+                        
                       </div>
                     </div>
     
@@ -232,7 +201,7 @@ const BetaList = () => {
                                   name={`ids[${entry._id}]`}
                                   className="checkbox_ids"
                                   value={entry._id}
-                                  checked={selectedSourceIds.includes(entry._id)}
+                                  checked={selectedUserIds.includes(entry._id)}
                                   onChange={(e) => handleCheckboxChange(e, entry._id)}
                                 />
                               </td>
@@ -276,7 +245,7 @@ const BetaList = () => {
                         <button
                           className="btn btn-dark mb-2 ml-2"
                           onClick={handleNextPage}
-                          disabled={sources.length < 5} // Disable if there are no more pages
+                          disabled={users.length < 5} // Disable if there are no more pages
                         >
                           Next
                         </button>

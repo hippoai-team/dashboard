@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SourceList from './components/SourceList';
+import BetaList from './components/BetaList';
 import AddSource from './components/AddSource';
 import EditSource from './components/EditSource';
 import Dashboard from './components/Dashboard';
@@ -31,6 +32,9 @@ function App() {
                   <Route path='' element={<SourceList />} />
                 </Route>
 
+                <Route path="/betalist" element={<PrivateRoute />} >
+                  <Route path='' element={<BetaList />} />
+                </Route>
 
                 <Route path="/sources/add" element={<PrivateRoute />} >
                   <Route path='' element={<AddSource />} />
