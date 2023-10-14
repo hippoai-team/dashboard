@@ -292,6 +292,7 @@ const BetaList = () => {
                             <th style={{ width: "10px" }}>Delete</th>
                             <th style={{ width: "70px" }}>Email</th>
                             <th style={{ width: "70px" }}>Status</th>
+                            <th style={{ width: "70px" }}>Usage</th>
                             
                           </tr>
                         </thead>
@@ -328,6 +329,7 @@ const BetaList = () => {
                               
                                 <td>{user.email}</td>
                                 <td>{user.status}</td>
+                                <td>{user.usage}</td>
                              
                             </tr>
                           ))}
