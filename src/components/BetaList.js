@@ -19,7 +19,6 @@ const BetaList = () => {
     const [statusFilter, setStatusFilter] = useState("");
     const [statusCounts, setStatusCounts] = useState({
       signed_up: 0,
-      logged_in: 0,
       used_hippo: 0,
       never_used_hippo: 0,
       never_signed_up: 0,
@@ -205,7 +204,6 @@ const BetaList = () => {
                             >
                               <option value="">Status Filter</option>
                               <option value="signed_up">Signed Up</option>
-                              <option value="logged_in">Logged In</option>
                               <option value="used">Used Hippo</option>
                               <option value="not_used">Not Used Hippo</option>
                               <option value="not_signed_up">Never signed up</option>
@@ -252,7 +250,6 @@ const BetaList = () => {
                           <p>Total number of beta testers = {totalUsers}</p>
                           <ul>
                             <li>Signed Up: {statusCounts.signed_up}</li>
-                            <li>Logged in: {statusCounts.logged_in}</li>
                             <li>Used Hippo: {statusCounts.used_hippo}</li>
                             <li>Never used Hippo: {statusCounts.never_used_hippo}</li>
                             <li>Never Signed up: {statusCounts.never_signed_up}</li>
