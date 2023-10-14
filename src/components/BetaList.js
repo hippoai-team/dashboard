@@ -160,6 +160,32 @@ const BetaList = () => {
         }
       };
 
+      const handleInvite = async (userId) => {
+        try {
+          const response = await axios.post(
+            `${API_BASE_URL}/api/betalist/emailInviteToUser/${userId}`
+          );
+    
+          if (response.status === 200) {
+            // Display success toast
+            toast.success("User successfully invited!", {
+              autoClose: toastDuration,
+            });
+    
+            // Refresh the list after the toast disappears
+            setTimeout(() => {
+              fetchUsers();
+            }, toastDuration);
+          } else {
+            console.error("Failed to invite user:", response.data);
+          }
+        } catch (error) {
+          // Display error toast
+          toast.error("Error inviting the user!", { autoClose: toastDuration });
+          console.error("Error inviting the user:", error);
+        }
+      }
+
       return (
         <Layout>
           <div className="">
@@ -287,6 +313,7 @@ const BetaList = () => {
                             </th>
                             <th style={{ width: "10px" }}>Edit</th>
                             <th style={{ width: "10px" }}>Delete</th>
+                            <th style={{ width: "10px" }}>Invite</th>
                             <th style={{ width: "70px" }}>Email</th>
                             <th style={{ width: "70px" }}>Status</th>
                             <th style={{ width: "70px" }}>Usage</th>
@@ -322,6 +349,12 @@ const BetaList = () => {
                                   <i className="fas fa-trash"></i>
                                 </button>
                               </td>
+                              <button
+                                onClick={() => handleInvite(user._id)}
+                                className="btn"
+                              >
+                                <i className="fas fa-envelope"></i>
+                              </button>
 
                               
                                 <td>{user.email}</td>
