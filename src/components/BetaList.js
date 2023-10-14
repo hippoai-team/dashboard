@@ -21,7 +21,7 @@ const BetaList = () => {
       signed_up: 0,
       used_hippo: 0,
       never_used_hippo: 0,
-      never_signed_up: 0,
+      not_signed_up: 0,
     });
     const [totalUsers, setTotalUsers] = useState(0);
     const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -321,7 +321,7 @@ const BetaList = () => {
                             <li>Signed Up: {statusCounts.signed_up}</li>
                             <li>Used Hippo: {statusCounts.used_hippo}</li>
                             <li>Never used Hippo: {statusCounts.never_used_hippo}</li>
-                            <li>Never Signed up: {statusCounts.never_signed_up}</li>
+                            <li>Never Signed up: {statusCounts.not_signed_up}</li>
                           </ul>
                         </div>
                       </div>
