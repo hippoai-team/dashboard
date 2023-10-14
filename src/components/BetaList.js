@@ -1,7 +1,7 @@
 // src/components/UserList.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useRevalidator } from "react-router-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,7 +16,23 @@ const BetaList = () => {
     const [selectedIds, setSelectedIds] = useState([]);
     const [totalIds, setTotalIds] = useState(0); // Initialize totalUsers state
     const toastDuration = 1000; // 2 seconds
-    const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
+    const [statusFilter, setStatusFilter] = useState("");
+    const [statusCounts, setStatusCounts] = useState({
+      signed_up: 0,
+      logged_in: 0,
+      used_hippo: 0,
+      never_used_hippo: 0,
+      never_signed_up: 0,
+    });
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [selectedUserIds, setSelectedUserIds] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [user, setUser] = useState({
+        email: "",
+        status: "",
+      });
+
+    const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
     
     const fetchUsers = async () => {
         // Base endpoint
@@ -41,11 +57,12 @@ const BetaList = () => {
           const response = await axios.get(endpoint);
     
           // Destructure the response data
-        const { data, totalIds } = response.data;
-    
+        const { totalBetaUsers, statusCounts, betaUsers } = response.data;
+          console.log('betaUsers',betaUsers);
           // Use the response data to update users state
-          setIds(data);
-          setTotalIds(totalIds);
+          setTotalUsers(totalBetaUsers);
+          setStatusCounts(statusCounts);
+          setUsers(betaUsers);
 
         } catch (error) {
           console.error("Error fetching users:", error);
@@ -56,7 +73,93 @@ const BetaList = () => {
       useEffect(() => {
         fetchUsers();
       }, [currentPage, search, perPage, statusFilter]);
-  
+      
+      const handleSearchChange = (e) => {
+        setSearch(e.target.value);
+      };
+    
+      const handleCheckboxChange = (event, userId) => {
+        if (event.target.checked) {
+          setSelectedUserIds((prevSelected) => [...prevSelected, userId]);
+        } else {
+          setSelectedUserIds((prevSelected) =>
+            prevSelected.filter((id) => id !== userId)
+          );
+        }
+      };
+    
+      const handleAllCheckboxChange = (event) => {
+        if (event.target.checked) {
+          const allUserIds = users.map((user) => user._id);
+          setSelectedUserIds(allUserIds);
+        } else {
+          setSelectedUserIds([]);
+        }
+      };
+    
+      const handleDeleteSelected = () => {
+        axios
+          .delete(`${API_BASE_URL}/api/users/delete-multiple`, {
+            data: { userIds: selectedUserIds },
+          })
+          .then((response) => {
+            // Display success toast
+            toast.success("Selected users deleted successfully!", {
+              autoClose: toastDuration,
+            });
+    
+            // Refresh the list after the toast disappears
+            setTimeout(() => {
+              fetchUsers();
+              setSelectedUserIds([]); // Clear the selectedUserIds state
+            }, toastDuration);
+          })
+          .catch((error) => {
+            // Display error toast
+            toast.error("Error deleting selected users!", {
+              autoClose: toastDuration,
+            });
+            console.error("Error deleting selected users:", error);
+          });
+      };
+    
+      // Function to handle clicking the "Next" button
+      const handleNextPage = () => {
+        setCurrentPage(currentPage + 1);
+      };
+    
+      // Function to handle clicking the "Previous" button
+      const handlePreviousPage = () => {
+        if (currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
+      };
+    
+      const handleDelete = async (userId) => {
+        try {
+          const response = await axios.delete(
+            `${API_BASE_URL}/api/betalist/destroy/${userId}`
+          );
+    
+          if (response.status === 200) {
+            // Display success toast
+            toast.success("User successfully deleted!", {
+              autoClose: toastDuration,
+            });
+    
+            // Refresh the list after the toast disappears
+            setTimeout(() => {
+              fetchUsers();
+            }, toastDuration);
+          } else {
+            console.error("Failed to delete user:", response.data);
+          }
+        } catch (error) {
+          // Display error toast
+          toast.error("Error deleting the user!", { autoClose: toastDuration });
+          console.error("Error deleting the user:", error);
+        }
+      };
 
       return (
         <Layout>
@@ -134,7 +237,7 @@ const BetaList = () => {
     
                       <div className="col-2">
                         <Link
-                          to="/users/add"
+                          to="/betalist/add"
                           className="btn btn-primary btn-lg rounded-pill"
                         >
                           <i className="fas fa-plus mr-2"></i>Add User
@@ -179,35 +282,35 @@ const BetaList = () => {
                       >
                         <thead>
                           <tr className="table-active">
-                            <th style={{ width: "50px" }}>
+                            <th style={{ width: "10px" }}>
                               <input type="checkbox" id="select_all_ids" 
                               onChange={handleAllCheckboxChange}
-                              checked={selectedIds.length === entries.length}
+                              checked={selectedIds.length === users.length}
                               />
                             </th>
-                            <th style={{ width: "70px" }}>Edit</th>
-                            <th style={{ width: "70px" }}>Delete</th>
+                            <th style={{ width: "10px" }}>Edit</th>
+                            <th style={{ width: "10px" }}>Delete</th>
                             <th style={{ width: "70px" }}>Email</th>
                             <th style={{ width: "70px" }}>Status</th>
                             
                           </tr>
                         </thead>
                         <tbody>
-                          {entries.map((entry) => (
-                            <tr key={entry._id}>
+                          {users.map((user) => (
+                            <tr key={user._id}>
                               <td>
                                 <input
                                   type="checkbox"
-                                  name={`ids[${entry._id}]`}
+                                  name={`ids[${user._id}]`}
                                   className="checkbox_ids"
-                                  value={entry._id}
-                                  checked={selectedUserIds.includes(entry._id)}
-                                  onChange={(e) => handleCheckboxChange(e, entry._id)}
+                                  value={user._id}
+                                  checked={selectedUserIds.includes(user._id)}
+                                  onChange={(e) => handleCheckboxChange(e, user._id)}
                                 />
                               </td>
                               <td>
                                 <Link
-                                  to={`/betalist/edit/${entry._id}`}
+                                  to={`/betalist/edit/${user._id}`}
                                   className="btn btn-success"
                                 >
                                   <i className="fas fa-pencil-alt"></i>
@@ -215,16 +318,16 @@ const BetaList = () => {
                               </td>
                               <td>
                                 <button
-                                  onClick={() => handleDelete(entry._id)}
+                                  onClick={() => handleDelete(user._id)}
                                   className="btn btn-danger"
                                 >
                                   <i className="fas fa-trash"></i>
                                 </button>
                               </td>
+
                               
-                              
-                                <td>{entry.email}</td>
-                                <td>{entry.status}</td>
+                                <td>{user.email}</td>
+                                <td>{user.status}</td>
                              
                             </tr>
                           ))}

@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SourceList from './components/SourceList';
 import BetaList from './components/BetaList';
 import AddSource from './components/AddSource';
+import AddUser from './components/AddUser';
 import EditSource from './components/EditSource';
+import EditUser from './components/EditUser';
 import Dashboard from './components/Dashboard';
 import { ToastContainer } from 'react-toastify';
 import Login from './Auth/Login';
@@ -40,8 +42,16 @@ function App() {
                   <Route path='' element={<AddSource />} />
                 </Route>
 
+                <Route path="/betalist/add" element={<PrivateRoute />} >
+                  <Route path='' element={<AddUser />} />
+                </Route>
+
                 <Route path="/sources/edit/:id" element={<PrivateRoute />} >
                   <Route path='' element={<EditSource />} />
+                </Route>
+
+                <Route path="/betalist/edit/:id" element={<PrivateRoute />} >
+                  <Route path='' element={<EditUser />} />
                 </Route>
 
 
