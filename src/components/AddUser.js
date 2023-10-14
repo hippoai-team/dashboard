@@ -88,6 +88,17 @@ function AddUser() {
                   onChange={handleChange}
                 />
               </div>
+              <div className="profession">
+                <label htmlFor="profession">Profession</label>
+                <select name="profession" className="form-control" onChange={handleChange}>
+                  <option value="family_physician">Family Physiican</option>
+                  <option value="specialist_physician">Specialist Physician</option>
+                  <option value="medical_student">Medical Student</option>
+                    <option value="resident">Resident</option>
+                    <option value="nurse">Nurse Practiotioner/RN</option>
+                </select>
+              </div>
+
               <br></br>
             
 

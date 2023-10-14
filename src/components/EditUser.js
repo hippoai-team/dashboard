@@ -81,6 +81,16 @@ function EditUser() {
                             <label htmlFor="email">Email</label>
                             <input type="text" name="email" className="form-control" value={formData.email} onChange={handleChange} />
                         </div>
+                        <div className="profession">
+                <label htmlFor="profession">Profession</label>
+                <select name="profession" className="form-control" onChange={handleChange}>
+                  <option value="family_physician">Family Physiican</option>
+                  <option value="specialist_physician">Specialist Physician</option>
+                  <option value="medical_student">Medical Student</option>
+                    <option value="resident">Resident</option>
+                    <option value="nurse">Nurse Practiotioner/RN</option>
+                </select>
+              </div>
                         <button type="submit" className="btn btn-primary btn-block">Update</button>
                         <a href="/sources" className="btn btn-danger btn-block">
                             Cancel

@@ -98,7 +98,10 @@ const BetaList = () => {
     
       const handleDeleteSelected = () => {
         axios
-          .delete(`${API_BASE_URL}/api/users/delete-multiple`, {
+          .delete(`${API_BASE_URL}/api/betalist/delete-multiple`, {
+            headers: {
+              "Content-Type": "application/json",
+            },
             data: { userIds: selectedUserIds },
           })
           .then((response) => {
@@ -360,6 +363,7 @@ const BetaList = () => {
                             <th style={{ width: "10px" }}>Edit</th>
                             <th style={{ width: "10px" }}>Delete</th>
                             <th style={{ width: "10px" }}>Invite</th>
+                            <th style={{ width: "70px" }}>Name</th>
                             <th style={{ width: "70px" }}>Email</th>
                             <th style={{ width: "70px" }}>Status</th>
                             <th style={{ width: "70px" }}>Usage</th>
@@ -415,7 +419,7 @@ const BetaList = () => {
                                 </td>
                               )}
 
-                              
+                                <td>{user.name}</td>
                                 <td>{user.email}</td>
                                 <td>{user.status}</td>
                                 <td>{user.usage}</td>
