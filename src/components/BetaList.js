@@ -121,6 +121,38 @@ const BetaList = () => {
             console.error("Error deleting selected users:", error);
           });
       };
+
+      const handleInviteSelected = () => {
+        axios
+          .post(`${API_BASE_URL}/api/betalist/emailInviteToUsers`, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            data: { userIds: selectedUserIds },
+          })
+          .then((response) => {
+            // Display message from the server
+            console.log('response',response);
+            toast.success('Successfully added selected users', {
+              autoClose: toastDuration,
+            });
+
+            // Refresh the list after the toast disappears
+            setTimeout(() => {
+              fetchUsers();
+              setSelectedUserIds([]); // Clear the selectedUserIds state
+            }, toastDuration);
+          })
+          .catch((error) => {
+            // Display error toast
+            toast.error("Error inviting selected users!", {
+              autoClose: toastDuration,
+            });
+            console.error("Error inviting selected users:", error);
+          });
+      };
+
     
       // Function to handle clicking the "Next" button
       const handleNextPage = () => {
@@ -160,14 +192,22 @@ const BetaList = () => {
         }
       };
 
-      const handleInvite = async (userId) => {
+      const handleInvite = async (email,resend) => {
+        if (resend) {
+          //ask for confirmation
+          if (!window.confirm("Are you sure you want to resend the invite?")) {
+            return;
+          }
+        }
+        
         try {
           const response = await axios.post(
-            `${API_BASE_URL}/api/betalist/emailInviteToUser/${userId}`
+            `${API_BASE_URL}/api/betalist/emailInviteToUser/${email}`
           );
     
           if (response.status === 200) {
             // Display success toast
+            console.log('response',response);
             toast.success("User successfully invited!", {
               autoClose: toastDuration,
             });
@@ -287,13 +327,19 @@ const BetaList = () => {
                     <div className="row">
                       <div className="col">
                         <button
-                          className="btn btn-dark mb-2"
+                          className="btn btn-dark mb-2 mr-1"
                           onClick={handleDeleteSelected}
                           disabled={selectedUserIds.length === 0}
                         >
                           Delete Selected
                         </button>
-                        
+                        <button
+                          className="btn btn-dark mb-2 ml-1"
+                          onClick={handleInviteSelected}
+                          disabled={selectedUserIds.length === 0}
+                        >
+                          Invite Selected
+                        </button>
                       </div>
                     </div>
     
@@ -349,12 +395,25 @@ const BetaList = () => {
                                   <i className="fas fa-trash"></i>
                                 </button>
                               </td>
-                              <button
-                                onClick={() => handleInvite(user._id)}
-                                className="btn"
-                              >
-                                <i className="fas fa-envelope"></i>
-                              </button>
+                              {user.invite_sent ? (
+                                <td>
+                                  <button
+                                    onClick={() => handleInvite(user.email,true)}
+                                    className="btn"
+                                  >
+                                    <i className="fas fa-check"></i>
+                                  </button>
+                                </td>
+                              ) : (
+                                <td>
+                                  <button
+                                    onClick={() => handleInvite(user.email,false)}
+                                    className="btn"
+                                  >
+                                    <i className="fas fa-envelope"></i>
+                                  </button>
+                                </td>
+                              )}
 
                               
                                 <td>{user.email}</td>
