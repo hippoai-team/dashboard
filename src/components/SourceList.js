@@ -20,8 +20,8 @@ const SourceList = () => {
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const [processLoading, setProcessLoading] = useState(false);
   const toastDuration = 2000; // 2 seconds
-  
-  const API_BASE_URL = process.env.NODE_API_URL ||'http://localhost:8080';
+
+  const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
 
   const [statusCounts, setStatusCounts] = useState({
