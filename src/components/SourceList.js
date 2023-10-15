@@ -18,7 +18,8 @@ const SourceList = () => {
   const [totalSources, setTotalSources] = useState(0); // Initialize totalSources state
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
-  const toastDuration = 1000; // 2 seconds
+  const [processLoading, setProcessLoading] = useState(false);
+  const toastDuration = 2000; // 2 seconds
   const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
 
@@ -166,22 +167,29 @@ const SourceList = () => {
   };
 
   const handleProcess = async (sourceId) => {
+    setProcessLoading(true);
+    setSelectedSourceIds([sourceId]);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/sources/process/${sourceId}`);
       if (response.status === 200) {
-        // Display success toast
-        toast.success("Source processing started successfully!", {
-          autoClose: toastDuration,
+        //get data from response
+        //get the status from the response, its in the data object and the key is the sourceId
+        setProcessLoading(false);
+        const status = response.data[sourceId];
+        toast.success(`Source ${response.data.title} status: ${status}`, {
+          autoClose: toastDuration+1000,
         });
         // Refresh the list after the toast disappears
         setTimeout(() => {
           fetchSources();
+          setSelectedSourceIds([]); // Clear the selectedSourceIds state
         }, toastDuration);
       } else {
         console.error("Failed to start source processing:", response.data);
       }
     } catch (error) {
       // Display error toast
+      setProcessLoading(false);
       toast.error("Error starting source processing!", {
         autoClose: toastDuration,
       });
@@ -190,15 +198,38 @@ const SourceList = () => {
   };
 
   const handleProcessSelected = () => {
+    let message = '';
+    setProcessLoading(true);
+    setSelectedSourceIds(selectedSourceIds);
     axios
       .post(`${API_BASE_URL}/api/sources/process-multiple`, {
         data: { sourceIds: selectedSourceIds },
       })
       .then((response) => {
-        // Display success toast
-        toast.success("Selected sources processing started successfully!", {
-          autoClose: toastDuration,
-        });
+        setProcessLoading(false);
+        const titles = response.data.titles;
+        //use selectedSourceIds to get an array of all the statuses from response.data
+        const statuses = selectedSourceIds.map((id) => response.data[id]);
+        //if all statuses are 'indexed' display success toast
+        if (statuses.every((status) => status === "indexed")) {
+          let message = `All selected sources processed successfully!`;
+          toast.success(message, {
+            autoClose: toastDuration,
+          });
+        }
+        //if any statuses are 'failed_index', count number of indexed and failed_index
+        else if (statuses.some((status) => status === "failed_index")) {
+          const indexed = statuses.filter((status) => status === "indexed")
+            .length;
+          const failed_index = statuses.filter(
+            (status) => status === "failed_index"
+          ).length;
+          let message = `${indexed} sources indexed, ${failed_index} sources failed to index`;
+          toast.success(message, {
+            autoClose: toastDuration,
+          });
+        }
+        
 
         // Refresh the list after the toast disappears
         setTimeout(() => {
@@ -207,6 +238,7 @@ const SourceList = () => {
         }, toastDuration);
       })
       .catch((error) => {
+        setProcessLoading(false);
         // Display error toast
         toast.error("Error starting selected source processing!", {
           autoClose: toastDuration,
@@ -439,10 +471,10 @@ const SourceList = () => {
                           </td>
                           <td>
                             <button
-                            onClick={() => handleProcess(`/sources/process/${source._id}`)}
+                            onClick={() => handleProcess(source._id)}
                             className="btn btn-primary"
                           >
-                            <i className="fas fa-sync"></i>
+                            {processLoading && selectedSourceIds.includes(source._id) ? <i className="fas fa-cog fa-spin"></i> : <i className="fas fa-play"></i>}
                           </button>
                           </td>
                           <td>{source._id}</td>
