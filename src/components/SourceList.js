@@ -20,7 +20,8 @@ const SourceList = () => {
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const [processLoading, setProcessLoading] = useState(false);
   const toastDuration = 2000; // 2 seconds
-  const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
+  
+  const API_BASE_URL = process.env.NODE_API_URL ||'http://localhost:8080';
 
 
   const [statusCounts, setStatusCounts] = useState({
@@ -329,6 +330,8 @@ const SourceList = () => {
                           <option value="failed_download">Failed Download</option>
                           <option value="failed_load">Failed Load</option>
                           <option value="new">New</option>
+                          <option value="remove">To be deleted</option>
+                          <option value="index_deleted">Deleted</option>
                         </select>
                       </div>
                     </form>
