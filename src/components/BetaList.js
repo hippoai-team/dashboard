@@ -57,7 +57,6 @@ const BetaList = () => {
     
           // Destructure the response data
         const { totalBetaUsers, statusCounts, betaUsers } = response.data;
-          console.log('betaUsers',betaUsers);
           // Use the response data to update users state
           setTotalUsers(totalBetaUsers);
           setStatusCounts(statusCounts);
