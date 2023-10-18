@@ -10,6 +10,9 @@ import { Chip } from "@mui/material";
 import { alpha, useTheme } from '@mui/material/styles';
 import ChartGraph from "./chartGraph";
 import NumDisplay from "./numDisplay";
+import Button from '@mui/material/Button';
+//clippboard icon
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const ChatLogList = () => {
 
@@ -116,6 +119,11 @@ const ChatLogList = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
         }
+    }
+
+    const copyToClipboard = (array) => {
+        const arrayToCopy = array.join(", ");
+        navigator.clipboard.writeText(arrayToCopy);
     }
 
     return (
@@ -295,7 +303,16 @@ const ChatLogList = () => {
                                                 <thead>
                                                     <tr>
                                                         <th>Date</th>
-                                                        <th>User</th>
+                                                        <th>
+                                                            User
+                                                            <Button 
+                                                                variant="outlined" 
+                                                                onClick={() => copyToClipboard(userList)}
+                                                                style={{marginLeft: '10px'}}
+                                                            >
+                                                                <FileCopyIcon style={{fontSize: 'small'}}/>
+                                                            </Button>
+                                                        </th>
                                                         <th>Query</th>
                                                         <th style={{minWidth: '500px'}}>Response</th>
                                                         <th>Sources</th>
