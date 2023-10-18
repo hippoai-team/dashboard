@@ -31,7 +31,7 @@ const SourceList = () => {
     chart: {
       id: "basic-bar",
     },
-    labels: ["Indexed", "Failed Index", "New", "To be deleted", "Deleted"],
+   
   };
 
   const [statusCounts, setStatusCounts] = useState({
