@@ -6,6 +6,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
+import Chart from "react-apexcharts";
+import NumDisplay from "./numDisplay";
+import ChartGraph from "./chartGraph";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
 
 const SourceList = () => {
   const navigate = useNavigate();
@@ -30,6 +35,16 @@ const SourceList = () => {
     failed_download: 0,
     failed_load: 0,
     New: 0,
+    index_deleted: 0,
+    remove: 0,
+  });
+
+  const [sourceTypeCounts, setSourceTypeCounts] = useState({
+    'guidelines': 0,
+    'drugs': 0,
+    'general': 0,
+    'bugs': 0,
+    'pearls': 0,
   });
 
   const fetchSources = async () => {
@@ -63,6 +78,7 @@ const SourceList = () => {
         totalSources,
         statusCounts,
         allSourceTypes,
+        sourceTypeCounts,
       } = response.data;
 
       // Update the state
@@ -70,6 +86,7 @@ const SourceList = () => {
       setTotalSources(totalSources);
       setStatusCounts(statusCounts);
       setAllSourceTypes(allSourceTypes);
+      setSourceTypeCounts(sourceTypeCounts);
     } catch (error) {
       console.error("Error fetching sources:", error);
     }
@@ -266,6 +283,17 @@ const SourceList = () => {
             <div className="card">
               <div className="card-header">
                 <h1>Sources</h1>
+                <Grid container spacing={3} alignItems="center">
+                  <Grid item xs>
+                    <ChartGraph title={'Source Type Statistics'} series={Object.values(sourceTypeCounts)} labels={Object.keys(sourceTypeCounts).map(key => `${key}: ${sourceTypeCounts[key]}`)} />
+                  </Grid>
+                  <Grid item xs>
+                    <ChartGraph title={'Source Status Statistics'} series={Object.values(statusCounts)} labels={Object.keys(statusCounts).map(key => `${key}: ${statusCounts[key]}`)} />
+                  </Grid>
+                  <Grid item xs>
+                    <NumDisplay value={totalSources} sx={{ mb: 3 }} />
+                  </Grid>
+                </Grid>
               </div>
               <div className="card-body mt-4">
                 <div className="row">
@@ -336,7 +364,7 @@ const SourceList = () => {
                       </div>
                     </form>
                   </div>
-                  
+            
                   <div className="col-4">
                     <form onSubmit={(e) => e.preventDefault()}>
                       <div className="form-group">
