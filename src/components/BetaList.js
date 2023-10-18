@@ -255,7 +255,31 @@ const BetaList = () => {
        
                   <div className="card-body mt-4">
                     <div className="row">
-                      <div className="col-4">
+                      
+    
+    
+                      <div className="col-2">
+                       
+                      </div>
+                    </div>
+                    <div className="card-header">
+
+                    <Grid container spacing={3} alignItems="center" sx={{ mb: 2 ,marginBottom: 2}}>
+                  <Grid item xs>
+                      <ChartGraph series={[statusCounts.signed_up, statusCounts.not_signed_up]} labels={['Signed Up','Never Signed Up']} title="Sign ups" options={chartOptions} type="donut" width="380" height="300"/>
+                  </Grid>
+                  <Grid item xs>
+
+                     <ChartGraph series={[statusCounts.used_hippo, statusCounts.never_used_hippo]} labels={['Used Hippo','Never Used Hippo']} title="Usage" options={chartOptions} type="donut" width="380" height="300"/>
+                  </Grid>
+                  <Grid item xs>
+                    <NumDisplay title="Total Beta Testers" value={totalUsers} />
+                    </Grid>
+                </Grid>
+                    </div>
+                    <div className="card-body mt-4">
+                    <div className="row">
+                    <div className="col-4">
                         <form onSubmit={(e) => e.preventDefault()}>
                           <div className="input-group">
                             <div className="input-group-prepend">
@@ -293,6 +317,7 @@ const BetaList = () => {
                           </div>
                         </form>
                       </div>
+                    
                       
                       <div className="col-4">
                         <form onSubmit={(e) => e.preventDefault()}>
@@ -311,62 +336,43 @@ const BetaList = () => {
                           </div>
                         </form>
                       </div>
-                      
-    
-                      <div className="col-2"></div>
-    
-                      <div className="col-2">
-                       
-                      </div>
                     </div>
-                    <Grid container spacing={3} alignItems="center" sx={{ mb: 2 ,marginBottom: 2}}>
-                  <Grid item xs>
-                      <ChartGraph series={[statusCounts.signed_up, statusCounts.not_signed_up]} labels={['Signed Up','Never Signed Up']} title="Sign ups" options={chartOptions} type="donut" width="380" height="300"/>
-                  </Grid>
-                  <Grid item xs>
-
-                     <ChartGraph series={[statusCounts.used_hippo, statusCounts.never_used_hippo]} labels={['Used Hippo','Never Used Hippo']} title="Usage" options={chartOptions} type="donut" width="380" height="300"/>
-                  </Grid>
-                  <Grid item xs>
-                    <NumDisplay title="Total Beta Testers" value={totalUsers} />
-                    </Grid>
-                </Grid>
-                   
               
-                    <Button
-                          variant="contained"
-                          color="primary"
-                          component={Link}
-                          to="/betalist/add"
-                          className="btn btn-primary btn-lg rounded-pill"
-                          startIcon={<AddIcon />}
-                          sx={{ ml: 1 , marginBottom: 2}}
-                        >
-                          Add User
-                        </Button>
-                    <div className="row">
-                      
-                      <div className="col">
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={handleDeleteSelected}
-                          disabled={selectedUserIds.length === 0}
-                          sx={{ mr: 1 , marginBottom: 2}}
-                        >
-                          Delete Selected
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={handleInviteSelected}
-                          disabled={selectedUserIds.length === 0}
-                          sx={{ ml: 1 , marginBottom: 2}}
-                        >
-                          Invite Selected
-                        </Button>
-                      </div>
-                    </div>
+<Button
+      variant="contained"
+      color="primary"
+      component={Link}
+      to="/betalist/add"
+      className="btn btn-primary btn-lg rounded-pill"
+      startIcon={<AddIcon />}
+      sx={{ ml: 1 , marginBottom: 2}}
+    >
+      Add User
+    </Button>
+<div className="row">
+  
+  <div className="col">
+    <Button
+      variant="contained"
+      color="secondary"
+      onClick={handleDeleteSelected}
+      disabled={selectedUserIds.length === 0}
+      sx={{ mr: 1 , marginBottom: 2}}
+    >
+      Delete Selected
+    </Button>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={handleInviteSelected}
+      disabled={selectedUserIds.length === 0}
+      sx={{ ml: 1 , marginBottom: 2}}
+    >
+      Invite Selected
+    </Button>
+  </div>
+  </div>
+</div>
                     <InteractiveTable 
                     dataSource={users}
                     columns={[
