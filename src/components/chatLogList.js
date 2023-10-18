@@ -249,6 +249,7 @@ const ChatLogList = () => {
                                                         onChange={handleUserChange}
                                                     >
                                                         <option value="">All</option>
+                                                        <option value="beta">Beta Users</option>
                                                         {userList.map((user) => (
                                                             <option key={user} value={user}>{user}</option>
                                                         ))}
