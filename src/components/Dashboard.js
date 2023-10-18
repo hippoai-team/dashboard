@@ -59,7 +59,7 @@ export default class Dashboard extends Component {
                           </div>
                         </div>
                         <div className="card-footer d-flex align-items-center justify-content-end">
-                          <Link className="small m-2 text-white stretched-link" to="/chatlogs">View Chat Logs</Link>
+                          <Link className="small m-2 text-white stretched-link" to="/chatlog">View Chat Logs</Link>
                           <div className="small text-white">
                             <i className="fas fa-angle-right" />
                           </div>
