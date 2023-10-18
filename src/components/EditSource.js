@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'; // Import useParams
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import Layout from './Layout';
-
+import {Link} from 'react-router-dom'
 
 function EditSource() {
   const [formData, setFormData] = useState({
@@ -135,9 +135,9 @@ function EditSource() {
                             </select>
                         </div>
                         <button type="submit" className="btn btn-primary btn-block">Update</button>
-                        <a href="/sources" className="btn btn-danger btn-block">
+                          <Link to="/sources" className="btn btn-danger btn-block">
                             Cancel
-                        </a>
+                        </Link>
                     </form>
                 </div>
             </div>

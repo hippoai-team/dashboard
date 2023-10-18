@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom"; // Import useHistory
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import Layout from './Layout';
-
+import {Link} from 'react-router-dom'
 
 
 function AddUser() {
@@ -105,9 +105,9 @@ function AddUser() {
               <button type="submit" className="btn btn-primary btn-block">
                 Add
               </button>
-              <a href="/sources" className="btn btn-danger btn-block">
+              <Link to="/betalist" className="btn btn-danger btn-block">
                 Cancel
-              </a>
+              </Link>
             </form>
           </div>
         </div>
