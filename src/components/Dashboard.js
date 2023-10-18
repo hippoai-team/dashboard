@@ -44,12 +44,25 @@ export default class Dashboard extends Component {
                             <i className="fas fa-angle-right" />
                           </div>
                         </div>
-
-                        <div className="card bg-primary text-white mb-3">
-                          <Link className="small m-2 text-white stretched-link" to="/chatlog">View Chat Log</Link>
+                      </div>
+                    </div>
+                    <div className="col-md-4 mt-4">
+                      <div className="card bg-primary text-white mb-3">
+                        <div className="card-body">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div className="mr-3">
+                              <div className="text-lg font-weight-bold">
+                                Chat Logs
+                              </div>
+                            </div>
+                            <i className="fa fa-comments" />
+                          </div>
+                        </div>
+                        <div className="card-footer d-flex align-items-center justify-content-end">
+                          <Link className="small m-2 text-white stretched-link" to="/chatlogs">View Chat Logs</Link>
                           <div className="small text-white">
                             <i className="fas fa-angle-right" />
-                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -57,7 +70,9 @@ export default class Dashboard extends Component {
                 </section>
             </Layout>
           </div>
+
         )
     }
 }
+
 
