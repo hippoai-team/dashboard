@@ -11,6 +11,7 @@ import { alpha, useTheme } from '@mui/material/styles';
 import ChartGraph from "./chartGraph";
 import NumDisplay from "./numDisplay";
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 //clippboard icon
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 
@@ -28,6 +29,7 @@ const ChatLogList = () => {
     const [dateCountObj, setDateCountObj] = useState({});//[date: count
     const [selectedUser, setSelectedUser] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
+    const [feedBackCount, setFeedBackCount] = useState(0)
     const [userRatingFilter, setUserRatingFilter] = useState(false);
     const [dateRange, setDateRange] = useState('all-time')
     const toastDuration = 3000;
@@ -78,6 +80,8 @@ const ChatLogList = () => {
         setCurrentPage(page);
         setUserList(users);
         setDateCountObj(dateCountObj);
+        const userRatingCount = chatLogs.filter(log => log.user_rating).length;
+        setFeedBackCount(userRatingCount);
         setLoading(false);
         console.log('dateCountObj', dateCountObj);
 
@@ -153,63 +157,6 @@ const ChatLogList = () => {
                                 <div className="card card-primary">
                                     <div className="card-header">
                                         <h3 className="card-title">Chat Logs</h3>
-                                    </div>
-                                    <div className="row">
-                                    <div className="col-md-6">
-                                            <NumDisplay 
-                                                title="Total Chats"
-                                                value={totalLogs}
-                                                sx={{
-                                                    backgroundColor: alpha('#2196F3', 0.1),
-                                                    color: '#2196F3',
-                                                    margin: '10px'
-                                                }}
-
-                                                />
-                                                </div>
-                                        <div className="col-md-6">
-                                            <NumDisplay
-                                                title="Total Active Users"
-                                                value={userList.length}
-                                                sx={{
-                                                    backgroundColor: alpha('#2196F3', 0.1),
-                                                    color: '#2196F3',
-                                                    margin: '10px'
-                                                }}
-                                                />
-                                                </div>
-                                        </div>
-                                    <div className="row">
-                                        
-                                        <div className="col-md-6">
-                                            <ChartGraph
-                                                title="Daily Chat Log Count"
-                                                height={350}
-                                                options={chartOptions}
-                                                series={[{
-                                                    name: 'Count',
-                                                    data: Object.values(dateCountObj).map(obj => obj.count)
-                                                }]}
-                                                labels={Object.keys(dateCountObj)}
-                                                type="bar"
-                                                width="100%"
-                                                />
-                                        </div>
-                                        <div className="col-md-6">
-                                            <ChartGraph
-                                                title="Cumulative Chat Log Count"
-                                                height={350}
-                                                options={chartOptions}
-                                                series={[{
-                                                    name: 'Count',
-                                                    data: Object.values(dateCountObj).map(obj => obj.accumulativeCount)
-                                                }]}
-                                                labels={Object.keys(dateCountObj)}
-                                                type="line"
-                                                width="100%"
-                                                />
-                                        </div>
-                                       
                                     </div>
                                     <div className="card-body">
                                         <div className="row">
@@ -299,7 +246,81 @@ const ChatLogList = () => {
                                             </div>
                                                             
                                         </div>
+                                    <div className="row">
+                                    <div className="col-md-4">
+                                            <NumDisplay 
+                                                title="Total Chats"
+                                                value={totalLogs}
+                                                sx={{
+                                                    backgroundColor: alpha('#2196F3', 0.1),
+                                                    color: '#2196F3',
+                                                    margin: '10px'
+                                                }}
+
+                                                />
+                                                </div>
+                                        <div className="col-md-4">
+                                            <NumDisplay
+                                                title="Total Active Users"
+                                                value={userList.length}
+                                                sx={{
+                                                    backgroundColor: alpha('#2196F3', 0.1),
+                                                    color: '#2196F3',
+                                                    margin: '10px'
+                                                }}
+                                                />
+                                                </div>
+                                                <div className="col-md-4">
+                                            <NumDisplay
+                                                title="Total Feedback"
+                                                value={feedBackCount}
+                                                sx={{
+                                                    backgroundColor: alpha('#2196F3', 0.1),
+                                                    color: '#2196F3',
+                                                    margin: '10px'
+                                                }}
+                                                />
+                                                </div>
+                                        </div>
+                                    <div className="row">
+                                        
+                                        <div className="col-md-6">
+                                            <ChartGraph
+                                                title="Daily Chat Log Count"
+                                                height={350}
+                                                options={chartOptions}
+                                                series={[{
+                                                    name: 'Count',
+                                                    data: Object.values(dateCountObj).map(obj => obj.count)
+                                                }]}
+                                                labels={Object.keys(dateCountObj)}
+                                                type="bar"
+                                                width="100%"
+                                                />
+                                        </div>
+                                        <div className="col-md-6">
+                                            <ChartGraph
+                                                title="Cumulative Chat Log Count"
+                                                height={350}
+                                                options={chartOptions}
+                                                series={[{
+                                                    name: 'Count',
+                                                    data: Object.values(dateCountObj).map(obj => obj.accumulativeCount)
+                                                }]}
+                                                labels={Object.keys(dateCountObj)}
+                                                type="line"
+                                                width="100%"
+                                                />
+                                        </div>
+                                       
+                                    </div>
+                            
                                         <div className="table-responsive">
+                                            <div style={{padding: '10px'}}>
+                                                <Typography variant="h6" component="div">
+                                                    Chat Log Explorer
+                                                </Typography>
+                                            </div>
                                             <table className="table table-bordered table-hover">
                                                 <thead>
                                                     <tr>
