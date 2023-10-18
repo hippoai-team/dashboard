@@ -34,7 +34,7 @@ const BetaList = () => {
     const [users, setUsers] = useState([]);
 
 
-      const API_BASE_URL = process.env.NODE_API_URL ||'http://localhost:8080';
+      const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
       const chartOptions = {
         chart: {
           id: "basic-bar",
