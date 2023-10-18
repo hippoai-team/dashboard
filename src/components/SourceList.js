@@ -14,6 +14,7 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button"; 
 import AddIcon from '@mui/icons-material/Add';
 import InteractiveTable from "./interactiveTable";
+import PageTitle from "./pageTitle";
 const SourceList = () => {
   const navigate = useNavigate();
   const [sources, setSources] = useState([]);
@@ -281,28 +282,21 @@ const SourceList = () => {
 
   return (
     <Layout>
-      <div className="">
-        <div className="main-panel">
-          <div className="content-wrapper">
+      <div className="content-wrapper">
+        <PageTitle title={'Sources'} />
+        <section className="content">
+                    <div className="container-fluid">
+                        <div className="row">
+                            <div className="col-12">
+                                <div className="card card-primary">
+                                    <div className="card-header">
+                                        <h3 className="card-title">Sources</h3>
+                                    </div>
             {/* Your code for filters and statistics */}
             <div className="card">
               <div className="card-header">
                 
-                <div className="container-fluid">
-                        <div className="row">
-                            <div className="col-sm-6">
-                                <h1 className="m-0">Sources</h1>
-                            </div>
-                            <div className="col-sm-6">
-                                <ol className="breadcrumb float-sm-right">
-                                    <li className="breadcrumb-item">
-                                        <Link to="/dashboard">Dashboard</Link>
-                                    </li>
-                                    <li className="breadcrumb-item active">Sources</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
+             
                 <Grid container spacing={3} alignItems="center">
                   <Grid item xs>
                     <ChartGraph title={'Source Type Statistics'} series={Object.values(sourceTypeCounts)} labels={Object.keys(sourceTypeCounts).map(key => `${key}: ${sourceTypeCounts[key]}`)} options={chartOptions}  type={'donut'} width={'100%'} height={450} />
@@ -483,6 +477,9 @@ const SourceList = () => {
           </div>
         </div>
       </div>
+    </div>
+</section>
+</div>
     </Layout>
   );
 };

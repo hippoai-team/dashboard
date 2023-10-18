@@ -12,6 +12,7 @@ import ChartGraph from "./chartGraph";
 import NumDisplay from "./numDisplay";
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import PageTitle from "./pageTitle";
 //clippboard icon
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 
@@ -133,23 +134,7 @@ const ChatLogList = () => {
     return (
         <Layout>
             <div className="content-wrapper">
-                <div className="content-header">
-                    <div className="container-fluid">
-                        <div className="row">
-                            <div className="col-sm-6">
-                                <h1 className="m-0">Chat Logs</h1>
-                            </div>
-                            <div className="col-sm-6">
-                                <ol className="breadcrumb float-sm-right">
-                                    <li className="breadcrumb-item">
-                                        <Link to="/dashboard">Dashboard</Link>
-                                    </li>
-                                    <li className="breadcrumb-item active">Chat Logs</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <PageTitle title="Chat Logs" />
                 <section className="content">
                     <div className="container-fluid">
                         <div className="row">

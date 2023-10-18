@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import ChartGraph from "./chartGraph";
 import Grid from '@mui/material/Grid';
+import PageTitle from "./pageTitle";
 const BetaList = () => {
     const navigate = useNavigate();
     const [ids, setIds] = useState([]);
@@ -238,14 +239,20 @@ const BetaList = () => {
 
       return (
         <Layout>
-          <div className="">
-            <div className="main-panel">
-              <div className="content-wrapper">
+          <div className="content-wrapper">
+            <PageTitle title="Beta Users" />
+
+            <section className="content">
+                    <div className="container-fluid">
+                        <div className="row">
+                            <div className="col-12">
+                                <div className="card card-primary">
+                                    <div className="card-header">
+                                        <h3 className="card-title">Beta Users</h3>
+                                    </div>
                 {/* Your code for filters and statistics */}
                 <div className="card">
-                  <div className="card-header">
-                    <h1>Beta Users</h1>
-                  </div>
+       
                   <div className="card-body mt-4">
                     <div className="row">
                       <div className="col-4">
@@ -265,7 +272,6 @@ const BetaList = () => {
                               onChange={handleSearchChange} // <-- Add this line
                             />
                           </div>
-                          {/* <button type='submit' className="btn btn-primary mt-2 rounded-pill">Search</button> */}
                         </form>
                       </div>
     
@@ -380,10 +386,7 @@ const BetaList = () => {
                     handleCheckboxChange={handleCheckboxChange}
                     handleAllCheckboxChange={handleAllCheckboxChange}
 
-                    />
-
-                    {/* Table with all columns */}
-                
+                    />                
     
                     
                   </div>
@@ -391,6 +394,11 @@ const BetaList = () => {
               </div>
             </div>
           </div>
+        </div>
+
+            </section>
+          </div>
+
         </Layout>
       );
     };
