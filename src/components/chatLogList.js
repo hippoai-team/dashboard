@@ -311,10 +311,10 @@ const ChatLogList = () => {
                                                             <td>{chatLog.response}</td>
 
                                                             <td>
-                                                                {chatLog.sources.map((source, index) => (
+                                                                {[...new Set(chatLog.sources.map(source => `${source.title} - ${source.publisher}`))].map((source, index) => (
                                                                     <div key={index} style={{marginBottom: '10px'}}>
                                                                         <Chip 
-                                                                            label={`${source.title} - ${source.publisher}`} 
+                                                                            label={source} 
                                                                             variant="outlined" 
                                                                             onClick={() => window.open(source.source, "_blank")}
                                                                         />

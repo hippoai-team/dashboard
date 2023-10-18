@@ -8,7 +8,7 @@ const ChartGraph = (props) => {
 return (
 
 <Card sx={'sm'}>
-<CardHeader title={title} />
+<CardHeader title={title} sx={{backgroundColor: '#3f51b5', color: '#fff'}}/>
 <CardContent>
             <Chart
               options= {options}
