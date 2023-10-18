@@ -244,7 +244,7 @@ const BetaList = () => {
                 {/* Your code for filters and statistics */}
                 <div className="card">
                   <div className="card-header">
-                    <h1>Users</h1>
+                    <h1>Beta Users</h1>
                   </div>
                   <div className="card-body mt-4">
                     <div className="row">
@@ -280,9 +280,9 @@ const BetaList = () => {
                             >
                               <option value="">Status Filter</option>
                               <option value="signed_up">Signed Up</option>
+                              <option value="not_signed_up">Not Signed Up</option>
                               <option value="used">Used Hippo</option>
                               <option value="not_used">Not Used Hippo</option>
-                              <option value="not_signed_up">Never signed up</option>
                             </select>
                           </div>
                         </form>
@@ -313,33 +313,20 @@ const BetaList = () => {
                        
                       </div>
                     </div>
-                    <Grid container spacing={3} alignItems="center">
+                    <Grid container spacing={3} alignItems="center" sx={{ mb: 2 ,marginBottom: 2}}>
                   <Grid item xs>
-                      <ChartGraph series={[statusCounts.signed_up, statusCounts.not_signed_up]} labels={['Signed Up','Never Signed Up']} title="Beta Testers" options={chartOptions} type="donut" width="380" height="300"/>
+                      <ChartGraph series={[statusCounts.signed_up, statusCounts.not_signed_up]} labels={['Signed Up','Never Signed Up']} title="Sign ups" options={chartOptions} type="donut" width="380" height="300"/>
                   </Grid>
                   <Grid item xs>
 
-                     <ChartGraph series={[statusCounts.used_hippo, statusCounts.never_used_hippo]} labels={['Used Hippo','Never Used Hippo']} title="Beta Testers" options={chartOptions} type="donut" width="380" height="300"/>
+                     <ChartGraph series={[statusCounts.used_hippo, statusCounts.never_used_hippo]} labels={['Used Hippo','Never Used Hippo']} title="Usage" options={chartOptions} type="donut" width="380" height="300"/>
                   </Grid>
                   <Grid item xs>
                     <NumDisplay title="Total Beta Testers" value={totalUsers} />
                     </Grid>
                 </Grid>
                    
-                    <div className="mt-3">
-                      <div className="row">
-                        <div className="col">
-                          <h3>Statistics</h3>
-                          <p>Total number of beta testers = {totalUsers}</p>
-                          <ul>
-                            <li>Signed Up: {statusCounts.signed_up}</li>
-                            <li>Used Hippo: {statusCounts.used_hippo}</li>
-                            <li>Never used Hippo: {statusCounts.never_used_hippo}</li>
-                            <li>Never Signed up: {statusCounts.not_signed_up}</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
+              
                     <Button
                           variant="contained"
                           color="primary"
