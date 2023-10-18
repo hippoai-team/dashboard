@@ -7,6 +7,7 @@ const ChartGraph = (props) => {
     const { series, labels, title, options, type, width, height } = props;
     const newOptions = JSON.parse(JSON.stringify(options)); // Deep copy
     newOptions.labels = labels;
+    console.log('series', series)
     return (
 
 <Card sx={'sm'}>

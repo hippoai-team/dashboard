@@ -6,7 +6,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
-
+import InteractiveTable from "./interactiveTable";
+import NumDisplay from "./numDisplay";
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
+import ChartGraph from "./chartGraph";
+import Grid from '@mui/material/Grid';
 const BetaList = () => {
     const navigate = useNavigate();
     const [ids, setIds] = useState([]);
@@ -26,13 +31,15 @@ const BetaList = () => {
     const [totalUsers, setTotalUsers] = useState(0);
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [users, setUsers] = useState([]);
-    const [user, setUser] = useState({
-        email: "",
-        status: "",
-      });
 
-      const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
-    
+
+      const API_BASE_URL = process.env.NODE_API_URL ||'http://localhost:8080';
+      const chartOptions = {
+        chart: {
+          id: "basic-bar",
+        },
+       
+      };
     const fetchUsers = async () => {
         // Base endpoint
         let endpoint = `${API_BASE_URL}/api/betalist?page=${currentPage}`;
@@ -135,8 +142,8 @@ const BetaList = () => {
           })
           .then((response) => {
             // Display message from the server
-            console.log('response',response);
-            toast.success('Successfully added selected users', {
+            const message = response.data.message;
+            toast.success(message, {
               autoClose: toastDuration,
             });
 
@@ -209,8 +216,9 @@ const BetaList = () => {
     
           if (response.status === 200) {
             // Display success toast
-            console.log('response',response);
-            toast.success("User successfully invited!", {
+            console.log('response',response.data);
+            const toastMessage = response.data;
+            toast.success(toastMessage, {
               autoClose: toastDuration,
             });
     
@@ -302,15 +310,22 @@ const BetaList = () => {
                       <div className="col-2"></div>
     
                       <div className="col-2">
-                        <Link
-                          to="/betalist/add"
-                          className="btn btn-primary btn-lg rounded-pill"
-                        >
-                          <i className="fas fa-plus mr-2"></i>Add User
-                        </Link>
+                       
                       </div>
                     </div>
-    
+                    <Grid container spacing={3} alignItems="center">
+                  <Grid item xs>
+                      <ChartGraph series={[statusCounts.signed_up, statusCounts.not_signed_up]} labels={['Signed Up','Never Signed Up']} title="Beta Testers" options={chartOptions} type="donut" width="380" height="300"/>
+                  </Grid>
+                  <Grid item xs>
+
+                     <ChartGraph series={[statusCounts.used_hippo, statusCounts.never_used_hippo]} labels={['Used Hippo','Never Used Hippo']} title="Beta Testers" options={chartOptions} type="donut" width="380" height="300"/>
+                  </Grid>
+                  <Grid item xs>
+                    <NumDisplay title="Total Beta Testers" value={totalUsers} />
+                    </Grid>
+                </Grid>
+                   
                     <div className="mt-3">
                       <div className="row">
                         <div className="col">
@@ -325,129 +340,65 @@ const BetaList = () => {
                         </div>
                       </div>
                     </div>
-    
+                    <Button
+                          variant="contained"
+                          color="primary"
+                          component={Link}
+                          to="/betalist/add"
+                          className="btn btn-primary btn-lg rounded-pill"
+                          startIcon={<AddIcon />}
+                          sx={{ ml: 1 , marginBottom: 2}}
+                        >
+                          Add User
+                        </Button>
                     <div className="row">
+                      
                       <div className="col">
-                        <button
-                          className="btn btn-dark mb-2 mr-1"
+                        <Button
+                          variant="contained"
+                          color="secondary"
                           onClick={handleDeleteSelected}
                           disabled={selectedUserIds.length === 0}
+                          sx={{ mr: 1 , marginBottom: 2}}
                         >
                           Delete Selected
-                        </button>
-                        <button
-                          className="btn btn-dark mb-2 ml-1"
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
                           onClick={handleInviteSelected}
                           disabled={selectedUserIds.length === 0}
+                          sx={{ ml: 1 , marginBottom: 2}}
                         >
                           Invite Selected
-                        </button>
+                        </Button>
                       </div>
                     </div>
-    
-                    {/* Table with all columns */}
-                    <div className="table-responsive">
-                      <table
-                        className="table table-borderless table-hover"
-                        style={{ tableLayout: "fixed" }}
-                      >
-                        <thead>
-                          <tr className="table-active">
-                            <th style={{ width: "10px" }}>
-                              <input type="checkbox" id="select_all_ids" 
-                              onChange={handleAllCheckboxChange}
-                              checked={selectedIds.length === users.length}
-                              />
-                            </th>
-                            <th style={{ width: "10px" }}>Edit</th>
-                            <th style={{ width: "10px" }}>Delete</th>
-                            <th style={{ width: "10px" }}>Invite</th>
-                            <th style={{ width: "70px" }}>Name</th>
-                            <th style={{ width: "70px" }}>Email</th>
-                            <th style={{ width: "70px" }}>Status</th>
-                            <th style={{ width: "70px" }}>Usage</th>
-                            
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {users.map((user) => (
-                            <tr key={user._id}>
-                              <td>
-                                <input
-                                  type="checkbox"
-                                  name={`ids[${user._id}]`}
-                                  className="checkbox_ids"
-                                  value={user._id}
-                                  checked={selectedUserIds.includes(user._id)}
-                                  onChange={(e) => handleCheckboxChange(e, user._id)}
-                                />
-                              </td>
-                              <td>
-                                <Link
-                                  to={`/betalist/edit/${user._id}`}
-                                  className="btn btn-success"
-                                >
-                                  <i className="fas fa-pencil-alt"></i>
-                                </Link>
-                              </td>
-                              <td>
-                                <button
-                                  onClick={() => handleDelete(user._id)}
-                                  className="btn btn-danger"
-                                >
-                                  <i className="fas fa-trash"></i>
-                                </button>
-                              </td>
-                              {user.invite_sent ? (
-                                <td>
-                                  <button
-                                    onClick={() => handleInvite(user.email,true)}
-                                    className="btn"
-                                  >
-                                    <i className="fas fa-check"></i>
-                                  </button>
-                                </td>
-                              ) : (
-                                <td>
-                                  <button
-                                    onClick={() => handleInvite(user.email,false)}
-                                    className="btn"
-                                  >
-                                    <i className="fas fa-envelope"></i>
-                                  </button>
-                                </td>
-                              )}
+                    <InteractiveTable 
+                    dataSource={users}
+                    columns={[
+                      { dataIndex: 'invite_sent', title: 'Invite Sent' },
+                      { dataIndex: 'name', title: 'Name' },
+                      { dataIndex: 'email', title: 'Email' },
+                      { dataIndex: 'status', title: 'Status' },
+                      { dataIndex: 'usage', title: 'Usage' },
+                    ]}
+                    actionButtons={[
+                      { label: 'Edit', onClick: (user) => navigate(`/betalist/edit/${user._id}`) },
+                      { label: 'Delete', onClick: (user) => handleDelete(user._id) },
+                      { label: 'Invite', onClick: (user) => handleInvite(user.email,user.invite_sent) },
+                    ]}
+                    selectedIds={selectedUserIds}
+                    setSelectedIds={setSelectedUserIds}
+                    handleCheckboxChange={handleCheckboxChange}
+                    handleAllCheckboxChange={handleAllCheckboxChange}
 
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                <td>{user.status}</td>
-                                <td>{user.usage}</td>
-                             
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    />
+
+                    {/* Table with all columns */}
+                
     
-                    {/* Pagination controls */}
-                    <div className="row mt-4">
-                      <div className="col">
-                        <button
-                          className="btn btn-dark mb-2"
-                          onClick={handlePreviousPage}
-                          disabled={currentPage === 1}
-                        >
-                          Previous
-                        </button>
-                        <button
-                          className="btn btn-dark mb-2 ml-2"
-                          onClick={handleNextPage}
-                          disabled={users.length < 5} // Disable if there are no more pages
-                        >
-                          Next
-                        </button>
-                      </div>
-                    </div>
+                    
                   </div>
                 </div>
               </div>

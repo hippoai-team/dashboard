@@ -11,7 +11,9 @@ import NumDisplay from "./numDisplay";
 import ChartGraph from "./chartGraph";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-
+import Button from "@mui/material/Button"; 
+import AddIcon from '@mui/icons-material/Add';
+import InteractiveTable from "./interactiveTable";
 const SourceList = () => {
   const navigate = useNavigate();
   const [sources, setSources] = useState([]);
@@ -25,7 +27,7 @@ const SourceList = () => {
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const [processLoading, setProcessLoading] = useState(false);
   const toastDuration = 2000; // 2 seconds
-
+  
   const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
   const chartOptions = {
     chart: {
@@ -402,179 +404,80 @@ const SourceList = () => {
                   </div>
                   
 
-                  <div className="col-2"></div>
+                </div>
 
-                  <div className="col-2">
-                    <Link
+
+                <div className="row" style={{marginBottom: '10px'}}>
+                <Button
+                      variant="contained"
+                      color="primary"
+                      component={Link}
                       to="/sources/add"
-                      className="btn btn-primary btn-lg rounded-pill"
+                      style={{textTransform: 'none'}}
                     >
-                      <i className="fas fa-plus mr-2"></i>Add Source
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="mt-3">
-                  <div className="row">
-                    <div className="col">
-                      <h3>Statistics</h3>
-                      <p>Total number of sources = {totalSources}</p>
-                      <ul>
-                        <li>Indexed: {statusCounts.indexed}</li>
-                        <li>Failed Index: {statusCounts.failed_index}</li>
-                        <li>Failed Download: {statusCounts.failed_download}</li>
-                        <li>Failed Load: {statusCounts.failed_load}</li>
-                        <li>New: {statusCounts.new}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="row">
+                      <AddIcon style={{marginRight: '5px'}} />
+                      Add Source
+                    </Button>
                   <div className="col">
-                    <button
-                      className="btn btn-dark mb-2"
+                    
+                    <Button
+                      variant="contained"
+                      color="primary"
                       onClick={handleDeleteSelected}
                       disabled={selectedSourceIds.length === 0}
+                      style={{marginRight: '10px'}}
                     >
                       Delete Selected
-                    </button>
-                    <button
-                      className="btn btn-dark mb-2"
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
                       onClick={handleProcessSelected}
                       disabled={selectedSourceIds.length === 0}
                     >
                       Process Selected
-                    </button>
+                    </Button>
                   </div>
                 </div>
+             
 
                 {/* Table with all columns */}
-                <div className="table-responsive">
-                  <table
-                    className="table table-borderless table-hover"
-                    style={{ tableLayout: "fixed" }}
-                  >
-                    <thead>
-                      <tr className="table-active">
-                        <th style={{ width: "50px" }}>
-                          <input type="checkbox" id="select_all_ids" 
-                          onChange={handleAllCheckboxChange}
-                          checked={selectedSourceIds.length === sources.length}
-                          />
-                        </th>
-                        <th style={{ width: "70px" }}>Edit</th>
-                        <th style={{ width: "70px" }}>Delete</th>
-                        <th style={{ width: "70px" }}>Run</th>
-                        <th style={{ width: "100px" }}>ID</th>
-                        <th style={{ width: "210px" }}>Title</th>
-                        <th style={{ width: "200px" }}>Publisher</th>
-                        <th style={{ width: "150px" }}>Source
-                        
-                        <button className='fas fa-copy' onClick={() => handleCopy()}>
-                          
-                          </button></th>
-                        <th style={{ width: "100px" }}>Status</th>
-                        <th style={{ width: "100px" }}>Year</th>
-                        <th style={{ width: "100px" }}>Topic</th>
-                        <th style={{ width: "100px" }}>Category</th>
-                        <th style={{ width: "130px" }}>Subspeciality</th>
-                        <th style={{ width: "80px" }}>is_paid</th>
-                        <th style={{ width: "100px" }}>Load type</th>
-                        <th style={{ width: "110px" }}>Patient Population</th>
-                       
-                        <th style={{ width: "100px" }}>Source Type</th>
-                        <th style={{ width: "100px" }}>Date Added</th>
-                        <th style={{ width: "100px" }}>Last Modified</th>
-                        
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sources.map((source) => (
-                        <tr key={source._id}>
-                          <td>
-                            <input
-                              type="checkbox"
-                              name={`ids[${source._id}]`}
-                              className="checkbox_ids"
-                              value={source._id}
-                              checked={selectedSourceIds.includes(source._id)}
-                              onChange={(e) => handleCheckboxChange(e, source._id)}
-                            />
-                          </td>
-                          <td>
-                            <Link
-                              to={`/sources/edit/${source._id}`}
-                              className="btn btn-success"
-                            >
-                              <i className="fas fa-pencil-alt"></i>
-                            </Link>
-                          </td>
-                          <td>
-                            <button
-                              onClick={() => handleDelete(source._id)}
-                              className="btn btn-danger"
-                            >
-                              <i className="fas fa-trash"></i>
-                            </button>
-                          </td>
-                          <td>
-                            <button
-                            onClick={() => handleProcess(source._id)}
-                            className="btn btn-primary"
-                          >
-                            {processLoading && selectedSourceIds.includes(source._id) ? <i className="fas fa-cog fa-spin"></i> : <i className="fas fa-play"></i>}
-                          </button>
-                          </td>
-                          <td>{source._id}</td>
-                          <td>{source.title}</td>
-                          <td>{source.publisher}</td>
-                          <td><a href={source.source} target='_blank'>{source.source}</a></td>
-                          <td>{source.status}</td>
-                          <td>{source.year}</td>
-                          <td>{source.topic}</td>
-                          <td>{source.category}</td>
-                          <td>{source.subspecialty}</td>
-                          <td>{source.is_paid ? "Yes" : "No"}</td>
-                          <td>{source.load_type}</td>
-                          <td>{source.patient_population}</td>
-                          <td>{source.source_type}</td>
-                          <td>
-                            {source.date_added
-                              ? new Date(source.date_added).toLocaleDateString()
-                              : ""}
-                          </td>
-                          <td>
-                            {source.date_modified
-                              ? new Date(source.date_modified).toLocaleDateString()
-                              : ""}
-                          </td>
-                         
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <InteractiveTable 
+                  columns={[
+                    { title: 'ID', dataIndex: '_id', copyButton: false },
+                    { title: 'Title', dataIndex: 'title', copyButton: false },
+                    { title: 'Publisher', dataIndex: 'publisher', copyButton: false },
+                    { title: 'Source', dataIndex: 'source', copyButton: true, render: (text, record) => <a href={text} target='_blank'>{text}</a> },
+                    { title: 'Status', dataIndex: 'status', copyButton: false }, 
+                    { title: 'Year', dataIndex: 'year', copyButton: false },
+                    { title: 'Category', dataIndex: 'category', copyButton: false }, 
+                    { title: 'Subspecialty', dataIndex: 'subspecialty', copyButton: false }, 
+                    { title: 'is_paid', dataIndex: 'is_paid', copyButton: false }, 
+                    { title: 'Load type', dataIndex: 'load_type', copyButton: false }, 
+                    { title: 'Patient Population', dataIndex: 'patient_population', copyButton: false }, 
+                    { title: 'Source Type', dataIndex: 'source_type', copyButton: false }, 
+                    { title: 'Date Added', dataIndex: 'date_added', copyButton: false }, 
+                    { title: 'Last Modified', dataIndex: 'last_modified', copyButton: false },
+                    { title: 'Topic', dataIndex: 'topic', copyButton: false }
+                  ]} 
+                  dataSource={sources} 
+                  totalEntries={totalSources} 
+                  handlePrevPage={handlePreviousPage} 
+                  handleNextPage={handleNextPage} 
+                  setSelectedIds={setSelectedSourceIds} 
+                  selectedIds={selectedSourceIds}
+                  actionButtons={[
+                    { label: 'Edit', onClick: (data) => navigate(`/sources/edit/${data._id}`) }, 
+                    { label: 'Delete', onClick: (data) => handleDelete(data._id) },
+                    { label: 'Process', onClick: (data) => handleProcess(data._id) , loading: processLoading }
+                  ]}
+                  handleCheckboxChange={handleCheckboxChange}
+                  handleAllCheckboxChange={handleAllCheckboxChange}
+                />
 
-                {/* Pagination controls */}
-                <div className="row mt-4">
-                  <div className="col">
-                    <button
-                      className="btn btn-dark mb-2"
-                      onClick={handlePreviousPage}
-                      disabled={currentPage === 1}
-                    >
-                      Previous
-                    </button>
-                    <button
-                      className="btn btn-dark mb-2 ml-2"
-                      onClick={handleNextPage}
-                      disabled={sources.length < 5} // Disable if there are no more pages
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
+              
+
+               
               </div>
             </div>
           </div>
