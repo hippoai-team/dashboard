@@ -40,6 +40,12 @@ const Sidebar = () => {
               <p>Beta List</p>
             </Link>
           </li>
+          <li className="nav-item">
+            <Link to="/chatlog" className="nav-link">
+              <i className="nav-icon fas fa-source"></i>
+              <p>Chat Log</p>
+            </Link>
+          </li>
           </ul>
         </nav>
         {/* /.sidebar-menu */}

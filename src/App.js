@@ -10,7 +10,7 @@ import Dashboard from './components/Dashboard';
 import { ToastContainer } from 'react-toastify';
 import Login from './Auth/Login';
 import PrivateRoute from './components/Routes/Private';
-
+import ChatLogList from './components/chatLogList';
 
 function App() {
   return (
@@ -36,6 +36,10 @@ function App() {
 
                 <Route path="/betalist" element={<PrivateRoute />} >
                   <Route path='' element={<BetaList />} />
+                </Route>
+
+                <Route path="/chatlog" element={<PrivateRoute />} >
+                  <Route path='' element={<ChatLogList />} />
                 </Route>
 
                 <Route path="/sources/add" element={<PrivateRoute />} >

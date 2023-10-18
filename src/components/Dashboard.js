@@ -44,13 +44,19 @@ export default class Dashboard extends Component {
                             <i className="fas fa-angle-right" />
                           </div>
                         </div>
+
+                        <div className="card bg-primary text-white mb-3">
+                          <Link className="small m-2 text-white stretched-link" to="/chatlog">View Chat Log</Link>
+                          <div className="small text-white">
+                            <i className="fas fa-angle-right" />
+                            </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-              </section>
+                </section>
             </Layout>
           </div>
-
         )
     }
 }

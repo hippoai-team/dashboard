@@ -4,23 +4,19 @@ import { Card, CardContent, CardHeader } from "@mui/material";
 
 
 const ChartGraph = (props) => {
-    const { series, labels, title } = props;
-
+    const { series, labels, title, options, type, width, height } = props;
 return (
 
 <Card sx={'sm'}>
 <CardHeader title={title} />
 <CardContent>
             <Chart
-              options={{
-                chart: {
-                  id: "basic-bar",
-                },
-                labels: labels,
-              }}
+              options= {options}
               series={series}
-              type="donut"
-              width="380"
+              type={type}
+              width={width}
+                height={height}
+                labels={labels}
               >
 
             </Chart>

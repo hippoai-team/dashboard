@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 const NumDisplay = (props) => {
-  const { value, sx } = props;
+  const { title,value, sx } = props;
 
   return (
     <Card sx={sx}>
@@ -18,7 +18,7 @@ const NumDisplay = (props) => {
               color="text.secondary"
               variant="overline"
             >
-              Total Sources
+              {title}
             </Typography>
             <Typography variant="h4">
               {value}

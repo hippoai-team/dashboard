@@ -27,13 +27,16 @@ const SourceList = () => {
   const toastDuration = 2000; // 2 seconds
 
   const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
-
+  const chartOptions = {
+    chart: {
+      id: "basic-bar",
+    },
+    labels: ["Indexed", "Failed Index", "New", "To be deleted", "Deleted"],
+  };
 
   const [statusCounts, setStatusCounts] = useState({
     indexed: 0,
     failed_index: 0,
-    failed_download: 0,
-    failed_load: 0,
     New: 0,
     index_deleted: 0,
     remove: 0,
@@ -282,16 +285,31 @@ const SourceList = () => {
             {/* Your code for filters and statistics */}
             <div className="card">
               <div className="card-header">
-                <h1>Sources</h1>
+                
+                <div className="container-fluid">
+                        <div className="row">
+                            <div className="col-sm-6">
+                                <h1 className="m-0">Sources</h1>
+                            </div>
+                            <div className="col-sm-6">
+                                <ol className="breadcrumb float-sm-right">
+                                    <li className="breadcrumb-item">
+                                        <Link to="/dashboard">Dashboard</Link>
+                                    </li>
+                                    <li className="breadcrumb-item active">Sources</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
                 <Grid container spacing={3} alignItems="center">
                   <Grid item xs>
-                    <ChartGraph title={'Source Type Statistics'} series={Object.values(sourceTypeCounts)} labels={Object.keys(sourceTypeCounts).map(key => `${key}: ${sourceTypeCounts[key]}`)} />
+                    <ChartGraph title={'Source Type Statistics'} series={Object.values(sourceTypeCounts)} labels={Object.keys(sourceTypeCounts).map(key => `${key}: ${sourceTypeCounts[key]}`)} options={chartOptions}  type={'donut'} width={'100%'} height={450} />
                   </Grid>
                   <Grid item xs>
-                    <ChartGraph title={'Source Status Statistics'} series={Object.values(statusCounts)} labels={Object.keys(statusCounts).map(key => `${key}: ${statusCounts[key]}`)} />
+                    <ChartGraph title={'Source Status Statistics'} series={Object.values(statusCounts)} labels={Object.keys(statusCounts).map(key => `${key}: ${statusCounts[key]}`)} options={chartOptions}  type={'donut'} width={'100%'} height={450} />
                   </Grid>
                   <Grid item xs>
-                    <NumDisplay value={totalSources} sx={{ mb: 3 }} />
+                    <NumDisplay title={'Total Sources'} value={totalSources} sx={{ mb: 3 }} />
                   </Grid>
                 </Grid>
               </div>
