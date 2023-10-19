@@ -46,6 +46,12 @@ const Sidebar = () => {
               <p>Chat Log</p>
             </Link>
           </li>
+          <li className="nav-item">
+            <Link to="/users" className="nav-link">
+              <i className="nav-icon fas fa-users"></i>
+              <p>Users</p>
+            </Link>
+          </li>
           </ul>
         </nav>
         {/* /.sidebar-menu */}

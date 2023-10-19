@@ -441,6 +441,7 @@ const BetaList = () => {
                     setSelectedIds={setSelectedUserIds}
                     handleCheckboxChange={handleCheckboxChange}
                     handleAllCheckboxChange={handleAllCheckboxChange}
+                    totalEntries={totalUsers}
 
                     />                
     

@@ -3,15 +3,16 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SourceList from './components/SourceList';
 import BetaList from './components/BetaList';
 import AddSource from './components/AddSource';
-import AddUser from './components/AddUser';
+import AddBetaUser from './components/AddBetaUser';
 import EditSource from './components/EditSource';
-import EditUser from './components/EditUser';
+import EditBetaUser from './components/EditBetaUser';
 import Dashboard from './components/Dashboard';
+import UserList from './components/UserList';
 import { ToastContainer } from 'react-toastify';
 import Login from './Auth/Login';
 import PrivateRoute from './components/Routes/Private';
 import ChatLogList from './components/chatLogList';
-
+import EditUser from './components/EditUser';
 function App() {
   return (
     console.log(process.env.NODE_API_URL),
@@ -47,7 +48,7 @@ function App() {
                 </Route>
 
                 <Route path="/betalist/add" element={<PrivateRoute />} >
-                  <Route path='' element={<AddUser />} />
+                  <Route path='' element={<AddBetaUser />} />
                 </Route>
 
                 <Route path="/sources/edit/:id" element={<PrivateRoute />} >
@@ -55,7 +56,16 @@ function App() {
                 </Route>
 
                 <Route path="/betalist/edit/:id" element={<PrivateRoute />} >
+                  <Route path='' element={<EditBetaUser />} />
+                </Route>
+
+                <Route path="/users/edit/:id" element={<PrivateRoute />} >
                   <Route path='' element={<EditUser />} />
+                </Route>
+
+
+                <Route path="/users" element={<PrivateRoute />} >
+                  <Route path='' element={<UserList />} />
                 </Route>
 
 

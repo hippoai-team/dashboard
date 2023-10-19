@@ -7,7 +7,7 @@ import Layout from './Layout';
 import {Link} from 'react-router-dom'
 
 
-function AddUser() {
+function AddBetaUser() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -117,4 +117,4 @@ function AddUser() {
   );
 }
 
-export default AddUser;
+export default AddBetaUser;

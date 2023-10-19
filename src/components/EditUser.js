@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import Layout from './Layout';
 import {Link} from 'react-router-dom'
+import { TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 function EditUser() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ function EditUser() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/betalist/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/api/users/${id}`);
         setFormData(response.data);
         console.log(response.data)
       } catch (error) {
@@ -45,7 +46,7 @@ function EditUser() {
     console.log('formdata',formData)
     e.preventDefault();
     try {
-      const response = await axios.put(`${API_BASE_URL}/api/betalist/edit/${id}`, formData);
+      const response = await axios.put(`${API_BASE_URL}/api/users/edit/${id}`, formData);
       if (response.status === 200) {
         toast.success("Source successfully updated!", {
           autoClose: toastDuration,
@@ -53,7 +54,7 @@ function EditUser() {
 
         // Navigate to sources page after toast disappears
         setTimeout(() => {
-          navigate("/betalist");
+          navigate("/users");
         }, toastDuration);
       } else {
         toast.error("Failed to update source: " + response.data.error, {
@@ -65,53 +66,68 @@ function EditUser() {
     }
   };
 
-    return (
-      <Layout>
-        <div className="content-wrapper">
-            <div className="card">
-                <div className="card-header">Edit Source</div>
-                <div className="card-body">
-                    {/* Consider adding a component or logic here for rendering errors */}
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="name">Topic</label>
-                            <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
-                            <input type="text" name="email" className="form-control" value={formData.email} onChange={handleChange} />
-                        </div>
-                        <div className="profession">
-                <label htmlFor="profession">Profession</label>
-                <select name="profession" className="form-control" onChange={handleChange}>
-                  <option value="family_physician">Family Physican</option>
-                  <option value="specialist_physician">Specialist Physician</option>
-                  <option value="medical_student">Medical Student</option>
-                    <option value="resident">Resident</option>
-                    <option value="nurse">Nurse Practiotioner/RN</option>
-                </select>
-              </div>
-              <div className="cohort">
-                <label htmlFor="cohort">Cohort</label>
-                <select name="cohort" className="form-control" onChange={handleChange} value={formData.cohort}>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
-                  <option value="none">None</option>
-                </select>
-              </div>
-                        <button type="submit" className="btn btn-primary btn-block">Update</button>
-                        <Link to="/betalist" className="btn btn-danger btn-block">Cancel</Link>
-                        
-                    </form>
-                </div>
-            </div>
+  return (
+    <Layout>
+    <div className="content-wrapper">
+        <div className="card">
+            <div className="card-header">Edit Source</div>
+            <div className="card-body">
+      <FormControl fullWidth style={{marginBottom: '1rem'}}>
+        <TextField
+          label="Name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          margin="normal"
+          variant="outlined"
+          fullWidth
+          style={{marginBottom: '1rem'}}
+          InputLabelProps={{shrink: true}}
+        />
+
+        <div style={{marginBottom: '1rem'}}>
+          <TextField
+            label="Email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            margin="normal"
+            variant="outlined"
+            fullWidth
+            InputLabelProps={{shrink: true}}
+          />
         </div>
+
+        <FormControl fullWidth style={{marginBottom: '1rem'}}>
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={formData.status}
+            onChange={handleChange}
+            name="status"
+            fullWidth
+            style={{marginBottom: '1rem'}}
+          >
+            <MenuItem value="active">Active</MenuItem>
+            <MenuItem value="deactivated">Deactivated</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          fullWidth
+          style={{marginTop: '1rem'}}
+        >
+          Update User
+        </Button>
+      </FormControl>
+      </div>
+      </div>
+      </div>
       </Layout>
+      
     );
-
-
 
 }
 
