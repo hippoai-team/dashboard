@@ -91,7 +91,7 @@ function EditUser() {
               </div>
               <div className="cohort">
                 <label htmlFor="cohort">Cohort</label>
-                <select name="cohort" className="form-control" onChange={handleChange} defaultValue="A">
+                <select name="cohort" className="form-control" onChange={handleChange} defaultValue="none">
                   <option value="A">A</option>
                   <option value="B">B</option>
                   <option value="C">C</option>
