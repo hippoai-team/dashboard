@@ -13,6 +13,9 @@ import AddIcon from '@mui/icons-material/Add';
 import ChartGraph from "./chartGraph";
 import Grid from '@mui/material/Grid';
 import PageTitle from "./pageTitle";
+
+//papa
+import Papa from "papaparse";
 const BetaList = () => {
     const navigate = useNavigate();
     const [ids, setIds] = useState([]);
@@ -241,6 +244,20 @@ const BetaList = () => {
         }
       }
 
+      const handleExportSelected = async () => {
+        const selectedUsers = users.filter((user) => selectedUserIds.includes(user._id));
+        const csvData = Papa.unparse(selectedUsers);
+        const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "selected_users.csv");
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
       return (
         <Layout>
           <div className="content-wrapper">
@@ -391,6 +408,15 @@ const BetaList = () => {
       sx={{ ml: 1 , marginBottom: 2}}
     >
       Invite Selected
+    </Button>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={handleExportSelected}
+      disabled={selectedUserIds.length === 0}
+      sx={{ ml: 1 , marginBottom: 2}}
+    >
+      Export Selected
     </Button>
   </div>
   </div>
