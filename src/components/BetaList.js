@@ -30,6 +30,7 @@ const BetaList = () => {
       not_signed_up: 0,
     });
     const [totalUsers, setTotalUsers] = useState(0);
+    const [cohortFilter, setCohortFilter] = useState("");
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [users, setUsers] = useState([]);
 
@@ -58,6 +59,10 @@ const BetaList = () => {
         if (statusFilter) {
           endpoint += `&status=${statusFilter}`;
         }
+
+        if (cohortFilter) {
+          endpoint += `&cohort=${cohortFilter}`;
+        }
     
         try {
           // Make a GET request to the endpoint using async/await
@@ -78,7 +83,7 @@ const BetaList = () => {
       // useEffect for fetching users on initial load and when currentPage changes
       useEffect(() => {
         fetchUsers();
-      }, [currentPage, search, perPage, statusFilter]);
+      }, [currentPage, search, perPage, statusFilter, cohortFilter]);
       
       const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -317,7 +322,25 @@ const BetaList = () => {
                           </div>
                         </form>
                       </div>
-                    
+                      <div className="col-4">
+                        <form onSubmit={(e) => e.preventDefault()}>
+                          <div className="form-group">
+                            <select
+                              name="cohort_filter"
+                              className="form-control"
+                              value={cohortFilter}
+                              onChange={(e) => setCohortFilter(e.target.value)}
+                            >
+                              <option value="">Cohort Filter</option>
+                              <option value="A">Cohort A</option>
+                              <option value="B">Cohort B</option>
+                              <option value="C">Cohort C</option>
+                              <option value="D">Cohort D</option>
+                              <option value="none">None</option>
+                            </select>
+                          </div>
+                        </form>
+                      </div>
                       
                       <div className="col-4">
                         <form onSubmit={(e) => e.preventDefault()}>
@@ -381,6 +404,8 @@ const BetaList = () => {
                       { dataIndex: 'email', title: 'Email' },
                       { dataIndex: 'status', title: 'Status' },
                       { dataIndex: 'usage', title: 'Usage' },
+                      { dataIndex: 'cohort', title: 'Cohort' },
+                    
                     ]}
                     actionButtons={[
                       { label: 'Edit', onClick: (user) => navigate(`/betalist/edit/${user._id}`) },

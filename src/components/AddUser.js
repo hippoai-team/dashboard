@@ -91,11 +91,13 @@ function AddUser() {
               <div className="profession">
                 <label htmlFor="profession">Profession</label>
                 <select name="profession" className="form-control" onChange={handleChange}>
-                  <option value="family_physician">Family Physiican</option>
+                  <option value="family_physician">Family Physican</option>
                   <option value="specialist_physician">Specialist Physician</option>
                   <option value="medical_student">Medical Student</option>
                     <option value="resident">Resident</option>
                     <option value="nurse">Nurse Practiotioner/RN</option>
+                    <option value="pharmacist">Pharmacist</option>
+                    <option value="other">Other</option>
                 </select>
               </div>
 

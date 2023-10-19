@@ -14,7 +14,7 @@ function EditUser() {
   const navigate = useNavigate();
   const { id } = useParams(); // This captures the ID from the URL
   const toastDuration = 2000; // 2 seconds or any duration you want
-  const API_BASE_URL = process.env.NODE_API_URL || 'https://dashboard-api-woad.vercel.app';
+  const API_BASE_URL = "http://localhost:8080"
 
 
 
@@ -42,10 +42,8 @@ function EditUser() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await axios.put(`${API_BASE_URL}/api/betalist/edit/${id}`, formData);
-
       if (response.status === 200) {
         toast.success("Source successfully updated!", {
           autoClose: toastDuration,
@@ -84,11 +82,21 @@ function EditUser() {
                         <div className="profession">
                 <label htmlFor="profession">Profession</label>
                 <select name="profession" className="form-control" onChange={handleChange}>
-                  <option value="family_physician">Family Physiican</option>
+                  <option value="family_physician">Family Physican</option>
                   <option value="specialist_physician">Specialist Physician</option>
                   <option value="medical_student">Medical Student</option>
                     <option value="resident">Resident</option>
                     <option value="nurse">Nurse Practiotioner/RN</option>
+                </select>
+              </div>
+              <div className="cohort">
+                <label htmlFor="cohort">Cohort</label>
+                <select name="cohort" className="form-control" onChange={handleChange} defaultValue="A">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                  <option value="none">None</option>
                 </select>
               </div>
                         <button type="submit" className="btn btn-primary btn-block">Update</button>
