@@ -14,7 +14,7 @@ function EditUser() {
   const navigate = useNavigate();
   const { id } = useParams(); // This captures the ID from the URL
   const toastDuration = 2000; // 2 seconds or any duration you want
-  const API_BASE_URL = process.env.NODE_API_URL || 'https://dashboard-api-woad.vercel.app';
+  const API_BASE_URL = process.env.REACT_APP_NODE_API_URL || 'https://dashboard-api-woad.vercel.app';
 
 
 
@@ -24,6 +24,7 @@ function EditUser() {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/betalist/${id}`);
         setFormData(response.data);
+        console.log(response.data)
       } catch (error) {
         toast.error('Error fetching source data: ' + error.message);
       }
@@ -41,6 +42,7 @@ function EditUser() {
   };
 
   const handleSubmit = async (e) => {
+    console.log('formdata',formData)
     e.preventDefault();
     try {
       const response = await axios.put(`${API_BASE_URL}/api/betalist/edit/${id}`, formData);
@@ -91,7 +93,7 @@ function EditUser() {
               </div>
               <div className="cohort">
                 <label htmlFor="cohort">Cohort</label>
-                <select name="cohort" className="form-control" onChange={handleChange} defaultValue="none">
+                <select name="cohort" className="form-control" onChange={handleChange} value={formData.cohort}>
                   <option value="A">A</option>
                   <option value="B">B</option>
                   <option value="C">C</option>

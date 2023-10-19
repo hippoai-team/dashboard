@@ -35,7 +35,7 @@ const BetaList = () => {
     const [users, setUsers] = useState([]);
 
 
-      const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
+      const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
       const chartOptions = {
         chart: {
           id: "basic-bar",
@@ -222,7 +222,6 @@ const BetaList = () => {
     
           if (response.status === 200) {
             // Display success toast
-            console.log('response',response.data);
             const toastMessage = response.data;
             toast.success(toastMessage, {
               autoClose: toastDuration,

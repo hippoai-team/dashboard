@@ -18,7 +18,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const ChatLogList = () => {
 
-    const API_BASE_URL = process.env.NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
+    const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
     const navigate = useNavigate();
     const [chatLogs, setChatLogs] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -29,6 +29,7 @@ const ChatLogList = () => {
     const [userList, setUserList] = useState([]);
     const [dateCountObj, setDateCountObj] = useState({});//[date: count
     const [selectedUser, setSelectedUser] = useState("");
+    const [selectedUserGroup, setSelectedUserGroup] = useState("");//[date: count
     const [selectedDate, setSelectedDate] = useState("");
     const [feedBackCount, setFeedBackCount] = useState(0)
     const [userRatingFilter, setUserRatingFilter] = useState(false);
@@ -41,6 +42,7 @@ const ChatLogList = () => {
         labels: Object.keys(dateCountObj),
       };
 
+    const cohortList = ['A', 'B', 'C', 'D', 'none']
     const fetchChatLogs = async () => {
         setLoading(true);
         let endpoint = `${API_BASE_URL}/api/chatlogs?page=${currentPage}`;
@@ -52,6 +54,9 @@ const ChatLogList = () => {
           }
         if (selectedUser) {
             endpoint += `&user=${selectedUser}`;
+            }
+        if (selectedUserGroup) {
+            endpoint += `&userGroup=${selectedUserGroup}`;
             }
         if (selectedDate) {
             endpoint += `&date=${selectedDate}`;
@@ -96,7 +101,7 @@ const ChatLogList = () => {
 
     useEffect(() => {
         fetchChatLogs();
-    }, [currentPage, perPage, search, selectedUser, selectedDate, dateRange, userRatingFilter]);
+    }, [currentPage, perPage, search, selectedUser, selectedDate, dateRange, userRatingFilter, selectedUserGroup]);
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -108,6 +113,10 @@ const ChatLogList = () => {
 
     const handleUserChange = (e) => {
         setSelectedUser(e.target.value);
+    }
+
+    const handleUserGroupChange = (e) => {
+        setSelectedUserGroup(e.target.value);
     }
 
     const handleDateChange = (e) => {
@@ -181,11 +190,28 @@ const ChatLogList = () => {
                                                         onChange={handleUserChange}
                                                     >
                                                         <option value="">All</option>
-                                                        <option value="beta">Beta Users</option>
+                                                    
+
                                                         {userList.map((user) => (
                                                             <option key={user} value={user}>{user}</option>
                                                         ))}
                                                         
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-2">
+                                                <div className="form-group">
+                                                    <label>User Group</label>
+                                                    <select
+                                                        className="form-control"
+                                                        value={selectedUserGroup}
+                                                        onChange={handleUserGroupChange}
+                                                    >
+                                                        <option value="">All</option>
+                                                        <option value="beta">Beta</option>
+                                                        {cohortList.map((cohort) => (
+                                                            <option key={cohort} value={cohort}>Cohort {cohort}</option>
+                                                        ))}
                                                     </select>
                                                 </div>
                                             </div>

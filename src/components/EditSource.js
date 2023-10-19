@@ -14,7 +14,7 @@ function EditSource() {
   const navigate = useNavigate();
   const { id } = useParams(); // This captures the ID from the URL
   const toastDuration = 2000; // 2 seconds or any duration you want
-  const API_BASE_URL = process.env.NODE_API_URL || 'https://dashboard-api-woad.vercel.app';
+  const API_BASE_URL = process.env._REACT_APP_NODE_API_URL || 'https://dashboard-api-woad.vercel.app';
 
 
 
