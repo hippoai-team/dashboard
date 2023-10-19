@@ -6,7 +6,8 @@ import NumDisplay from "./numDisplay";
 import PageTitle from "./pageTitle";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import Grid from "@mui/material/Grid";
+import DailyChartGraph from "./dailyDataGraph";
 const UserList = () => {
     const navigate = useNavigate();
 
@@ -28,13 +29,43 @@ const UserList = () => {
   const [queriesByUserAndWeek, setQueriesByUserAndWeek] = useState([]);
   const [weekOverWeekChanges, setWeekOverWeekChanges] = useState([]);
     const [selectedUser, setSelectedUser] = useState("");
-    const [selectedUserGroup, setSelectedUserGroup] = useState("");
+    const [selectedUserGroup, setSelectedUserGroup] = useState("all");
     const [selectedDate, setSelectedDate] = useState("");
     const [dateRange, setDateRange] = useState("all-time");
     const [dateCountObj, setDateCountObj] = useState({});
     const [userList, setUserList] = useState([]);
 
+    const chartOptions = {
 
+            chart: {
+              type: 'bar',
+            },
+            xaxis: {
+              type: 'datetime',
+              labels: {
+                datetimeUTC: false,
+                datetimeFormatter: {
+                  year: 'yyyy',
+                  month: 'MMM \'yy',
+                  day: 'dd MMM',
+                },
+              }
+            },
+            tooltip: {
+                x: {
+                  formatter: (value, { series, seriesIndex, dataPointIndex, w }) => {
+                    return new Date(value).toLocaleDateString();
+                  },
+                },
+                y: {
+                  formatter: (value, { series, seriesIndex, dataPointIndex, w }) => {
+                    const date = w.globals.labels[dataPointIndex];
+                    const users = w.config.userData[date]?.users || [];
+                    return `Count: ${value} <br> Users: ${users.join(', ')}`;
+                  }
+                }
+              }
+            };
 const cohortList = ['A', 'B', 'C', 'D', 'none'];
   const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
@@ -63,7 +94,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
         }
       const response = await axios.get(endpoint);
         setUsers(response.data.users);
-        console.log(response.data.users)
+        console.log(response.data)
         setTotalUsers(response.data.totalUsers);
         setTotalUsageCount(response.data.totalUsageCount);
         setTotalFeedbackCount(response.data.totalFeedbackCount);
@@ -184,6 +215,40 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
                                   <h3 className="card-title">Beta Users</h3>
                               </div>
                               <div className="card-body">
+                                  <Grid container spacing={3}>
+                                      <Grid item xs={12} sm={6} md={3}>
+                                          <NumDisplay title="Total Users" value={totalUsers} />
+                                      </Grid>
+                                      <Grid item xs={12} sm={6} md={3}>
+                                          <NumDisplay title="Total Feedback" value={totalFeedbackCount} />
+                                      </Grid>
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <NumDisplay title="Total Usage" value={totalUsageCount} />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <NumDisplay title="Churn Rate" value={churnData['totalChurnRate']} />
+
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <NumDisplay title="Churn Per Week" value={churnData['churnPerWeek']} />
+                                            </Grid>
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            
+                                        </Grid>                               
+                                  </Grid>
+                                  <DailyChartGraph title="Daily Active Users"
+                                            options={chartOptions}
+                                            series={[{
+                                                name: 'Daily Active Users',
+                                                data: Object.keys(dailyActiveUsers).map(entry => dailyActiveUsers[entry].count)
+                                            }]}
+                                            labels={Object.keys(dailyActiveUsers).map(dateStr => new Date(dateStr).getTime())}
+                                            type="bar"
+                                            width="100%"
+                                            height={350}
+                                            userData={dailyActiveUsers}
+                                            
+                                          />
                                         <div className="row">
                                             <div className="col-md-2">
                                                 <div className="form-group">
@@ -224,7 +289,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
                                                     
 
                                                         {users.map((user) => (
-                                                            <option key={user} value={user.email}>{user.name} - {user.email}</option>
+                                                            <option key={user._id} value={user.email}>{user.name} - {user.email}</option>
                                                         ))}
                                                         
                                                     </select>
@@ -238,7 +303,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
                                                         value={selectedUserGroup}
                                                         onChange={handleUserGroupChange}
                                                     >
-                                                        <option value="">All</option>
+                                                        <option value="all">All</option>
                                                         <option value="beta">Beta</option>
                                                         {cohortList.map((cohort) => (
                                                             <option key={cohort} value={cohort}>Cohort {cohort}</option>
