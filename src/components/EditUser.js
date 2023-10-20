@@ -9,7 +9,10 @@ import { TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@m
 
 function EditUser() {
   const [formData, setFormData] = useState({
-    // ... initial empty state
+    name: '',
+    email: '',
+    status: '',
+    permissions: [],
   });
 
   const navigate = useNavigate();
@@ -109,6 +112,20 @@ function EditUser() {
           >
             <MenuItem value="active">Active</MenuItem>
             <MenuItem value="deactivated">Deactivated</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth style={{marginBottom: '1rem'}}>
+          <InputLabel>Permissions</InputLabel>
+          <Select
+            multiple
+            value={formData.permissions}
+            onChange={handleChange}
+            name="permissions"
+            fullWidth
+            style={{marginBottom: '1rem'}}
+          >
+            <MenuItem value="user">User</MenuItem>
+            <MenuItem value="admin">Admin</MenuItem>
           </Select>
         </FormControl>
 

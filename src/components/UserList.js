@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import Grid from "@mui/material/Grid";
 import DailyChartGraph from "./dailyDataGraph";
+import ChartGraph from "./chartGraph";
 const UserList = () => {
     const navigate = useNavigate();
 
@@ -34,6 +35,7 @@ const UserList = () => {
     const [dateRange, setDateRange] = useState("all-time");
     const [dateCountObj, setDateCountObj] = useState({});
     const [userList, setUserList] = useState([]);
+    const [weeklyActiveUsers, setWeeklyActiveUsers] = useState([]);
 
     const chartOptions = {
 
@@ -103,6 +105,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
         setQueriesByUserAndWeek(response.data.queriesByUserAndWeek);
         setWeekOverWeekChanges(response.data.weekOverWeekChanges);
         setTotalIds(response.data.totalUsers);
+        setWeeklyActiveUsers(response.data.weeklyActiveUsers);
 
     } catch (error) {
       console.log(error);
@@ -201,6 +204,84 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
             setSelectedDate(e.target.value);
         }
 
+const prepareDataWeekOverWeek = (queriesByUserAndWeek, title,ylabel) => {
+const totalQueriesByWeek = {};
+const labels = Object.keys(queriesByUserAndWeek);
+
+// Initialize a userSeries object
+const userSeries = {};
+
+Object.keys(queriesByUserAndWeek).forEach(week => {
+  totalQueriesByWeek[week] = 0;
+  Object.keys(queriesByUserAndWeek[week]).forEach(user => {
+    totalQueriesByWeek[week] += queriesByUserAndWeek[week][user];
+    if (!userSeries[user]) userSeries[user] = [];
+    userSeries[user].push(queriesByUserAndWeek[week][user]);
+  });
+});
+
+
+const series = [
+    {
+      name: 'Total Queries',
+      data: Object.values(totalQueriesByWeek),
+    },
+    ...Object.keys(userSeries).map(user => ({
+      name: user,
+      data: userSeries[user],
+    }))
+  ];
+
+  const options = {
+        chart: {
+          id: 'week-by-week-usage',
+          type: 'line',
+          height: 350,
+          zoom: {
+            autoScaleYaxis: true,
+          },
+        },
+        colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0'], // Add more colors if you have more users
+        dataLabels: {
+          enabled: false,
+        },
+        markers: {
+          size: 0,
+        },
+        title: {
+          text: title || 'Week Over Week Usage',
+          align: 'left',
+        },
+        xaxis: {
+          type: 'category',
+          categories: [], // Will be filled dynamically by the labels prop
+          title: {
+            text: 'Week',
+          },
+        },
+        yaxis: {
+          title: {
+            text: ylabel || 'Queries',
+          },
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+          x: {
+            show: true,
+          },
+        },
+        legend: {
+          horizontalAlign: 'left',
+        },
+      };
+
+        return {series,labels,options};
+    }
+
+        
+
+
   return (
     <Layout>
     <div className="content-wrapper">
@@ -226,6 +307,14 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
                                             <NumDisplay title="Total Usage" value={totalUsageCount} />
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
+                                            <NumDisplay title="Followup Count" value={users.reduce((acc, user) => {
+                                                if (isNaN(user.followup_usage) || user.followup_usage === undefined) {
+                                                    return acc;
+                                                }
+                                                return acc + user.followup_usage;
+                                            }, 0)} />
+                                            </Grid>
+                                        <Grid item xs={12} sm={6} md={3}>
                                             <NumDisplay title="Churn Rate" value={churnData['totalChurnRate']} />
 
                                         </Grid>
@@ -233,10 +322,25 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
                                             <NumDisplay title="Churn Per Week" value={churnData['churnPerWeek']} />
                                             </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
-                                            
-                                        </Grid>                               
+                                            <NumDisplay title="Clicked Sources" value={users.reduce((acc, user) => {
+                                                if (isNaN(user.sourceClickCount) || user.sourceClickCount === undefined) {
+                                                    return acc;
+                                                }
+                                                return acc + user.sourceClickCount;
+                                            }, 0)} />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={3}>
+                                            <NumDisplay title="Clicked Sources" value={users.reduce((acc, user) => {
+                                                if (isNaN(user.sourceClickCount) || user.sourceClickCount === undefined) {
+                                                    return acc;
+                                                }
+                                                return acc + user.sourceClickCount;
+                                            }, 0)} />
+                                            </Grid>                               
                                   </Grid>
-                                  <DailyChartGraph title="Daily Active Users"
+                                  <Grid container spacing={3}>
+                                      <Grid item xs={12} md={6}>
+                                          <DailyChartGraph title="Daily Active Users"
                                             options={chartOptions}
                                             series={[{
                                                 name: 'Daily Active Users',
@@ -249,6 +353,52 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
                                             userData={dailyActiveUsers}
                                             
                                           />
+                                         <ChartGraph title="Week Over Week Usage"
+                                            options={prepareDataWeekOverWeek(queriesByUserAndWeek, 'Week Over Week Usage', 'Queries').options}
+                                            series={prepareDataWeekOverWeek(queriesByUserAndWeek).series}
+                                            labels={prepareDataWeekOverWeek(queriesByUserAndWeek).labels}
+                                            type="line"
+                                            width="100%"
+                                            height={350}
+                                       
+                                            />
+                                      </Grid>
+                                      <Grid item xs={12} md={6}>
+                                      <ChartGraph title="Weekly Active Users"
+                                            options={chartOptions}
+                                            series={[
+                                                {
+                                                    name: 'Weekly Active Users',
+                                                    data: Object.keys(weeklyActiveUsers).map(entry => weeklyActiveUsers[entry].count)
+                                                },
+                                                {
+                                                    name: 'Change',
+                                                    data: Object.keys(weeklyActiveUsers).map((entry, index) => {
+                                                        if (index === 0) {
+                                                            return 0;
+                                                        }
+                                                        return weeklyActiveUsers[entry].count - weeklyActiveUsers[Object.keys(weeklyActiveUsers)[index - 1]].count;
+                                                    })
+                                                }
+                                            ]}
+                                            labels={Object.keys(weeklyActiveUsers).map(dateStr => new Date(dateStr).getTime())}
+                                            type="bar"
+                                            width="100%"
+                                            height={350}
+                                            userData={weeklyActiveUsers}
+                                            
+                                          />
+                                          
+                                          <ChartGraph title="Week Over Week Changes"
+                                            options={prepareDataWeekOverWeek(weekOverWeekChanges, 'Week Over Week Changes', 'Change').options}
+                                            series={prepareDataWeekOverWeek(weekOverWeekChanges).series}
+                                            labels={prepareDataWeekOverWeek(weekOverWeekChanges).labels}
+                                            type="line"
+                                            width="100%"
+                                            height={350}
+                                            />
+                                      </Grid>
+                                  </Grid>
                                         <div className="row">
                                             <div className="col-md-2">
                                                 <div className="form-group">
@@ -352,7 +502,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
                                         { dataIndex: 'usage', title: 'Usage' },
                                         { dataIndex: 'sourcesCount', title: 'Sources' },
                                         { dataIndex: 'threadsCount', title: 'Threads' },
-                                        { dataIndex: 'sourceClickCount', title: 'Source Click Count' },
+                                        { dataIndex: 'sourcesCount', title: 'Saved Source Count' },
                                         { dataIndex: 'followup_usage', title: 'Followup Usage' },
                                         { dataIndex: 'num_logins', title: 'Number of Logins' },
                                         { dataIndex: 'feedback_count', title: 'Feedback Count' },
