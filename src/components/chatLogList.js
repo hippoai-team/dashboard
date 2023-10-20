@@ -31,7 +31,7 @@ const ChatLogList = () => {
     const [selectedUser, setSelectedUser] = useState("");
     const [selectedUserGroup, setSelectedUserGroup] = useState("");//[date: count
     const [selectedDate, setSelectedDate] = useState("");
-    const [feedBackCount, setFeedBackCount] = useState(0)
+    const [feedBackCount, setFeedBackCount] = useState([0, 0]);//[yes, no
     const [userRatingFilter, setUserRatingFilter] = useState(false);
     const [dateRange, setDateRange] = useState('all-time')
     const toastDuration = 3000;
@@ -86,7 +86,14 @@ const ChatLogList = () => {
         setCurrentPage(page);
         setUserList(users);
         setDateCountObj(dateCountObj);
-        const userRatingCount = chatLogs.filter(log => log.user_rating).length;
+        const userRatingCount = chatLogs.reduce((acc, log) => {
+            if (log.user_rating === 'Yes') {
+                acc[0]++;
+            } else if (log.user_rating === 'No') {
+                acc[1]++;
+            }
+            return acc;
+        }, [0, 0]);
         setFeedBackCount(userRatingCount);
         setLoading(false);
         console.log('dateCountObj', dateCountObj);
@@ -283,7 +290,7 @@ const ChatLogList = () => {
                                                 </div>
                                                 <div className="col-md-4">
                                             <NumDisplay
-                                                title="Total Feedback"
+                                                title={["Positive Feedback", "Negative Feedback"]}
                                                 value={feedBackCount}
                                                 sx={{
                                                     backgroundColor: alpha('#2196F3', 0.1),

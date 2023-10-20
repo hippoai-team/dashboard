@@ -32,7 +32,7 @@ const UserList = () => {
     const [selectedUser, setSelectedUser] = useState("");
     const [selectedUserGroup, setSelectedUserGroup] = useState("all");
     const [selectedDate, setSelectedDate] = useState("");
-    const [dateRange, setDateRange] = useState("all-time");
+    const [dateRange, setDateRange] = useState("all_time");
     const [dateCountObj, setDateCountObj] = useState({});
     const [userList, setUserList] = useState([]);
     const [weeklyActiveUsers, setWeeklyActiveUsers] = useState([]);
@@ -93,6 +93,10 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
         }
         if (selectedUserGroup) {
         endpoint += `&userGroupFilter=${selectedUserGroup}`;
+        }
+
+        if (dateRange) {
+        endpoint += `&dateRange=${dateRange}`;
         }
       const response = await axios.get(endpoint);
         setUsers(response.data.users);
@@ -330,11 +334,11 @@ const series = [
                                             }, 0)} />
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
-                                            <NumDisplay title="Clicked Sources" value={users.reduce((acc, user) => {
-                                                if (isNaN(user.sourceClickCount) || user.sourceClickCount === undefined) {
+                                            <NumDisplay title="Saved Sources" value={users.reduce((acc, user) => {
+                                                if (isNaN(user.sourcesCount) || user.sourcesCount === undefined) {
                                                     return acc;
                                                 }
-                                                return acc + user.sourceClickCount;
+                                                return acc + user.sourcesCount;
                                             }, 0)} />
                                             </Grid>                               
                                   </Grid>
@@ -484,10 +488,10 @@ const series = [
                                                         value={dateRange}
                                                         onChange={(e) => setDateRange(e.target.value)}
                                                     >
-                                                        <option value="all-time">All Time</option>
-                                                        <option value="last-week">Last Week</option>
-                                                        <option value="last-month">Last Month</option>
-                                                        <option value="last-year">Last Year</option>
+                                                        <option value="all_time">All Time</option>
+                                                        <option value="last_week">Last Week</option>
+                                                        <option value="last_month">Last Month</option>
+                                                        <option value="last_year">Last Year</option>
                                                     </select>
                                                 </div>
                                                 </div>
@@ -502,7 +506,6 @@ const series = [
                                         { dataIndex: 'usage', title: 'Usage' },
                                         { dataIndex: 'sourcesCount', title: 'Sources' },
                                         { dataIndex: 'threadsCount', title: 'Threads' },
-                                        { dataIndex: 'sourcesCount', title: 'Saved Source Count' },
                                         { dataIndex: 'followup_usage', title: 'Followup Usage' },
                                         { dataIndex: 'num_logins', title: 'Number of Logins' },
                                         { dataIndex: 'feedback_count', title: 'Feedback Count' },
