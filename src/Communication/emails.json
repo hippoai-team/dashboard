@@ -1,0 +1,9 @@
+{
+    "invite": {
+      "subject": "You're invited to sign up for HippoAI",
+      "text": "Hello ${user.name}, \nThank you for your interest in HippoAI!\n\nYou've been invited to sign up for HippoAI by Pendium Health.\nTo create your account, click the link below and sign up with this email address.\nhttps://hippo.pendium.health/sign-up",
+    "vars": ["${user.name}"]
+    
+    }
+  }
+  

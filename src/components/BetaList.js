@@ -13,7 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ChartGraph from "./chartGraph";
 import Grid from '@mui/material/Grid';
 import PageTitle from "./pageTitle";
-
+import emails from "../Communication/emails";
 //papa
 import Papa from "papaparse";
 const BetaList = () => {
@@ -147,7 +147,7 @@ const BetaList = () => {
               "Content-Type": "application/json",
             },
 
-            data: { userIds: selectedUserIds },
+            data: { userIds: selectedUserIds},
           })
           .then((response) => {
             // Display message from the server
@@ -171,6 +171,36 @@ const BetaList = () => {
           });
       };
 
+      const handleEmailSelected = () => {
+        axios
+          .post(`${API_BASE_URL}/api/betalist/emailTemplateToUsers`, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            data: { users: users.filter((user) => selectedUserIds.includes(user._id)), emailType: "email2"},
+          })
+          .then((response) => {
+            // Display message from the server
+            const message = response.data.message;
+            toast.success(message, {
+              autoClose: toastDuration,
+            });
+
+            // Refresh the list after the toast disappears
+            setTimeout(() => {
+              fetchUsers();
+              setSelectedUserIds([]); // Clear the selectedUserIds state
+            }, toastDuration);
+          })
+          .catch((error) => {
+            // Display error toast
+            toast.error("Error inviting selected users!", {
+              autoClose: toastDuration,
+            });
+            console.error("Error inviting selected users:", error);
+          });
+      };
     
       // Function to handle clicking the "Next" button
       const handleNextPage = () => {
