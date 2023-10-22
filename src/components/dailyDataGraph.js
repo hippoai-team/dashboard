@@ -1,6 +1,6 @@
 import React from "react";
 import Chart from "react-apexcharts";
-import { Card, CardContent, CardHeader } from "@mui/material";
+import { Card, CardContent, CardHeader, Tooltip } from "@mui/material";
 
 
 
@@ -23,12 +23,12 @@ const defaultOptions = {
           const users = w.config.userData[date]?.users || [];
           return `Count: ${value} <br> Users: ${users.join(', ')}`;
         }
-      }
+      },
     }
   };
   
-  const DailyChartGraph = ({ series, labels, title, width, height, userData }) => {
-    const newOptions = { ...defaultOptions, labels: labels };
+  const DailyChartGraph = ({ series, labels, title, width, height, userData, description }) => {
+    const newOptions = { ...defaultOptions, labels: labels, subtitle: { text: description }};
     newOptions.tooltip.y = {
       formatter: (value, { series, seriesIndex, dataPointIndex, w }) => {
         const date = Object.keys(userData)[dataPointIndex];
@@ -41,7 +41,9 @@ const defaultOptions = {
     return (
 
         <Card sx={'sm'}>
-        <CardHeader title={title} sx={{backgroundColor: '#3f51b5', color: '#fff'}}/>
+        <CardHeader title={title} sx={{backgroundColor: '#3f51b5', color: '#fff'}}>
+          {title}
+        </CardHeader>
         <CardContent>
                     <Chart
                       options= {newOptions}

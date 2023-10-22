@@ -33,7 +33,7 @@ const ChatLogList = () => {
     const [selectedDate, setSelectedDate] = useState("");
     const [feedBackCount, setFeedBackCount] = useState([0, 0]);//[yes, no
     const [userRatingFilter, setUserRatingFilter] = useState(false);
-    const [dateRange, setDateRange] = useState('all-time')
+    const [dateRange, setDateRange] = useState('last-week')
     const toastDuration = 3000;
     const chartOptions = {
         chart: {
@@ -68,7 +68,6 @@ const ChatLogList = () => {
             }
 
         if (userRatingFilter) {
-            console.log('userRatingFilter', userRatingFilter);
             endpoint += `&userRatingFilter=${userRatingFilter}`;
             }
 
@@ -79,22 +78,15 @@ const ChatLogList = () => {
             totalCount,
             currentPage: page,
             dateCountObj,
-            users
+            users,
+            totalFeedback
         } = res.data;
         setChatLogs(chatLogs);
         setTotalLogs(totalCount);
         setCurrentPage(page);
         setUserList(users);
         setDateCountObj(dateCountObj);
-        const userRatingCount = chatLogs.reduce((acc, log) => {
-            if (log.user_rating === 'Yes') {
-                acc[0]++;
-            } else if (log.user_rating === 'No') {
-                acc[1]++;
-            }
-            return acc;
-        }, [0, 0]);
-        setFeedBackCount(userRatingCount);
+        setFeedBackCount(totalFeedback);
         setLoading(false);
         console.log('dateCountObj', dateCountObj);
 
@@ -292,6 +284,7 @@ const ChatLogList = () => {
                                             <NumDisplay
                                                 title={["Positive Feedback", "Negative Feedback"]}
                                                 value={feedBackCount}
+                                                description={["Number of users who found the chatbot helpful", "Number of users who did not find the chatbot helpful"]}
                                                 sx={{
                                                     backgroundColor: alpha('#2196F3', 0.1),
                                                     color: '#2196F3',

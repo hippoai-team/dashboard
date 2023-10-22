@@ -9,12 +9,13 @@ import { toast } from "react-toastify";
 import Grid from "@mui/material/Grid";
 import DailyChartGraph from "./dailyDataGraph";
 import ChartGraph from "./chartGraph";
+import Typography from "@mui/material/Typography";
 const UserList = () => {
     const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
-  const [perPage, setPerPage] = useState(10); // Initialize perPage state
+  const [perPage, setPerPage] = useState(20); // Initialize perPage state
   const [selectedIds, setSelectedIds] = useState([]);
   const [totalIds, setTotalIds] = useState(0); // Initialize totalUsers state
   const toastDuration = 1000; // 2 seconds
@@ -32,10 +33,11 @@ const UserList = () => {
     const [selectedUser, setSelectedUser] = useState("");
     const [selectedUserGroup, setSelectedUserGroup] = useState("all");
     const [selectedDate, setSelectedDate] = useState("");
-    const [dateRange, setDateRange] = useState("all_time");
+    const [dateRange, setDateRange] = useState("last_week");
     const [dateCountObj, setDateCountObj] = useState({});
     const [userList, setUserList] = useState([]);
     const [weeklyActiveUsers, setWeeklyActiveUsers] = useState([]);
+    const [descriptions, setDescriptions] = useState({});
 
     const chartOptions = {
 
@@ -100,7 +102,6 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
         }
       const response = await axios.get(endpoint);
         setUsers(response.data.users);
-        console.log(response.data)
         setTotalUsers(response.data.totalUsers);
         setTotalUsageCount(response.data.totalUsageCount);
         setTotalFeedbackCount(response.data.totalFeedbackCount);
@@ -110,7 +111,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
         setWeekOverWeekChanges(response.data.weekOverWeekChanges);
         setTotalIds(response.data.totalUsers);
         setWeeklyActiveUsers(response.data.weeklyActiveUsers);
-
+        setDescriptions(response.data.descriptions);
     } catch (error) {
       console.log(error);
     }
@@ -297,18 +298,19 @@ const series = [
                       <div className="col-12">
                           <div className="card card-primary">
                               <div className="card-header">
-                                  <h3 className="card-title">Users</h3>
+                                  <h3 className="card-title">Users: Group: <strong>'{selectedUserGroup}'</strong> Date Range: <strong>'{dateRange}'</strong> {selectedUser ? <strong>`User: ${selectedUser}`</strong> : ''} {selectedDate ? `Date: ${selectedDate}` : ''}</h3>
                               </div>
                               <div className="card-body">
                                   <Grid container spacing={3}>
+                                      
                                       <Grid item xs={12} sm={6} md={3}>
                                           <NumDisplay title="Total Users" value={totalUsers} />
                                       </Grid>
                                       <Grid item xs={12} sm={6} md={3}>
-                                          <NumDisplay title="Total Feedback" value={totalFeedbackCount} />
+                                          <NumDisplay title="Total Feedback" value={totalFeedbackCount} description={descriptions.totalFeedbackDescription} />
                                       </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
-                                            <NumDisplay title="Total Usage" value={totalUsageCount} />
+                                            <NumDisplay title="Total Usage" value={totalUsageCount} description={descriptions.totalUsageDescription} />
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
                                             <NumDisplay title="Followup Count" value={users.reduce((acc, user) => {
@@ -319,11 +321,17 @@ const series = [
                                             }, 0)} />
                                             </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
-                                            <NumDisplay title="Churn Rate" value={churnData['totalChurnRate']} />
+                                            <NumDisplay 
+                                            title="Churn Rate" 
+                                            description={descriptions.churnDescription}
+                                            value={churnData['totalChurnRate']} />
 
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
-                                            <NumDisplay title="Churn Per Week" value={churnData['churnPerWeek']} />
+                                            <NumDisplay 
+                                            title="Churn Per Week" 
+                                            description={descriptions.churnDescription}
+                                            value={churnData['churnPerWeek']} />
                                             </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
                                             <NumDisplay title="Clicked Sources" value={users.reduce((acc, user) => {
@@ -342,7 +350,60 @@ const series = [
                                             }, 0)} />
                                             </Grid>                               
                                   </Grid>
+                                  <div className="row">
+                                  <div className="col-md-2">
+                                                <div className="form-group">
+                                                    <label>User</label>
+                                                    <select
+                                                        className="form-control"
+                                                        value={selectedUser}
+                                                        onChange={handleUserChange}
+                                                    >
+                                                        <option value="">All</option>
+                                                    
+
+                                                        {users.map((user) => (
+                                                            <option key={user._id} value={user.email}>{user.name} - {user.email}</option>
+                                                        ))}
+                                                        
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-2">
+                                                <div className="form-group">
+                                                    <label>User Group</label>
+                                                    <select
+                                                        className="form-control"
+                                                        value={selectedUserGroup}
+                                                        onChange={handleUserGroupChange}
+                                                    >
+                                                        <option value="all">All</option>
+                                                        <option value="beta">Beta</option>
+                                                        {cohortList.map((cohort) => (
+                                                            <option key={cohort} value={cohort}>Cohort {cohort}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                           
+                                            <div className="col-md-2">
+                                                <div className="form-group">
+                                                    <label>Date Range</label>
+                                                    <select
+                                                        className="form-control"
+                                                        value={dateRange}
+                                                        onChange={(e) => setDateRange(e.target.value)}
+                                                    >
+                                                        <option value="all_time">All Time</option>
+                                                        <option value="last_week">Last Week</option>
+                                                        <option value="last_month">Last Month</option>
+                                                        <option value="last_year">Last Year</option>
+                                                    </select>
+                                                </div>
+                                              </div>
+                                              </div>
                                   <Grid container spacing={3}>
+                                      
                                       <Grid item xs={12} md={6}>
                                           <DailyChartGraph title="Daily Active Users"
                                             options={chartOptions}
@@ -354,7 +415,9 @@ const series = [
                                             type="bar"
                                             width="100%"
                                             height={350}
+                                            description={descriptions.dailyActiveUsersDescription}
                                             userData={dailyActiveUsers}
+
                                             
                                           />
                                          <ChartGraph title="Week Over Week Usage"
@@ -364,6 +427,7 @@ const series = [
                                             type="line"
                                             width="100%"
                                             height={350}
+                                            description={descriptions.weeklyTurnOverRateDescription}
                                        
                                             />
                                       </Grid>
@@ -390,6 +454,7 @@ const series = [
                                             width="100%"
                                             height={350}
                                             userData={weeklyActiveUsers}
+                                            description={descriptions.weeklyActiveUsersDescription}
                                             
                                           />
                                           
@@ -400,6 +465,7 @@ const series = [
                                             type="line"
                                             width="100%"
                                             height={350}
+                                            description='The graph below shows the difference in the number of queries made by each user from week to week. '
                                             />
                                       </Grid>
                                   </Grid>
@@ -465,21 +531,7 @@ const series = [
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div className="col-md-2">
-                                                <div className="form-group">
-                                                    <label>Date</label>
-                                                    <select
-                                                        className="form-control"
-                                                        value={selectedDate}
-                                                        onChange={handleDateChange}
-                                                    >
-                                                        <option value="">All</option>
-                                                        {Object.keys(dateCountObj).map((date) => (
-                                                            <option key={date} value={date}>{date}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            </div>
+                                           
                                             <div className="col-md-2">
                                                 <div className="form-group">
                                                     <label>Date Range</label>
@@ -494,7 +546,7 @@ const series = [
                                                         <option value="last_year">Last Year</option>
                                                     </select>
                                                 </div>
-                                                </div>
+                                              </div>
 
                                         </div>
                                         

@@ -174,7 +174,9 @@ const BetaList = () => {
     
       // Function to handle clicking the "Next" button
       const handleNextPage = () => {
-        setCurrentPage(currentPage + 1);
+        if (currentPage < Math.ceil(totalUsers / perPage)) {
+          setCurrentPage(currentPage + 1);
+        }
       };
     
       // Function to handle clicking the "Previous" button
@@ -442,6 +444,8 @@ const BetaList = () => {
                     handleCheckboxChange={handleCheckboxChange}
                     handleAllCheckboxChange={handleAllCheckboxChange}
                     totalEntries={totalUsers}
+                    handleNextPage={handleNextPage}
+                    handlePreviousPage={handlePreviousPage}
 
                     />                
     

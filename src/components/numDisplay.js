@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
-import { Avatar, Card, CardContent, Stack, SvgIcon, Typography } from '@mui/material';
+import { Avatar, Card, CardContent, Stack, SvgIcon, Typography, Tooltip } from '@mui/material';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { alpha } from '@mui/material/styles';
 const NumDisplay = (props) => {
-  const { title,value } = props;
+  const { title,value, description } = props;
   //if sx not defined, set default
+
    const sx = props.sx || {
     
       backgroundColor: alpha('#2196F3', 0.1),
@@ -31,9 +32,11 @@ const NumDisplay = (props) => {
                   >
                     {item}
                   </Typography>
-                  <Typography variant="h4">
-                    {value[index]}
-                  </Typography>
+                  <Tooltip title={description[index]}>
+                    <Typography variant="h4">
+                      {value[index]}
+                    </Typography>
+                  </Tooltip>
                 </Stack>
               ))}
             </Stack>
@@ -58,9 +61,11 @@ const NumDisplay = (props) => {
               >
                 {title}
               </Typography>
-              <Typography variant="h4">
-                {value}
-              </Typography>
+              <Tooltip title={description}>
+                <Typography variant="h4">
+                  {value}
+                </Typography>
+              </Tooltip>
             </Stack>
             <SvgIcon
               sx={{
