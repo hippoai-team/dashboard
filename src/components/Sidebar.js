@@ -22,36 +22,37 @@ const Sidebar = () => {
         {/* Sidebar Menu */}
         <nav className="mt-2">
           <ul className="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <li className="nav-item">
-            <Link to="/dashboard" className="nav-link">
-              <i className="nav-icon fas fa-th"></i>
-              <p>Dashboard</p>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/sources" className="nav-link">
-              <i className="nav-icon fas fa-source"></i>
-              <p>Sources</p>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/betalist" className="nav-link">
-              <i className="nav-icon fas fa-source"></i>
-              <p>Beta List</p>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/chatlog" className="nav-link">
-              <i className="nav-icon fas fa-source"></i>
-              <p>Chat Log</p>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/users" className="nav-link">
-              <i className="nav-icon fas fa-users"></i>
-              <p>Users</p>
-            </Link>
-          </li>
+            <li className="nav-item">
+              <Link to="/dashboard" className="nav-link">
+                <i className="nav-icon fas fa-th"></i>
+                <p>Dashboard</p>
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/sources" className="nav-link">
+                <i className="nav-icon fas fa-book"></i>
+                <p>Sources</p>
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/betalist" className="nav-link">
+                <i className="nav-icon fas fa-list"></i>
+                <p>Beta List</p>
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/chatlog" className="nav-link">
+                <i className="nav-icon fas fa-comments"></i>
+                <p>Chat Log</p>
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/users" className="nav-link">
+                <i className="nav-icon fas fa-users"></i>
+                <p>Users</p>
+              </Link>
+            </li>
+          
           </ul>
         </nav>
         {/* /.sidebar-menu */}
