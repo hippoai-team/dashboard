@@ -38,7 +38,7 @@ const UserList = () => {
     const [userList, setUserList] = useState([]);
     const [weeklyActiveUsers, setWeeklyActiveUsers] = useState([]);
     const [descriptions, setDescriptions] = useState({});
-    const [totalSources, setTotalSources] = useState(0);
+    const [totalClickedSources, setTotalClickedSources] = useState(0);
     const [totalSavedSources, setTotalSavedSources] = useState(0);
     const [totalFollowupUsage, setTotalFollowupUsage] = useState(0);
     const chartOptions = {
@@ -114,7 +114,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
         setTotalIds(response.data.totalUsers);
         setWeeklyActiveUsers(response.data.weeklyActiveUsers);
         setDescriptions(response.data.descriptions);
-        setTotalSources(response.data.totalClickedSources);
+        setTotalClickedSources(response.data.totalClickedSources);
         setTotalSavedSources(response.data.totalSavedSources);
         setTotalFollowupUsage(response.data.followUpCount);
     } catch (error) {
