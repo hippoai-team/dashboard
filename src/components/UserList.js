@@ -38,7 +38,9 @@ const UserList = () => {
     const [userList, setUserList] = useState([]);
     const [weeklyActiveUsers, setWeeklyActiveUsers] = useState([]);
     const [descriptions, setDescriptions] = useState({});
-
+    const [totalSources, setTotalSources] = useState(0);
+    const [totalSavedSources, setTotalSavedSources] = useState(0);
+    const [totalFollowupUsage, setTotalFollowupUsage] = useState(0);
     const chartOptions = {
 
             chart: {
@@ -112,6 +114,9 @@ const cohortList = ['A', 'B', 'C', 'D', 'none'];
         setTotalIds(response.data.totalUsers);
         setWeeklyActiveUsers(response.data.weeklyActiveUsers);
         setDescriptions(response.data.descriptions);
+        setTotalSources(response.data.totalClickedSources);
+        setTotalSavedSources(response.data.totalSavedSources);
+        setTotalFollowupUsage(response.data.followUpCount);
     } catch (error) {
       console.log(error);
     }
@@ -313,12 +318,7 @@ const series = [
                                             <NumDisplay title="Total Usage" value={totalUsageCount} description={descriptions.totalUsageDescription} />
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
-                                            <NumDisplay title="Followup Count" value={users.reduce((acc, user) => {
-                                                if (isNaN(user.followup_usage) || user.followup_usage === undefined) {
-                                                    return acc;
-                                                }
-                                                return acc + user.followup_usage;
-                                            }, 0)} />
+                                            <NumDisplay title="Followup Count" value={totalFollowupUsage} />
                                             </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
                                             <NumDisplay 
@@ -334,20 +334,10 @@ const series = [
                                             value={churnData['churnPerWeek']} />
                                             </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
-                                            <NumDisplay title="Clicked Sources" value={users.reduce((acc, user) => {
-                                                if (isNaN(user.sourceClickCount) || user.sourceClickCount === undefined) {
-                                                    return acc;
-                                                }
-                                                return acc + user.sourceClickCount;
-                                            }, 0)} />
+                                            <NumDisplay title="Clicked Sources" value={totalClickedSources}/>
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
-                                            <NumDisplay title="Saved Sources" value={users.reduce((acc, user) => {
-                                                if (isNaN(user.sourcesCount) || user.sourcesCount === undefined) {
-                                                    return acc;
-                                                }
-                                                return acc + user.sourcesCount;
-                                            }, 0)} />
+                                            <NumDisplay title="Saved Sources" value={totalSavedSources} />
                                             </Grid>                               
                                   </Grid>
                                   <div className="row">
