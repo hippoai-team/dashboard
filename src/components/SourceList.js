@@ -27,9 +27,11 @@ const SourceList = () => {
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const [processLoading, setProcessLoading] = useState(false);
+  const [tasks, setTasks] = useState({});
   const toastDuration = 2000; // 2 seconds
   const [howManyToProcess, setHowManyToProcess] = useState(0);
-  const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
+  //const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
+  const API_BASE_URL = 'http://127.0.0.1:5000';
   const chartOptions = {
     chart: {
       id: "basic-bar",
@@ -189,6 +191,22 @@ const SourceList = () => {
       console.error("Error deleting the source:", error);
     }
   };
+
+  const checkStatus = async (task_id) => {
+    let endpoint = `${API_BASE_URL}/api/tasks/status`;
+    if (task_id) {
+      endpoint += `/${task_id}`;
+    }
+    const { data } = await axios.get(endpoint);
+    if (data.status === "done") {
+      
+    } else {
+      setTimeout(() => checkStatus(task_id), 5000); // Check every 5 seconds
+    }
+  };
+  
+  useEffect(() => {
+  }, []);
 
   const handleProcess = async (sourceId) => {
     setProcessLoading(true);
