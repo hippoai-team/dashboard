@@ -32,6 +32,7 @@ const SourceList = () => {
   const [howManyToProcess, setHowManyToProcess] = useState(0);
   //const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
   const API_BASE_URL = 'http://127.0.0.1:5000';
+  const PIPELINE_API_URL = "http://127.0.0.1:8080";
   const chartOptions = {
     chart: {
       id: "basic-bar",
@@ -192,33 +193,44 @@ const SourceList = () => {
     }
   };
 
-  const checkStatus = async (task_id) => {
-    let endpoint = `${API_BASE_URL}/api/tasks/status`;
-    if (task_id) {
-      endpoint += `/${task_id}`;
+  const checkStatus = async () => {
+    let endpoint = `${API_BASE_URL}/status`;
+    if (Object.keys(tasks).length > 0) {
+      endpoint += `/${Object.keys(tasks)[0]}`;
     }
     const { data } = await axios.get(endpoint);
+    console.log('data',data);
     if (data.status === "done") {
+      // Handle the task completion
+    } else if (data.status === "unknown") {
       
-    } else {
-      setTimeout(() => checkStatus(task_id), 5000); // Check every 5 seconds
+    } else if (data.status === "no tasks") {
+      // Handle the case where there are no tasks
+    } else if (data.status === "processing") {
+      setTasks(...tasks, data);
     }
   };
   
   useEffect(() => {
+    const interval = setInterval(() => {
+      checkStatus();
+    }, 5000);
+    return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
   }, []);
 
-  const handleProcess = async (sourceId) => {
+  const handleProcess = async (sourceId,title) => {
     setProcessLoading(true);
     setSelectedSourceIds([sourceId]);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/sources/process/${sourceId}`);
+      const response = await axios.post(`${PIPELINE_API_URL}/process_ids`, { ids:[sourceId] });
+
+      //const response = await axios.post(`${API_BASE_URL}/api/sources/process/${sourceId}`);
       if (response.status === 200) {
         //get data from response
         //get the status from the response, its in the data object and the key is the sourceId
         setProcessLoading(false);
         const status = response.data[sourceId];
-        toast.success(`Source ${response.data.title} status: ${status}`, {
+        toast.success(`Source ${title} status: ${status}`, {
           autoClose: toastDuration+1000,
         });
         // Refresh the list after the toast disappears
@@ -240,53 +252,24 @@ const SourceList = () => {
   };
 
   const handleProcessSelected = () => {
-    let message = '';
     setProcessLoading(true);
     setSelectedSourceIds(selectedSourceIds);
-    axios
-      .post(`${API_BASE_URL}/api/sources/process-multiple`, {
-        data: { sourceIds: selectedSourceIds },
-      })
-      .then((response) => {
-        setProcessLoading(false);
-        const titles = response.data.titles;
-        //use selectedSourceIds to get an array of all the statuses from response.data
-        const statuses = selectedSourceIds.map((id) => response.data[id]);
-        //if all statuses are 'indexed' display success toast
-        if (statuses.every((status) => status === "indexed")) {
-          let message = `All selected sources processed successfully!`;
-          toast.success(message, {
-            autoClose: toastDuration,
-          });
-        }
-        //if any statuses are 'failed_index', count number of indexed and failed_index
-        else if (statuses.some((status) => status === "failed_index")) {
-          const indexed = statuses.filter((status) => status === "indexed")
-            .length;
-          const failed_index = statuses.filter(
-            (status) => status === "failed_index"
-          ).length;
-          let message = `${indexed} sources indexed, ${failed_index} sources failed to index`;
-          toast.success(message, {
-            autoClose: toastDuration,
-          });
-        }
-        
+    axios.post(`${PIPELINE_API_URL}/process_ids`, { ids:selectedSourceIds });
+
+    setProcessLoading(false);
+
+    let message = `Task sent to pipeline for processing`;
+    toast.success(message, {
+      autoClose: toastDuration,
+    });
+       
 
         // Refresh the list after the toast disappears
-        setTimeout(() => {
-          fetchSources();
-          setSelectedSourceIds([]); // Clear the selectedSourceIds state
-        }, toastDuration);
-      })
-      .catch((error) => {
-        setProcessLoading(false);
-        // Display error toast
-        toast.error("Error starting selected source processing!", {
-          autoClose: toastDuration,
-        });
-        console.error("Error starting selected source processing:", error);
-      });
+      setTimeout(() => {
+        fetchSources();
+        setSelectedSourceIds([]); // Clear the selectedSourceIds state
+      }, toastDuration);
+    
   };
 
   const handleCopy = () => {
@@ -481,7 +464,7 @@ const SourceList = () => {
                   actionButtons={[
                     { label: 'Edit', onClick: (data) => navigate(`/sources/edit/${data._id}`) }, 
                     { label: 'Delete', onClick: (data) => handleDelete(data._id) },
-                    { label: 'Process', onClick: (data) => handleProcess(data._id) , loading: processLoading }
+                    { label: 'Process', onClick: (data) => handleProcess(data._id, data.title) , loading: processLoading }
                   ]}
                   handleCheckboxChange={handleCheckboxChange}
                   handleAllCheckboxChange={handleAllCheckboxChange}
