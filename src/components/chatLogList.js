@@ -23,7 +23,7 @@ const ChatLogList = () => {
     const [chatLogs, setChatLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState("");
-    const [perPage, setPerPage] = useState(10);
+    const [perPage, setPerPage] = useState(20);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalLogs, setTotalLogs] = useState(0);
     const [userList, setUserList] = useState([]);

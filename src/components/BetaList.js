@@ -21,7 +21,7 @@ const BetaList = () => {
     const [ids, setIds] = useState([]);
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
-    const [perPage, setPerPage] = useState(10); // Initialize perPage state
+    const [perPage, setPerPage] = useState(50); // Initialize perPage state
     const [selectedIds, setSelectedIds] = useState([]);
     const [totalIds, setTotalIds] = useState(0); // Initialize totalUsers state
     const toastDuration = 1000; // 2 seconds
