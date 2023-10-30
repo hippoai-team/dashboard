@@ -384,6 +384,7 @@ const BetaList = () => {
                               <option value="B">Cohort B</option>
                               <option value="C">Cohort C</option>
                               <option value="D">Cohort D</option>
+                              <option value="E">Cohort E</option>
                               <option value="none">None</option>
                             </select>
                           </div>

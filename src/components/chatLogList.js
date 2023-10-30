@@ -42,7 +42,7 @@ const ChatLogList = () => {
         labels: Object.keys(dateCountObj),
       };
 
-    const cohortList = ['A', 'B', 'C', 'D', 'none']
+    const cohortList = ['A', 'B', 'C', 'D', 'E', 'none']
     const fetchChatLogs = async () => {
         setLoading(true);
         let endpoint = `${API_BASE_URL}/api/chatlogs?page=${currentPage}`;

@@ -72,7 +72,7 @@ const UserList = () => {
                 }
               }
             };
-const cohortList = ['A', 'B', 'C', 'D', 'none'];
+const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
   const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
 
