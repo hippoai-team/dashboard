@@ -69,7 +69,7 @@ const ChatLogList = () => {
             }
 
         if (userRatingFilter=='exists') {
-            endpoint += `&userRatingFilter=${True}`;
+            endpoint += `&userRatingFilter=true`;
             }
         else if (userRatingFilter.length > 0) {
             endpoint += `&userRatingFilter=${userRatingFilter}`;
