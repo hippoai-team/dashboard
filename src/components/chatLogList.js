@@ -32,7 +32,8 @@ const ChatLogList = () => {
     const [selectedUserGroup, setSelectedUserGroup] = useState("");//[date: count
     const [selectedDate, setSelectedDate] = useState("");
     const [feedBackCount, setFeedBackCount] = useState([0, 0]);//[yes, no
-    const [userRatingFilter, setUserRatingFilter] = useState(false);
+    const [userRatingFilter, setUserRatingFilter] = useState("");
+    const [averageQueryLength, setAverageQueryLength] = useState(0);
     const [dateRange, setDateRange] = useState('last-week')
     const toastDuration = 3000;
     const chartOptions = {
@@ -67,9 +68,13 @@ const ChatLogList = () => {
             endpoint += `&dateRange=${dateRange}`;
             }
 
-        if (userRatingFilter) {
+        if (userRatingFilter=='exists') {
+            endpoint += `&userRatingFilter=${true}`;
+            }
+        else if (userRatingFilter.length > 0) {
             endpoint += `&userRatingFilter=${userRatingFilter}`;
             }
+
 
     try {
         const res = await axios.get(endpoint);
@@ -88,6 +93,7 @@ const ChatLogList = () => {
         setDateCountObj(dateCountObj);
         setFeedBackCount(totalFeedback);
         setLoading(false);
+        setAverageQueryLength(chatLogs.reduce((acc, log) => acc + log.query.split(' ').length, 0) / chatLogs.length);
         console.log('dateCountObj', dateCountObj);
 
 
@@ -246,12 +252,16 @@ const ChatLogList = () => {
                                                 </div>
                                             <div className="col-md-2">
                                                 <div className="form-group">
-                                                    <label>User Rating Exists</label>
-                                                    <input
-                                                        type="checkbox"
+                                                    <label>User Rating</label>
+                                                    <select
                                                         className="form-control"
-                                                        onChange={(e) => setUserRatingFilter(e.target.checked)}
-                                                    />
+                                                        onChange={(e) => setUserRatingFilter(e.target.value)}
+                                                    >
+                                                        <option value="">No Filter</option>
+                                                        <option value="exists">Exists</option>
+                                                        <option value="Yes">Helpful</option>
+                                                        <option value="No">Not Helpful</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                                             
@@ -292,6 +302,16 @@ const ChatLogList = () => {
                                                 }}
                                                 />
                                                 </div>
+                                                <NumDisplay
+                                                title="Average Query Length"
+                                                value={averageQueryLength}
+                                                description="Average length of queries from all chat logs"
+                                                sx={{
+                                                    backgroundColor: alpha('#2196F3', 0.1),
+                                                    color: '#2196F3',
+                                                    margin: '10px'
+                                                }}
+                                                />
                                         </div>
                                     <div className="row">
                                         
@@ -347,6 +367,7 @@ const ChatLogList = () => {
                                                             </Button>
                                                         </th>
                                                         <th>Query</th>
+                                                        <th>Query Length</th>
                                                         <th style={{minWidth: '500px'}}>Response</th>
                                                         <th>Sources</th>
                                                         <th>Feedback</th>
@@ -358,6 +379,8 @@ const ChatLogList = () => {
                                                             <td>{chatLog.date}</td>
                                                             <td>{chatLog.email}</td>
                                                             <td>{chatLog.query}</td>
+                                                            <td></td>
+                                                            <td>{chatLog.query.split(' ').length}</td>
                                                             <td>{chatLog.response}</td>
 
                                                             <td>
