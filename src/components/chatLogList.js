@@ -69,7 +69,7 @@ const ChatLogList = () => {
             }
 
         if (userRatingFilter=='exists') {
-            endpoint += `&userRatingFilter=${true}`;
+            endpoint += `&userRatingFilter=${True}`;
             }
         else if (userRatingFilter.length > 0) {
             endpoint += `&userRatingFilter=${userRatingFilter}`;
@@ -379,7 +379,6 @@ const ChatLogList = () => {
                                                             <td>{chatLog.date}</td>
                                                             <td>{chatLog.email}</td>
                                                             <td>{chatLog.query}</td>
-                                                            <td></td>
                                                             <td>{chatLog.query.split(' ').length}</td>
                                                             <td>{chatLog.response}</td>
 
