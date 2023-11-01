@@ -378,7 +378,7 @@ const ChatLogList = () => {
                                                         <tr key={chatLog._id}>
                                                             <td>{chatLog.date}</td>
                                                             <td>{chatLog.email}</td>
-                                                            <td>{chatLog.query}</td>
+                                                            <td>[{chatLog.filters}]{chatLog.query}</td>
                                                             <td>{chatLog.query.split(' ').length}</td>
                                                             <td>{chatLog.response}</td>
 
