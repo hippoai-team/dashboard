@@ -378,7 +378,7 @@ const ChatLogList = () => {
                                                         <tr key={chatLog._id}>
                                                             <td>{chatLog.date}</td>
                                                             <td>{chatLog.email}</td>
-                                                            <td>{chatLog.filters ? `[${Object.entries(chatLog.filters).map(([key, value]) => `${key}: ${value}`).join(', ')}] ${chatLog.query}` : chatLog.query}</td>
+                                                            <td>{chatLog.filters && Object.values(chatLog.filters).some(value => value !== null) ? `[${Object.entries(chatLog.filters).map(([key, value]) => `${key}: ${value}`).join(', ')}] ${chatLog.query}` : chatLog.query}</td>
                                                             <td>{chatLog.query.split(' ').length}</td>
                                                             <td>{chatLog.response}</td>
 
