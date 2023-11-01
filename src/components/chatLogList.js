@@ -385,6 +385,7 @@ const ChatLogList = () => {
                                                                         <Chip key={key} label={`${value}`} variant="outlined" style={{marginRight: '5px'}}/>
                                                                     ))
                                                                 }
+                                                                <br/>
                                                                 {chatLog.query}
                                                             </td>
                                                             <td>{chatLog.query.split(' ').length}</td>
