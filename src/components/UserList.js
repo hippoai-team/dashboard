@@ -547,7 +547,7 @@ const series = [
                                         { dataIndex: 'status', title: 'Status' },
                                         { dataIndex: 'usage', title: 'Usage' },
                                         { dataIndex: 'sourcesCount', title: 'Sources' },
-                                        { dataIndex: 'threadsCount', title: 'Threads' },
+                                        { dataIndex: 'threadCount', title: 'Threads' },
                                         { dataIndex: 'follow_up_usage', title: 'Followup Usage' },
                                         { dataIndex: 'num_logins', title: 'Number of Logins' },
                                         { dataIndex: 'feedback_count', title: 'Feedback Count' },
