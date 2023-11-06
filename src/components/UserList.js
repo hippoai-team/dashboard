@@ -116,7 +116,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
         setDescriptions(response.data.descriptions);
         setTotalClickedSources(response.data.totalClickedSources);
         setTotalSavedSources(response.data.totalSavedSources);
-        setTotalFollowupUsage(response.data.followUpCount);
+        setTotalFollowupUsage(response.data.totalFollowUpCount);
     } catch (error) {
       console.log(error);
     }
