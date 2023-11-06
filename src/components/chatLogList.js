@@ -392,15 +392,16 @@ const ChatLogList = () => {
                                                             <td>{chatLog.response}</td>
 
                                                             <td>
-                                                                {[...new Set(chatLog.sources.map(source => `${source.title} - ${source.publisher}`))].map((source, index) => (
+                                                                {chatLog.sources.map((source, index) => (
                                                                     <div key={index} style={{marginBottom: '10px'}}>
                                                                         <Chip 
-                                                                            label={source} 
+                                                                            label={`${source.title} - ${source.publisher}`} 
                                                                             variant="outlined" 
                                                                             onClick={() => window.open(source.source, "_blank")}
                                                                         />
                                                                     </div>
                                                                 ))}
+                                                                
                                                             </td>
                                                             <td>
                                                             {chatLog.user_rating && <Chip 
