@@ -462,7 +462,9 @@ const BetaList = () => {
                       { dataIndex: 'email', title: 'Email' },
                       { dataIndex: 'status', title: 'Status' },
                       { dataIndex: 'usage', title: 'Usage' },
+                      { dataIndex: 'follow_up_usage', title: 'Follow Up Usage'},
                       { dataIndex: 'cohort', title: 'Cohort' },
+                      { dataIndex: 'user_feedback_warning', title: 'Feedback Warning' },
                     
                     ]}
                     actionButtons={[
