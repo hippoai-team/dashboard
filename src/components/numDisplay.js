@@ -5,7 +5,6 @@ import { alpha } from '@mui/material/styles';
 const NumDisplay = (props) => {
   const { title,value, description } = props;
   //if sx not defined, set default
-
    const sx = props.sx || {
     
       backgroundColor: alpha('#2196F3', 0.1),

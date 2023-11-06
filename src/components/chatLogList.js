@@ -36,6 +36,7 @@ const ChatLogList = () => {
     const [averageQueryLength, setAverageQueryLength] = useState(0);
     const [dateRange, setDateRange] = useState('last-week')
     const toastDuration = 3000;
+    const [feedbackPlotObject, setFeedbackPlotObject] = useState({series: [], labels: []});//[yes, no
     const chartOptions = {
         chart: {
           id: "basic-bar",
@@ -94,8 +95,37 @@ const ChatLogList = () => {
         setFeedBackCount(totalFeedback);
         setLoading(false);
         setAverageQueryLength(chatLogs.reduce((acc, log) => acc + log.query.split(' ').length, 0) / chatLogs.length);
-        console.log('dateCountObj', dateCountObj);
+        
+        const chatLogsWithRating = chatLogs.filter(log => log.user_rating !== null);
+        const chatLogsWithoutRating = chatLogs.filter(log => log.user_rating === null);
 
+        const calculateAverageQueryLength = (logs) => {
+            if (logs.length === 0) {
+                return 0;
+            }
+            const totalQueryLength = logs.reduce((acc, log) => acc + log.query.split(' ').length, 0);
+            return totalQueryLength / logs.length;
+        }
+
+        const averageQueryLengthWithRatingYes = calculateAverageQueryLength(chatLogsWithRating.filter(log => log.user_rating === 'Yes'));
+        const averageQueryLengthWithRatingNo = calculateAverageQueryLength(chatLogsWithRating.filter(log => log.user_rating === 'No'));
+        const averageQueryLengthWithoutRating = calculateAverageQueryLength(chatLogsWithoutRating);
+
+        const series = [
+            averageQueryLengthWithRatingYes,
+            averageQueryLengthWithRatingNo,
+            averageQueryLengthWithoutRating
+        ];
+
+        const labels = [
+            'Rated - Helpful',
+            'Rated - Not Helpful',
+            'Without Rating'
+        ];
+
+        setFeedbackPlotObject({series, labels});
+        
+        console.log('feedbackPlotObject', feedbackPlotObject);
 
         }
     catch (err) {
@@ -343,6 +373,21 @@ const ChatLogList = () => {
                                                 width="100%"
                                                 />
                                         </div>
+                                        <div className="col-md-6">
+                                            <ChartGraph
+                                                title="Feedback"
+                                                height={350}
+                                                options={chartOptions}
+                                                series={[{
+                                                    name: 'Average Query Length',
+                                                    data: feedbackPlotObject.series ? feedbackPlotObject.series : []
+                                                }]}
+                                
+                                                labels={feedbackPlotObject.labels ? feedbackPlotObject.labels : []}
+                                                type="bar"
+                                                width="100%"
+                                                />
+                                                </div>
                                        
                                     </div>
                             

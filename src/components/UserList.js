@@ -41,6 +41,7 @@ const UserList = () => {
     const [totalClickedSources, setTotalClickedSources] = useState(0);
     const [totalSavedSources, setTotalSavedSources] = useState(0);
     const [totalFollowupUsage, setTotalFollowupUsage] = useState(0);
+    const [savedSourceTypeCounts, setSavedSourceTypeCounts] = useState({'guidelines': 0, 'drugs': 0, 'bugs': 0, 'pearls': 0, 'general': 0});
     const chartOptions = {
 
             chart: {
@@ -117,6 +118,9 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
         setTotalClickedSources(response.data.totalClickedSources);
         setTotalSavedSources(response.data.totalSavedSources);
         setTotalFollowupUsage(response.data.totalFollowUpCount);
+        setSavedSourceTypeCounts(response.data.savedSourceTypeCounts);
+       
+        
     } catch (error) {
       console.log(error);
     }
@@ -338,7 +342,10 @@ const series = [
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
                                             <NumDisplay title="Saved Sources" value={totalSavedSources} />
-                                            </Grid>                               
+                                            </Grid>    
+                                          <Grid item xs={12} sm={6} md={5}>
+                                            <NumDisplay title={Object.keys(savedSourceTypeCounts)} value={Object.values(savedSourceTypeCounts)} description={'Saved Source Type Counts'} />
+                                            </Grid>
                                   </Grid>
                                   <div className="row">
                                   <div className="col-md-2">
