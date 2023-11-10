@@ -175,6 +175,43 @@ const ChatLogList = () => {
         navigator.clipboard.writeText(arrayToCopy);
     }
 
+    const exportToCSV = async () => {
+        console.log('chatLogs', chatLogs)
+    
+        let csvContent = "data:text/csv;charset=utf-8," 
+        + [
+            "Date",
+            "User",
+            "Query",
+            "Query Length",
+            "Response",
+            "Sources",
+            "User Rating",
+            "User Feedback"
+        ].join(",") + "\n"
+        + chatLogs.map(e => {
+            return [
+                e.date,
+                e.email,
+                `"${e.query.replace(/"/g, '""')}"`,
+                e.query.split(' ').length,
+                `"${e.response.replace(/"/g, '""')}"`,
+                `"${e.sources.map(source => `${source.title} - ${source.publisher}`).join('; ').replace(/"/g, '""')}"`, // Enclose in double quotes and escape internal quotes
+                e.user_rating || '',
+                ...Object.entries(e.feedback || {}).filter(([key, value]) => value === true).map(([key, value]) => `${key}: ${value}`)
+            ].join(",");
+        }).join("\n");
+    
+        var encodedUri = encodeURI(csvContent);
+        var link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "chat_logs.csv");
+        document.body.appendChild(link); // Required for FF
+    
+        link.click(); // This will download the data file named "chat_logs.csv".
+    }
+    
+    
     return (
         <Layout>
             <div className="content-wrapper">
@@ -397,6 +434,15 @@ const ChatLogList = () => {
                                                     Chat Log Explorer
                                                 </Typography>
                                             </div>
+                                            <Button 
+                                                variant="contained" 
+                                                color="primary" 
+                                                onClick={exportToCSV}
+                                                style={{marginBottom: '10px'}}
+                                            >
+                                                Export to CSV
+                                            </Button>
+                                
                                             <table className="table table-bordered table-hover">
                                                 <thead>
                                                     <tr>
@@ -419,6 +465,7 @@ const ChatLogList = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
+                                                    
                                                     {chatLogs.map((chatLog) => (
                                                         <tr key={chatLog._id}>
                                                             <td>{chatLog.date}</td>

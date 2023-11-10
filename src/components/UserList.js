@@ -10,6 +10,7 @@ import Grid from "@mui/material/Grid";
 import DailyChartGraph from "./dailyDataGraph";
 import ChartGraph from "./chartGraph";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 const UserList = () => {
     const navigate = useNavigate();
 
@@ -294,6 +295,56 @@ const series = [
     }
 
         
+    const exportToCSV = (userData) => {
+      let csvContent = "data:text/csv;charset=utf-8," 
+      + [
+          "ID",
+          "Email",
+          "Name",
+          "Signup Date",
+          "Num Logins",
+          "Status",
+          "Usage",
+          "Follow Up Usage",
+          "Feedback Count",
+          "Source Click Count",
+          "Nav Saved Sources",
+          "Nav Threads",
+          "Thread Count",
+          "Sources Count"
+      ].join(",") + "\n"
+      + users.map(user => {
+          
+          return [
+              user._id,
+              user.email,
+              user.name,
+              user.signup_date,
+              user.num_logins,
+              user.status,
+              user.usage,
+              user.follow_up_usage,
+              user.feedback_count,
+              user.sourceClickCount,
+              user.nav_saved_sources,
+              user.nav_threads,
+              
+              user.threadCount,
+              user.sourcesCount
+          ].join(",");
+      }).join("\n");
+  
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "user_data.csv");
+      document.body.appendChild(link); // Required for FF
+  
+      link.click(); // This will download the data file named "user_data.csv".
+  }
+  
+  
+
 
 
   return (
@@ -545,6 +596,18 @@ const series = [
                                                 </div>
                                               </div>
 
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-md-2">
+                                                <Button
+                                                    variant="contained" 
+                                                    color="primary" 
+                                                    onClick={exportToCSV}
+                                                    style={{marginBottom: '10px'}}
+                                                >
+                                                    Export to CSV
+                                                </Button>
+                                            </div>
                                         </div>
                                         
                                 <div className="card-body">
