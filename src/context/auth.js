@@ -15,13 +15,14 @@ const AuthProvider = ({ children }) => {
 
 
   useEffect(() => {
-    const data = localStorage.getItem("auth");
+    const data = localStorage.getItem("hippo_admin_auth");
     if (data) {
       const parseData = JSON.parse(data);
       setAuth(prevAuth => ({
         ...prevAuth,
         user: parseData.user,
         token: parseData.token,
+        isAuthenticated: true
       }));
     }
   }, []);  

@@ -12,7 +12,7 @@ const Header = () => {
       token: "",
       isAuthenticated: false
     });
-    localStorage.removeItem("auth");
+    localStorage.removeItem("hippo_admin_auth");
     toast.success("Logout successfully");
   };
 
