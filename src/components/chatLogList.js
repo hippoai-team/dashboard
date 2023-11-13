@@ -231,7 +231,7 @@ const ChatLogList = () => {
                     <Chip 
                         label={label} 
                         variant="outlined" 
-                        onClick={() => window.open(sources.find(source => source.source_num === sourceNums[0]).source, '_blank')}
+                        onClick={() => window.open(/* appropriate URL based on sourceNums */, "_blank")}
                     />
                 </div>
             );
@@ -510,7 +510,15 @@ const ChatLogList = () => {
                                                             <td>{chatLog.response}</td>
 
                                                             <td>
-                                                                {chatLog.sources && createSourceChips(chatLog.sources)}
+                                                                {chatLog.sources.map((source, index) => (
+                                                                    <div key={index} style={{marginBottom: '10px'}}>
+                                                                        <Chip 
+                                                                            label={`${source.title} - ${source.publisher}`} 
+                                                                            variant="outlined" 
+                                                                            onClick={() => window.open(source.source, "_blank")}
+                                                                        />
+                                                                    </div>
+                                                                ))}
                                                                 
                                                             </td>
                                                             <td>
