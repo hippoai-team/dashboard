@@ -221,7 +221,7 @@ const ChatLogList = () => {
             acc[key].push(source.source_num);
             return acc;
         }, {});
-    
+        console.log('aggregatedSources', aggregatedSources);
         // Create chip elements for each unique title and publisher
         return Object.entries(aggregatedSources).map(([key, sourceNums], index) => {
             const [title, publisher] = key.split('-');
@@ -231,7 +231,7 @@ const ChatLogList = () => {
                     <Chip 
                         label={label} 
                         variant="outlined" 
-                        onClick={() => window.open(/* appropriate URL based on sourceNums */, "_blank")}
+                        onClick={() => window.open(sources.find(source => source.source_num === sourceNums[0]).source, "_blank")}
                     />
                 </div>
             );
@@ -510,15 +510,8 @@ const ChatLogList = () => {
                                                             <td>{chatLog.response}</td>
 
                                                             <td>
-                                                                {chatLog.sources.map((source, index) => (
-                                                                    <div key={index} style={{marginBottom: '10px'}}>
-                                                                        <Chip 
-                                                                            label={`${source.title} - ${source.publisher}`} 
-                                                                            variant="outlined" 
-                                                                            onClick={() => window.open(source.source, "_blank")}
-                                                                        />
-                                                                    </div>
-                                                                ))}
+                                                                {chatLog.sources && createSourceChips(chatLog.sources)}
+                                                            
                                                                 
                                                             </td>
                                                             <td>
