@@ -15,7 +15,8 @@ import Typography from '@mui/material/Typography';
 import PageTitle from "./pageTitle";
 //clippboard icon
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 const ChatLogList = () => {
 
     const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
@@ -507,7 +508,16 @@ const ChatLogList = () => {
                                                                 {chatLog.query}
                                                             </td>
                                                             <td>{chatLog.query.split(' ').length}</td>
-                                                            <td>{chatLog.response}</td>
+                                                            <td>
+                                                                
+                                                                <ReactMarkdown
+                                                                remarkPlugins={[remarkGfm]}
+                                                                children={chatLog.response}
+                                                                components={{
+                                                                    table: ({ node, ...props }) => (
+                                                                      <table style={{ border: '1px solid black' }} {...props} />
+                                                                    )}}
+                                                                >{chatLog.response}</ReactMarkdown></td>
 
                                                             <td>
                                                                 {chatLog.sources && createSourceChips(chatLog.sources)}
