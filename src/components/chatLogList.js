@@ -231,7 +231,7 @@ const ChatLogList = () => {
                     <Chip 
                         label={label} 
                         variant="outlined" 
-                        onClick={() => window.open(/* appropriate URL based on sourceNums */, "_blank")}
+                        onClick={() => window.open(sources.find(source => source.source_num === sourceNums[0]).source, '_blank')}
                     />
                 </div>
             );
