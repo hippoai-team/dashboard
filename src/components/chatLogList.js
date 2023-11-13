@@ -211,6 +211,32 @@ const ChatLogList = () => {
         link.click(); // This will download the data file named "chat_logs.csv".
     }
     
+    function createSourceChips(sources) {
+        // Aggregate the sources by title and publisher
+        const aggregatedSources = sources.reduce((acc, source) => {
+            const key = `${source.title}-${source.publisher}`;
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push(source.source_num);
+            return acc;
+        }, {});
+    
+        // Create chip elements for each unique title and publisher
+        return Object.entries(aggregatedSources).map(([key, sourceNums], index) => {
+            const [title, publisher] = key.split('-');
+            const label = `[${sourceNums.join('], [')}] - ${title} - ${publisher}`;
+            return (
+                <div key={index} style={{ marginBottom: '10px' }}>
+                    <Chip 
+                        label={label} 
+                        variant="outlined" 
+                        onClick={() => window.open(/* appropriate URL based on sourceNums */, "_blank")}
+                    />
+                </div>
+            );
+        });
+    }
     
     return (
         <Layout>
@@ -484,15 +510,7 @@ const ChatLogList = () => {
                                                             <td>{chatLog.response}</td>
 
                                                             <td>
-                                                                {chatLog.sources.map((source, index) => (
-                                                                    <div key={index} style={{marginBottom: '10px'}}>
-                                                                        <Chip 
-                                                                            label={`${source.title} - ${source.publisher}`} 
-                                                                            variant="outlined" 
-                                                                            onClick={() => window.open(source.source, "_blank")}
-                                                                        />
-                                                                    </div>
-                                                                ))}
+                                                                {chatLog.sources && createSourceChips(chatLog.sources)}
                                                                 
                                                             </td>
                                                             <td>
