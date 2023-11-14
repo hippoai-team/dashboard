@@ -93,6 +93,7 @@ const ChatLogList = () => {
         setCurrentPage(page);
         setUserList(users);
         setDateCountObj(dateCountObj);
+        console.log('dateCountObj', dateCountObj)
         setFeedBackCount(totalFeedback);
         setLoading(false);
         setAverageQueryLength(chatLogs.reduce((acc, log) => acc + log.query.split(' ').length, 0) / chatLogs.length);
@@ -222,7 +223,6 @@ const ChatLogList = () => {
             acc[key].push(source.source_num);
             return acc;
         }, {});
-        console.log('aggregatedSources', aggregatedSources);
         // Create chip elements for each unique title and publisher
         return Object.entries(aggregatedSources).map(([key, sourceNums], index) => {
             const [title, publisher] = key.split('-');
@@ -416,9 +416,11 @@ const ChatLogList = () => {
                                                 options={chartOptions}
                                                 series={[{
                                                     name: 'Count',
-                                                    data: Object.values(dateCountObj).map(obj => obj.count)
+                                                    data: Object.entries(dateCountObj)
+                                                        .sort(([a], [b]) => new Date(a) - new Date(b))
+                                                        .map(([, obj]) => obj.count)
                                                 }]}
-                                                labels={Object.keys(dateCountObj)}
+                                                labels={Object.keys(dateCountObj).sort((a, b) => new Date(a) - new Date(b))}
                                                 type="bar"
                                                 width="100%"
                                                 />
@@ -430,9 +432,11 @@ const ChatLogList = () => {
                                                 options={chartOptions}
                                                 series={[{
                                                     name: 'Count',
-                                                    data: Object.values(dateCountObj).map(obj => obj.accumulativeCount)
+                                                    data: Object.entries(dateCountObj)
+                                                        .sort(([a], [b]) => new Date(a) - new Date(b))
+                                                        .map(([, obj]) => obj.accumulativeCount)
                                                 }]}
-                                                labels={Object.keys(dateCountObj)}
+                                                labels={Object.keys(dateCountObj).sort((a, b) => new Date(a) - new Date(b))}
                                                 type="line"
                                                 width="100%"
                                                 />
