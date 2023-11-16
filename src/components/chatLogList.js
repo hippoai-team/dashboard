@@ -323,9 +323,27 @@ const ChatLogList = () => {
                                                         onChange={handleDateChange}
                                                     >
                                                         <option value="">All</option>
-                                                        {Object.keys(dateCountObj).map((date) => (
-                                                            <option key={date} value={date}>{date}</option>
-                                                        ))}
+                                                        {(() => {
+                                                            const dates = [];
+                                                            const today = new Date();
+                                                            let dateRangeDays = 7;
+                                                            if (dateRange === 'last-week') {
+                                                                dateRangeDays = 7;
+                                                            } else if (dateRange === 'last-month') {
+                                                                dateRangeDays = 30;
+                                                            } else if (dateRange === 'last-year') {
+                                                                dateRangeDays = 365;
+                                                            }
+                                                            for (let i = 0; i < dateRangeDays; i++) {
+                                                                const date = new Date(today);
+                                                                date.setDate(today.getDate() - i);
+                                                                dates.push(date.toLocaleDateString('en-US'));
+                                                            }
+                                                            return dates.map((date) => (
+                                                                <option key={date} value={date}>{date}</option>
+                                                            ));
+                                                        })()}
+                                                        
                                                     </select>
                                                 </div>
                                             </div>
