@@ -233,6 +233,7 @@ const ChatLogList = () => {
                         label={label} 
                         variant="outlined" 
                         onClick={() => window.open(sources.find(source => source.source_num === sourceNums[0]).source, "_blank")}
+                        style={{ backgroundColor: sources.find(source => source.source_num === sourceNums[0]).clicked ? 'green' : 'default' }}
                     />
                 </div>
             );
@@ -542,6 +543,7 @@ const ChatLogList = () => {
                                                                 >{chatLog.response}</ReactMarkdown></td>
 
                                                             <td>
+                                                               
                                                                 {chatLog.sources && createSourceChips(chatLog.sources)}
                                                             
                                                                 
