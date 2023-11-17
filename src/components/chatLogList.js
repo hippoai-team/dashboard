@@ -35,6 +35,7 @@ const ChatLogList = () => {
     const [feedBackCount, setFeedBackCount] = useState([0, 0]);//[yes, no
     const [userRatingFilter, setUserRatingFilter] = useState("");
     const [averageQueryLength, setAverageQueryLength] = useState(0);
+    const [numChatsClickedSources, setNumChatsClickedSources] = useState({});
     const [dateRange, setDateRange] = useState('last-week')
     const toastDuration = 3000;
     const [feedbackPlotObject, setFeedbackPlotObject] = useState({series: [], labels: []});//[yes, no
@@ -86,7 +87,9 @@ const ChatLogList = () => {
             currentPage: page,
             dateCountObj,
             users,
-            totalFeedback
+            totalFeedback,
+            numChatsWithClickedSources,
+
         } = res.data;
         setChatLogs(chatLogs);
         setTotalLogs(totalCount);
@@ -96,8 +99,8 @@ const ChatLogList = () => {
         console.log('dateCountObj', dateCountObj)
         setFeedBackCount(totalFeedback);
         setLoading(false);
+        setNumChatsClickedSources(numChatsWithClickedSources);
         setAverageQueryLength(chatLogs.reduce((acc, log) => acc + log.query.split(' ').length, 0) / chatLogs.length);
-        
         const chatLogsWithRating = chatLogs.filter(log => log.user_rating !== null);
         const chatLogsWithoutRating = chatLogs.filter(log => log.user_rating === null);
 
@@ -425,7 +428,33 @@ const ChatLogList = () => {
                                                     margin: '10px'
                                                 }}
                                                 />
+                                                <NumDisplay
+                                                title='% of Chats with Clicked Sources'
+                                                value={numChatsClickedSources && 
+                                                numChatsClickedSources && numChatsClickedSources.reduce((acc, source) => acc + source.totalChatsPercentage, 0).toFixed(2)}
+                                                description="Percentage of chats with clicked sources since Nov 16"
+                                                sx={{
+                                                    backgroundColor: alpha('#2196F3', 0.1),
+                                                    color: '#2196F3',
+                                                    margin: '10px'
+                                                }}
+                                                />
+                                                <NumDisplay
+                                         
+                                                title={numChatsClickedSources &&
+                                                numChatsClickedSources.map(source => `${source._id} % clicked`)}
+                                                value={numChatsClickedSources &&
+                                                numChatsClickedSources.map(source => Math.round(source.totalClicksPercentage))}
+                                                description={['Percentage of chats with clicked sources', 'Percentage of chats with clicked sources', 'Percantage of chats with clicked sources']}
+                                                sx={{
+                                                    backgroundColor: alpha('#2196F3', 0.1),
+                                                    color: '#2196F3',
+                                                    margin: '10px'
+                                                }}
+                                                />
                                         </div>
+                                 
+
                                     <div className="row">
                                         
                                         <div className="col-md-6">
