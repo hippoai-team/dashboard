@@ -431,7 +431,7 @@ const ChatLogList = () => {
                                                 <NumDisplay
                                                 title='% of Chats with Clicked Sources'
                                                 value={numChatsClickedSources && 
-                                                numChatsClickedSources && numChatsClickedSources.reduce((acc, source) => acc + source.totalChatsPercentage, 0).toFixed(2)}
+                                                numChatsClickedSources.length > 0 && numChatsClickedSources.reduce((acc, source) => acc + source.totalChatsPercentage, 0).toFixed(2)}
                                                 description="Percentage of chats with clicked sources since Nov 16"
                                                 sx={{
                                                     backgroundColor: alpha('#2196F3', 0.1),
@@ -441,9 +441,9 @@ const ChatLogList = () => {
                                                 />
                                                 <NumDisplay
                                          
-                                                title={numChatsClickedSources &&
+                                                title={numChatsClickedSources.length >0 &&
                                                 numChatsClickedSources.map(source => `${source._id} % clicked`)}
-                                                value={numChatsClickedSources &&
+                                                value={numChatsClickedSources.length >0 &&
                                                 numChatsClickedSources.map(source => Math.round(source.totalClicksPercentage))}
                                                 description={['Percentage of chats with clicked sources', 'Percentage of chats with clicked sources', 'Percantage of chats with clicked sources']}
                                                 sx={{
