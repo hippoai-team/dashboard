@@ -43,6 +43,8 @@ const UserList = () => {
     const [totalSavedSources, setTotalSavedSources] = useState(0);
     const [totalFollowupUsage, setTotalFollowupUsage] = useState(0);
     const [savedSourceTypeCounts, setSavedSourceTypeCounts] = useState({'guidelines': 0, 'drugs': 0, 'bugs': 0, 'pearls': 0, 'general': 0});
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
     const chartOptions = {
 
             chart: {
@@ -101,8 +103,11 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
         endpoint += `&userGroupFilter=${selectedUserGroup}`;
         }
 
-        if (dateRange) {
-        endpoint += `&dateRange=${dateRange}`;
+        if (startDate && endDate) {
+            setDateRange('');
+            endpoint += `&dateRangeStart=${startDate}&dateRangeEnd=${endDate}`;
+        } else if (dateRange) {
+            endpoint += `&dateRange=${dateRange}`;
         }
       const response = await axios.get(endpoint);
         setUsers(response.data.users);
@@ -130,7 +135,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
     fetchUsers();
   }
 
-    , [currentPage, perPage, search, statusFilter, cohortFilter, selectedUser, selectedUserGroup, selectedDate, dateRange]);
+    , [currentPage, perPage, search, statusFilter, cohortFilter, selectedUser, selectedUserGroup, selectedDate, dateRange, startDate, endDate]);
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -214,6 +219,12 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
         const handleUserGroupChange = (e) => {
             setSelectedUserGroup(e.target.value);
         }
+         const handleDateRangeChange= (e) => {
+        setDateRange(e.target.value);
+        setSelectedDate('');
+        setStartDate('');
+        setEndDate('');
+    }
         
         const handleDateChange = (e) => {
             setSelectedDate(e.target.value);
@@ -440,7 +451,7 @@ const series = [
                                                     <select
                                                         className="form-control"
                                                         value={dateRange}
-                                                        onChange={(e) => setDateRange(e.target.value)}
+                                                        onChange={(e) => handleDateRangeChange(e)}
                                                     >
                                                         <option value="all_time">All Time</option>
                                                         <option value="last_week">Last Week</option>
@@ -449,6 +460,28 @@ const series = [
                                                     </select>
                                                 </div>
                                               </div>
+                                               <div className="col-md-2">
+                                                    <div className="form-group">
+                                                        <label>Start Date</label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            value={startDate}
+                                                            onChange={(e) => setStartDate(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-2">
+                                                    <div className="form-group">
+                                                        <label>End Date</label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            value={endDate}
+                                                            onChange={(e) => setEndDate(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
                                               </div>
                                   <Grid container spacing={3}>
                                       
