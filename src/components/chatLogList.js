@@ -36,6 +36,8 @@ const ChatLogList = () => {
     const [userRatingFilter, setUserRatingFilter] = useState("");
     const [averageQueryLength, setAverageQueryLength] = useState(0);
     const [numChatsClickedSources, setNumChatsClickedSources] = useState({});
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [dateRange, setDateRange] = useState('last-week')
     const toastDuration = 3000;
     const [feedbackPlotObject, setFeedbackPlotObject] = useState({series: [], labels: []});//[yes, no
@@ -67,10 +69,12 @@ const ChatLogList = () => {
             }
         
         //add date range
-        if (dateRange) {
+        if (startDate && endDate) {
+            setDateRange('');
+            endpoint += `&dateRangeStart=${startDate}&dateRangeEnd=${endDate}`;
+        } else if (dateRange) {
             endpoint += `&dateRange=${dateRange}`;
-            }
-
+        }
         if (userRatingFilter=='exists') {
             endpoint += `&userRatingFilter=true`;
             }
@@ -141,7 +145,7 @@ const ChatLogList = () => {
 
     useEffect(() => {
         fetchChatLogs();
-    }, [currentPage, perPage, search, selectedUser, selectedDate, dateRange, userRatingFilter, selectedUserGroup]);
+    }, [currentPage, perPage, search, selectedUser, selectedDate, dateRange, userRatingFilter, selectedUserGroup, startDate, endDate]);
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -161,6 +165,14 @@ const ChatLogList = () => {
 
     const handleDateChange = (e) => {
         setSelectedDate(e.target.value);
+
+    }
+
+    const handleDateRangeChange= (e) => {
+        setDateRange(e.target.value);
+        setSelectedDate('');
+        setStartDate('');
+        setEndDate('');
     }
 
     const handleNextPage = () => {
@@ -329,19 +341,28 @@ const ChatLogList = () => {
                                                         <option value="">All</option>
                                                         {(() => {
                                                             const dates = [];
-                                                            const today = new Date();
-                                                            let dateRangeDays = 7;
-                                                            if (dateRange === 'last-week') {
-                                                                dateRangeDays = 7;
-                                                            } else if (dateRange === 'last-month') {
-                                                                dateRangeDays = 30;
-                                                            } else if (dateRange === 'last-year') {
-                                                                dateRangeDays = 365;
-                                                            }
-                                                            for (let i = 0; i < dateRangeDays; i++) {
-                                                                const date = new Date(today);
-                                                                date.setDate(today.getDate() - i);
-                                                                dates.push(date.toLocaleDateString('en-US'));
+                                                            let startDateObj = new Date(startDate);
+                                                            let endDateObj = new Date(endDate);
+                                                            if (startDate && endDate) {
+                                                                endDateObj.setDate(endDateObj.getDate() + 1);
+                                                                for (let d = new Date(startDateObj); d <= endDateObj; d.setDate(d.getDate() + 1)) {
+                                                                    dates.push(new Date(d).toLocaleDateString('en-US'));
+                                                                }
+                                                            } else {
+                                                                const today = new Date();
+                                                                let dateRangeDays = 7;
+                                                                if (dateRange === 'last-week') {
+                                                                    dateRangeDays = 7;
+                                                                } else if (dateRange === 'last-month') {
+                                                                    dateRangeDays = 30;
+                                                                } else if (dateRange === 'last-year') {
+                                                                    dateRangeDays = 365;
+                                                                }
+                                                                for (let i = 0; i < dateRangeDays; i++) {
+                                                                    const date = new Date(today);
+                                                                    date.setDate(today.getDate() - i);
+                                                                    dates.push(date.toLocaleDateString('en-US'));
+                                                                }
                                                             }
                                                             return dates.map((date) => (
                                                                 <option key={date} value={date}>{date}</option>
@@ -357,7 +378,7 @@ const ChatLogList = () => {
                                                     <select
                                                         className="form-control"
                                                         value={dateRange}
-                                                        onChange={(e) => setDateRange(e.target.value)}
+                                                        onChange={(e) => handleDateRangeChange(e)}
                                                     >
                                                         <option value="all-time">All Time</option>
                                                         <option value="last-week">Last Week</option>
@@ -365,6 +386,29 @@ const ChatLogList = () => {
                                                         <option value="last-year">Last Year</option>
                                                     </select>
                                                 </div>
+                                                </div>
+
+                                                <div className="col-md-2">
+                                                    <div className="form-group">
+                                                        <label>Start Date</label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            value={startDate}
+                                                            onChange={(e) => setStartDate(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="col-md-2">
+                                                    <div className="form-group">
+                                                        <label>End Date</label>
+                                                        <input
+                                                            type="date"
+                                                            className="form-control"
+                                                            value={endDate}
+                                                            onChange={(e) => setEndDate(e.target.value)}
+                                                        />
+                                                    </div>
                                                 </div>
                                             <div className="col-md-2">
                                                 <div className="form-group">
