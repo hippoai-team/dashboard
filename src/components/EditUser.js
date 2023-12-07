@@ -12,7 +12,7 @@ function EditUser() {
     name: '',
     email: '',
     status: '',
-    permissions: [],
+    role: ''
   });
 
   const navigate = useNavigate();
@@ -24,12 +24,12 @@ function EditUser() {
 
   // Load source data when component mounts
   useEffect(() => {
+    
     const fetchUser = async () => {
       try {
+        console.log('hello')
         const response = await axios.get(`${API_BASE_URL}/api/users/${id}`);
-        console.log(response.data)
         setFormData(response.data);
-        console.log(response.data)
       } catch (error) {
         toast.error('Error fetching source data: ' + error.message);
       }
@@ -116,12 +116,12 @@ function EditUser() {
           </Select>
         </FormControl>
         <FormControl fullWidth style={{marginBottom: '1rem'}}>
-          <InputLabel>Permissions</InputLabel>
+          <InputLabel>Role</InputLabel>
           <Select
-            multiple
-            value={formData.permissions}
+            
+            value={formData.role}
             onChange={handleChange}
-            name="permissions"
+            name="role"
             fullWidth
             style={{marginBottom: '1rem'}}
           >
