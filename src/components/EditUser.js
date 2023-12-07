@@ -118,7 +118,6 @@ function EditUser() {
         <FormControl fullWidth style={{marginBottom: '1rem'}}>
           <InputLabel>Role</InputLabel>
           <Select
-            
             value={formData.role}
             onChange={handleChange}
             name="role"
