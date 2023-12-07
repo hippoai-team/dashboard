@@ -27,6 +27,7 @@ function EditUser() {
     const fetchUser = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/api/users/${id}`);
+        console.log(response.data)
         setFormData(response.data);
         console.log(response.data)
       } catch (error) {
