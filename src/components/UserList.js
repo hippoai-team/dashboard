@@ -11,6 +11,7 @@ import DailyChartGraph from "./dailyDataGraph";
 import ChartGraph from "./chartGraph";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import InactiveUserTable from "./inactiveUserTable";
 const UserList = () => {
     const navigate = useNavigate();
 
@@ -355,7 +356,7 @@ const series = [
   }
   
   
-
+console.log('churned users', churnData)
 
 
   return (
@@ -408,6 +409,7 @@ const series = [
                                           <Grid item xs={12} sm={6} md={5}>
                                             <NumDisplay title={Object.keys(savedSourceTypeCounts)} value={Object.values(savedSourceTypeCounts)} description={'Saved Source Type Counts'} />
                                             </Grid>
+                                            
                                   </Grid>
                                   <div className="row">
                                   <div className="col-md-2">
@@ -642,7 +644,7 @@ const series = [
                                                 </Button>
                                             </div>
                                         </div>
-                                        
+
                                 <div className="card-body">
                                     <InteractiveTable dataSource={users} columns={[
                                         { dataIndex: 'email', title: 'Email' },
@@ -672,6 +674,9 @@ const series = [
                                         
                                     ]}
                                     />
+                                      <InactiveUserTable churnData={churnData} />
+
+
                                 </div>  
                                 </div>
                                 </div>
@@ -679,6 +684,7 @@ const series = [
                                 </div>
                                 </div>
                                 </section>
+
                                 </div>
                                 </Layout>
     );
