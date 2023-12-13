@@ -74,6 +74,10 @@ const BetaList = () => {
           // Destructure the response data
         const { totalBetaUsers, statusCounts, betaUsers } = response.data;
           // Use the response data to update users state
+          //modify date_added to be more readable
+          betaUsers.forEach((user) => {
+            user.date_added = new Date(user.date_added).toLocaleDateString();
+          });
           setTotalUsers(totalBetaUsers);
           setStatusCounts(statusCounts);
           setUsers(betaUsers);
