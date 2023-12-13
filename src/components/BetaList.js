@@ -465,7 +465,7 @@ const BetaList = () => {
                       { dataIndex: 'name', title: 'Name' },
                       { dataIndex: 'email', title: 'Email' },
                       { dataIndex: 'status', title: 'Status' },
-                      { dataIndex: 'date_added', title: 'Date Signed Up' },
+                      { dataIndex: 'date_added', title: 'Date Added' },
                       { dataIndex: 'source', title: 'Added from' },
                       { dataIndex: 'usage', title: 'Usage' },
                       { dataIndex: 'follow_up_usage', title: 'Follow Up Usage'},
