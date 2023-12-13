@@ -356,7 +356,6 @@ const series = [
   }
   
   
-console.log('churned users', churnData)
 
 
   return (
