@@ -52,6 +52,12 @@ const Sidebar = () => {
                 <p>Users</p>
               </Link>
             </li>
+            <li className="nav-item">
+              <Link to="/apilog" className="nav-link">
+                <i className="nav-icon fas fa-list"></i>
+                <p>API Usage Log</p>
+              </Link>
+            </li>
           
           </ul>
         </nav>
