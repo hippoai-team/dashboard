@@ -21,7 +21,7 @@ const defaultOptions = {
         formatter: (value, { series, seriesIndex, dataPointIndex, w }) => {
           const date = w.globals.labels[dataPointIndex];
           const users = w.config.userData[date]?.users || [];
-          return `Count: ${value} <br> Users: ${users.join(', ')}`;
+          return `Total: ${value.toFixed(2)} <br> Users: ${users.join(', ')}`;
         }
       },
     }
@@ -34,7 +34,7 @@ const defaultOptions = {
         const date = Object.keys(userData)[dataPointIndex];
         const users = userData[date]?.users || [];
         const usersString = users.join('<br>');
-        return `Count: ${value} <br> Users: <br> ${usersString}`;
+        return `Count: ${value.toFixed(2)} <br> Users: <br> ${usersString}`;
       }
     };
 
