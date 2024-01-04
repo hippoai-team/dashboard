@@ -32,8 +32,10 @@ const BetaList = () => {
       never_used_hippo: 0,
       not_signed_up: 0,
     });
+
     const [totalUsers, setTotalUsers] = useState(0);
     const [cohortFilter, setCohortFilter] = useState("");
+    const [sourceFilter, setSourceFilter] = useState("");
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [users, setUsers] = useState([]);
 
@@ -66,6 +68,9 @@ const BetaList = () => {
         if (cohortFilter) {
           endpoint += `&cohort=${cohortFilter}`;
         }
+        if (sourceFilter) {
+          endpoint += `&source=${sourceFilter}`;
+        }
     
         try {
           // Make a GET request to the endpoint using async/await
@@ -78,6 +83,8 @@ const BetaList = () => {
           betaUsers.forEach((user) => {
             user.date_added = new Date(user.date_added).toLocaleDateString();
           });
+          // Sort users by date_added in descending order (most recent first)
+          betaUsers.sort((a, b) => new Date(b.date_added) - new Date(a.date_added));
           setTotalUsers(totalBetaUsers);
           setStatusCounts(statusCounts);
           setUsers(betaUsers);
@@ -394,7 +401,22 @@ const BetaList = () => {
                           </div>
                         </form>
                       </div>
-                      
+                      <div className="col-4">
+                        <form onSubmit={(e) => e.preventDefault()}>
+                          <div className="form-group">
+                            <select
+                              name="source_filter"
+                              className="form-control"
+                              value={sourceFilter}
+                              onChange={(e) => setSourceFilter(e.target.value)}
+                            >
+                              <option value="">Source Filter</option>
+                              <option value="Beta Access Form">Beta Access Form</option>
+                              <option value="Dashboard">Dashboard</option>
+                              </select>
+                          </div>
+                        </form>
+                      </div>
                       <div className="col-4">
                         <form onSubmit={(e) => e.preventDefault()}>
                           <div className="form-group">
