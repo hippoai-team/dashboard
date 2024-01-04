@@ -97,7 +97,7 @@ const BetaList = () => {
       // useEffect for fetching users on initial load and when currentPage changes
       useEffect(() => {
         fetchUsers();
-      }, [currentPage, search, perPage, statusFilter, cohortFilter]);
+      }, [currentPage, search, perPage, statusFilter, cohortFilter, sourceFilter]);
       
       const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -412,7 +412,7 @@ const BetaList = () => {
                             >
                               <option value="">Source Filter</option>
                               <option value="Beta Access Form">Beta Access Form</option>
-                              <option value="Dashboard">Dashboard</option>
+                              <option value="dashboard">Dashboard</option>
                               </select>
                           </div>
                         </form>
