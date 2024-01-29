@@ -22,12 +22,13 @@ const APIUsageLog = () => {
     const [totalUsers, setTotalUsers] = useState(0);
     const [apiKeyDict, setApiKeyDict] = useState({});//[customer_id: api_key
     const [selectedUser, setSelectedUser] = useState("");
+    const [totalUsagePercentage, setTotalUsagePercentage] = useState(0);
     const [users, setUsers] = useState([]);
     //set as current month yyyy-mm
     const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
     const [availableMonths, setAvailableMonths] = useState([]);
     const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
-
+    const monthlyServerCost = 100;
     const fetchLogs = async () => {
         try {
             let endpoint = `${API_BASE_URL}/api/usage?page=${currentPage}`;
@@ -53,6 +54,7 @@ const APIUsageLog = () => {
             setApiCustomers(data.data.apiCustomers);
             setApiUsage(data.data.usageEntries);
             setAvailableMonths(data.data.months.map((month) => month._id));
+            setTotalUsagePercentage(data.data.totalUsagePercentageForSelectedCustomer);
             //make a dict of customer_id: api_key
             const tempDict = {};
             data.data.apiCustomers.forEach((customer) => {
@@ -129,14 +131,19 @@ const APIUsageLog = () => {
         });
     }
 
-    const exportToPDF = () => {
-        const exportableContent = document.getElementById('exportableContent');
-        const pdf = new jsPDF('p', 'pt', 'letter');
-        pdf.html(exportableContent, {
-            callback: (pdf) => {
-                pdf.save('api-usage.pdf');
-            }
-        });
+    const exportToPrintMedia = () => {
+        const exportableContent = document.getElementById('exportableContent').innerHTML;
+        const newWindow = window.open('', '_blank');
+        const date = new Date(selectedMonth);
+        date.setMonth(date.getMonth() + 1);
+        const monthString = date.toLocaleDateString('default', { year: 'numeric', month: 'long' });
+        newWindow.document.write(`<h1>HippoAI Billing Report for ${monthString}</h1>`);
+        if (selectedUser) {
+            newWindow.document.write(`<h2>User: ${apiKeyDict[selectedUser]}</h2>`);
+        }
+        newWindow.document.write(`${exportableContent}`);
+        
+        newWindow.print();
     }
 
         return (
@@ -229,7 +236,7 @@ const APIUsageLog = () => {
                                                 </div>
                                             </div>
                         
-                     
+                                                            <Button variant="contained" onClick={exportToPrintMedia}>Export to PDF</Button>
                            <div id="exportableContent">
                                <Chart
                                    options={{
@@ -274,6 +281,10 @@ const APIUsageLog = () => {
                                    type="bar"
                                    height="350"
                                />
+                               <br></br>
+                                 <br></br>
+                                 <br></br>
+                                    <br></br>
                                <table className="table">
                                    <thead>
                                        <tr>
@@ -298,10 +309,18 @@ const APIUsageLog = () => {
                                        ))}
                                    </tbody>
                                </table>
-                               <div style={{ fontSize: '24px', margin: '20px 0' }}>
-                                   <strong>Total Cost for the Month: </strong>
+                               <div style={{ fontSize: '18px', margin: '20px 0' }}>
+                                   <strong>API Cost for the Month: </strong>
                                    {apiUsage.reduce((acc, entry) => acc + entry.total_input_cost + entry.total_output_cost, 0).toFixed(2)}
                                </div>
+                               <div style={{ fontSize: '18px', margin: '20px 0' }}>
+                                      <strong>Server Cost for the Month: </strong>
+                                        {(monthlyServerCost * (selectedUser ? totalUsagePercentage : 1)).toFixed(2)}
+                                        </div>
+                                <div style={{ fontSize: '24px', margin: '20px 0' }}>
+                                    <strong>Total Cost for the Month: </strong>
+                                    {(monthlyServerCost * (selectedUser ? totalUsagePercentage : 1) + apiUsage.reduce((acc, entry) => acc + entry.total_input_cost + entry.total_output_cost, 0)).toFixed(2)}
+                                    </div>
                            </div>
                      </div>
                      
