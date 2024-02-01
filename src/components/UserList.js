@@ -253,10 +253,6 @@ const series = [
       name: 'Total Queries',
       data: Object.values(totalQueriesByWeek),
     },
-    ...Object.keys(userSeries).map(user => ({
-      name: user,
-      data: userSeries[user],
-    }))
   ];
 
   const options = {
