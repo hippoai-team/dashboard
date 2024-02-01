@@ -111,7 +111,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
             endpoint += `&dateRange=${dateRange}`;
         }
       const response = await axios.get(endpoint);
-        setUsers(response.data.users);
+        setUsers(response.data.users.sort((a, b) => new Date(a.signup_date) - new Date(b.signup_date)));
         setTotalUsers(response.data.totalUsers);
         setTotalUsageCount(response.data.totalUsageCount);
         setTotalFeedbackCount(response.data.totalFeedbackCount);
