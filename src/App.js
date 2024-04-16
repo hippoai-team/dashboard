@@ -14,6 +14,7 @@ import PrivateRoute from './components/Routes/Private';
 import ChatLogList from './components/chatLogList';
 import APIUsageLog from './components/APIUsageLog';
 import EditUser from './components/EditUser';
+import MasterSources from './components/masterSources';
 function App() {
   return (
     console.log(process.env.NODE_API_URL),
@@ -35,7 +36,9 @@ function App() {
                 <Route path="/sources" element={<PrivateRoute />} >
                   <Route path='' element={<SourceList />} />
                 </Route>
-
+                <Route path="/mastersources" element={<PrivateRoute />} >
+                  <Route path='' element={<MasterSources />} />
+                </Route>
                 <Route path="/betalist" element={<PrivateRoute />} >
                   <Route path='' element={<BetaList />} />
                 </Route>
@@ -67,6 +70,8 @@ function App() {
                 <Route path="/users/edit/:id" element={<PrivateRoute />} >
                   <Route path='' element={<EditUser />} />
                 </Route>
+
+                
 
 
                 <Route path="/users" element={<PrivateRoute />} >

@@ -35,6 +35,12 @@ const Sidebar = () => {
               </Link>
             </li>
             <li className="nav-item">
+              <Link to="/mastersources" className="nav-link">
+                <i className="nav-icon fas fa-book"></i>
+                <p>Master Sources</p>
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link to="/betalist" className="nav-link">
                 <i className="nav-icon fas fa-list"></i>
                 <p>Beta List</p>
