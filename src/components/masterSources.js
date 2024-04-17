@@ -63,13 +63,14 @@ const MasterSources = () => {
   const [perPage, setPerPage] = useState(50); // Initialize perPage state
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
-  const [totalSources, setTotalSources] = useState(0); // Initialize totalSources state
+  const [totalSources, setTotalSources] = useState({});
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
   const [approveLoading, setApproveLoading] = useState(false);
   const toastDuration = 2000; // 2 seconds
+  const [lastFilters, setLastFilters] = useState({ 0: {}, 1: {} });
 
-const [value, setValue] = React.useState(0);
+const [tab, setTab] = React.useState(0);
   const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
   const chartOptions = {
     chart: {
@@ -81,56 +82,33 @@ const [value, setValue] = React.useState(0);
  
 
   const fetchSources = async () => {
-    // Base endpoint
-    let endpoint = `${API_BASE_URL}/api/master-sources?page=${currentPage}`;
-
-    // If there's a search query, append it to the endpoint
-    if (search) {
-      endpoint += `&search=${search}`;
-    }
-
-    if (sourceTypeFilter) {
-      endpoint += `&source_type=${sourceTypeFilter}`;
-    }
-
-    if (perPage) {
-      endpoint += `&perPage=${perPage}`;
-    }
-
-    if (statusFilter) {
-      endpoint += `&status=${statusFilter}`;
-    }
-
+    let endpoint = `${API_BASE_URL}/api/master-sources?page=${currentPage}&active_tab=${tab}`;
+  
+    if (search) endpoint += `&search=${search}`;
+    if (sourceTypeFilter) endpoint += `&source_type=${sourceTypeFilter}`;
+    if (statusFilter) endpoint += `&status=${statusFilter}`;
+    if (perPage) endpoint += `&perPage=${perPage}`;
+  
     try {
-      // Make a GET request to the endpoint using async/await
       const response = await axios.get(endpoint);
-
-      // Destructure the response data
-      const {
-        sources,
-        source_types,
-        master_sources,
-      } = response.data;
-      setSources(sources);
-      console.log(master_sources);
-      setMasterSources(master_sources);
-      //data.sources keys are the source types
+      const { sources, source_types, master_sources, total_source_counts } = response.data;
       setAllSourceTypes(source_types);
-      //if no sourceTypeFilter set to first from source_types
-        if (!sourceTypeFilter && source_types.length > 0) {
-          setSourceTypeFilter(source_types[0]);
-        }
-    
-
+      if (tab === 0) {
+        setSources(sources);
+      } else {
+        setMasterSources(master_sources);
+      }
+      setTotalSources(total_source_counts);
     } catch (error) {
       console.error("Error fetching sources:", error);
     }
   };
+  
 
   // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
     fetchSources();
-  }, [currentPage, search, sourceTypeFilter, perPage, statusFilter]);
+  }, [currentPage, search, sourceTypeFilter, perPage, statusFilter, tab]);
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -156,8 +134,27 @@ const [value, setValue] = React.useState(0);
   };
 
   const handleTabChange = (event, newValue) => {
-    setValue(newValue);
+    // Store current filters before switching
+    setLastFilters(prev => ({ ...prev, [tab]: { search, sourceTypeFilter, statusFilter } }));
+    
+    if (newValue === 1) {
+      // Reset filters when moving to master sources tab
+      setSearch("");
+      setSourceTypeFilter("");
+      setStatusFilter("");
+    } else if (newValue === 0) {
+      // Reapply last used filters or default when moving back to sources tab
+      const filters = lastFilters[0];
+      setSearch(filters.search || "");
+      setSourceTypeFilter(filters.sourceTypeFilter || (allSourceTypes.length > 0 ? allSourceTypes[0] : ""));
+      setStatusFilter(filters.statusFilter || "");
+    }
+    setTab(newValue);
   };
+  useEffect(() => {
+    // This useEffect will trigger fetchSources whenever the active tab changes
+    fetchSources();
+  }, [tab]);  // Ensure dependencies are correctly set for this effect
 
   const handleDeleteSelected = () => {
     axios
@@ -410,12 +407,12 @@ const [value, setValue] = React.useState(0);
                 </div>
              
 
-                <Tabs value={value} onChange={handleTabChange} aria-label="basic tabs example">
+                <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
     <Tab label="Sources Requiring Review" {...a11yProps(0)} />
     <Tab label="Master Source list" {...a11yProps(1)} />
   
         </Tabs>   
-        <CustomTabPanel value={value} index={0}>   
+        <CustomTabPanel value={tab} index={0}>   
             <InteractiveTable 
                   columns={[
                     { title: 'ID', dataIndex: '_id', copyButton: false },
@@ -435,7 +432,7 @@ const [value, setValue] = React.useState(0);
                     { title: 'Country', dataIndex: 'country', copyButton: false }
                   ]}
                   dataSource={sources || []} 
-                  totalEntries={totalSources} 
+                  totalEntries={totalSources['sources']}
                   handlePrevPage={handlePreviousPage} 
                   handleNextPage={handleNextPage} 
                   setSelectedIds={setSelectedSourceIds} 
@@ -447,9 +444,11 @@ const [value, setValue] = React.useState(0);
                   ]}
                   handleCheckboxChange={handleCheckboxChange}
                   handleAllCheckboxChange={handleAllCheckboxChange}
+                  skip={perPage * (currentPage - 1)}
+                    perPage={perPage}
                 />
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
+        <CustomTabPanel value={tab} index={1}>
             
               <InteractiveTable 
                   columns={[
@@ -471,7 +470,7 @@ const [value, setValue] = React.useState(0);
                     { title: 'Country', dataIndex: 'country', copyButton: false }
                   ]}
                 dataSource={masterSources || []} 
-                totalEntries={totalSources} 
+                totalEntries={totalSources['master_sources']}
                 handlePrevPage={handlePreviousPage} 
                 handleNextPage={handleNextPage} 
                 setSelectedIds={setSelectedSourceIds} 
@@ -480,6 +479,8 @@ const [value, setValue] = React.useState(0);
                 ]}
                 handleCheckboxChange={handleCheckboxChange}
                 handleAllCheckboxChange={handleAllCheckboxChange}
+                skip={perPage * (currentPage - 1)}
+                perPage={perPage}
               />
               
         </CustomTabPanel>

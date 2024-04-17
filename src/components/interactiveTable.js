@@ -14,6 +14,8 @@ const InteractiveTable = ({
   actionButtons,
   handleAllCheckboxChange,
   handleCheckboxChange,
+  skip,
+  perPage,
 }) => {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -21,6 +23,8 @@ const InteractiveTable = ({
 
   
   return (
+    <>
+ 
     <div className="table-responsive">
         <div className="col-sm-12 col-md-7">
           <div className="dataTables_paginate paging_simple_numbers">
@@ -32,6 +36,10 @@ const InteractiveTable = ({
                 <button className="page-link" onClick={handleNextPage}>Next</button>
               </li>
             </ul>
+            <div className="col-sm-12 col-md-5">
+          <div className="dataTables_info">Showing {skip + 1}-{Math.min(skip + perPage, totalEntries)} of {totalEntries} entries</div>
+
+        </div>
           </div>
         </div>
       <table className="table table-bordered table-hover">
@@ -89,9 +97,7 @@ const InteractiveTable = ({
         </tbody>
       </table>
       <div className="row">
-        <div className="col-sm-12 col-md-5">
-          <div className="dataTables_info">Showing {dataSource.length} of {totalEntries} entries</div>
-        </div>
+        
         <div className="col-sm-12 col-md-7">
           <div className="dataTables_paginate paging_simple_numbers">
             <ul className="pagination">
@@ -106,6 +112,7 @@ const InteractiveTable = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
 
