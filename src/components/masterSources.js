@@ -151,10 +151,6 @@ const [tab, setTab] = React.useState(0);
     }
     setTab(newValue);
   };
-  useEffect(() => {
-    // This useEffect will trigger fetchSources whenever the active tab changes
-    fetchSources();
-  }, [tab]);  // Ensure dependencies are correctly set for this effect
 
   const handleDeleteSelected = () => {
     axios
@@ -184,7 +180,9 @@ const [tab, setTab] = React.useState(0);
 
   // Function to handle clicking the "Next" button
   const handleNextPage = () => {
-    setCurrentPage(currentPage + 1);
+    if ((currentPage * perPage) < totalSources[tab === 0 ? 'sources' : 'master_sources']) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   // Function to handle clicking the "Previous" button
@@ -335,7 +333,7 @@ const [tab, setTab] = React.useState(0);
                           value={sourceTypeFilter}
                           onChange={(e) => {
                             setSourceTypeFilter(e.target.value);
-                            setCurrentPage(0);
+                            setCurrentPage(1);
                             }}
                         >
                           <option value="">Source Type</option>
