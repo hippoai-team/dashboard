@@ -19,7 +19,7 @@ import InteractiveTable from "./interactiveTable";
 import PageTitle from "./pageTitle";
 import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
-
+import PipelineStatusCard from "./PipelineStatusCard";
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -66,10 +66,11 @@ const MasterSources = () => {
   const [totalSources, setTotalSources] = useState({});
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("");
-  const [approveLoading, setApproveLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const toastDuration = 2000; // 2 seconds
   const [lastFilters, setLastFilters] = useState({ 0: {}, 1: {} });
-
+const [pipelineStatus, setPipelineStatus] = React.useState('idle');
+const [error, setError] = React.useState(null);
 const [tab, setTab] = React.useState(0);
   const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
   const chartOptions = {
@@ -102,8 +103,27 @@ const [tab, setTab] = React.useState(0);
     } catch (error) {
       console.error("Error fetching sources:", error);
     }
+
   };
-  
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      axios.post(`${API_BASE_URL}/api/master-sources/status`)
+        .then(response => {
+          // Assuming the response contains a field 'status' indicating the pipeline status
+          setPipelineStatus(response.data.status);
+          setError(null);
+          if (response.data.status === 'error' || response.data.status==='unavailable') {
+            setError(response.data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching pipeline status:', error);
+        });
+    }, 10000); // 10000 ms = 10 seconds
+
+    return () => clearInterval(intervalId); // This is the cleanup function to stop the interval when the component unmounts
+  }, []);
 
   // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
@@ -126,7 +146,7 @@ const [tab, setTab] = React.useState(0);
 
   const handleAllCheckboxChange = (event) => {
     if (event.target.checked) {
-      const allSourceIds = sources.map((source) => source._id);
+      const allSourceIds = tab === 0 ? sources.map((source) => source._id) : masterSources.map((source) => source._id);
       setSelectedSourceIds(allSourceIds);
     } else {
       setSelectedSourceIds([]);
@@ -154,7 +174,7 @@ const [tab, setTab] = React.useState(0);
 
   const handleDeleteSelected = () => {
     axios
-      .delete(`${API_BASE_URL}/api/mastersources/delete-multiple`, {
+      .delete(`${API_BASE_URL}/api/master-sources/delete-multiple`, {
         data: { sourceIds: selectedSourceIds },
       })
       .then((response) => {
@@ -218,70 +238,51 @@ const [tab, setTab] = React.useState(0);
     }
   };
 
-  const handleApprove = async (sourceId, sourceTypeFilter) => {
-    setApproveLoading(true);
-    setSelectedSourceIds([sourceId]);
+  const getActionType = (tab, multiple = false) => {
+    const action = tab === 0 ? 'approve' : 'process';
+    return multiple ? `${action}-multiple` : action;
+  };
+  
+  // Generic function to handle API requests
+  const performAction = async ({ endpoint, payload, successMessage, errorMessage }) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/master-sources/approve/${sourceId}`, { sourceType: sourceTypeFilter });
+      const response = await axios.post(endpoint, payload);
       if (response.status === 200) {
-        //get data from response
-        //get the status from the response, its in the data object and the key is the sourceId
-        setApproveLoading(false);
-        const status = response.data[sourceId];
-        toast.success(`Source ${response.data.title} status: ${status}`, {
-          autoClose: toastDuration+1000,
-        });
-        // Refresh the list after the toast disappears
-        setTimeout(() => {
-          fetchSources();
-          setSelectedSourceIds([]); // Clear the selectedSourceIds state
-        }, toastDuration);
+        toast.success(successMessage, { autoClose: toastDuration + 1000 });
+        return true;
       } else {
-        console.error("Failed to start source approving:", response.data);
+        console.error(errorMessage, response.data);
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      // Display error toast
-      setApproveLoading(false);
-      toast.error("Error starting source approving!", {
-        autoClose: toastDuration,
-      });
-      console.error("Error starting source approving:", error);
+      toast.error(`${errorMessage} Error: ${error.message}`, { autoClose: toastDuration });
+      console.error(errorMessage, error);
+      return false;
     }
   };
-
-  const handleApproveSelected = () => {
-    setApproveLoading(true);
-    axios
-      .post(`${API_BASE_URL}/api/master-sources/approve-multiple`, {
-        sourceIds: selectedSourceIds,
-        sourceType: sourceTypeFilter,
-      })
-      .then((response) => {
-        setApproveLoading(false);
-        if (response.status === 200) {
-          toast.success("Selected sources approved and added to master!", {
-            autoClose: toastDuration,
-          });
-        } else {
-          toast.error("Error: Sources could not be approved!", {
-            autoClose: toastDuration,
-          });
-        }
-        // Refresh the list after the toast disappears
-        setTimeout(() => {
-          fetchSources();
-          setSelectedSourceIds([]); // Clear the selectedSourceIds state
-        }, toastDuration);
-      })
-      .catch((error) => {
-        setApproveLoading(false);
-        toast.error("Error starting selected source approving!", {
-          autoClose: toastDuration,
-        });
-        console.error("Error starting selected source approving:", error);
-      });
+  
+  // Function to handle single or multiple source actions
+  const handleSourceAction = async (sourceIds, sourceTypeFilter, tab) => {
+    setActionLoading(true);
+    const multiple = Array.isArray(sourceIds) && sourceIds.length > 1;
+    const actionType = getActionType(tab, multiple);
+    const endpoint = `${API_BASE_URL}/api/master-sources/${actionType}`;
+    const payload = multiple ? { sourceIds, sourceType: sourceTypeFilter } : { sourceId: sourceIds[0], sourceType: sourceTypeFilter };
+    const successMessage = multiple ? (tab === 0 ? "Selected sources approved!" : "Selected sources processed!") 
+                                     : (tab === 0 ? `Source ${sourceIds} approved!` : `Source ${sourceIds} processed!`);
+    const errorMessage = `Failed to ${actionType.replace('-', ' ')}`;
+  
+    const success = await performAction({ endpoint, payload, successMessage, errorMessage });
+    if (success) {
+      setTimeout(() => {
+        fetchSources();
+        setSelectedSourceIds([]); // Clear the selectedSourceIds state
+        setActionLoading(false);
+      }, toastDuration);
+    } else {
+      setActionLoading(false);
+    }
   };
-
 
   return (
     <Layout>
@@ -396,19 +397,21 @@ const [tab, setTab] = React.useState(0);
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={handleApproveSelected}
+                      onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab)}
                       disabled={selectedSourceIds.length === 0}
                     >
-                      Approve Selected
+                        {tab === 0 ? 'Approve Selected' : 'Process Selected'}
                     </Button>
                   </div>
                 </div>
-             
+                {tab === 1 && (
+                    <PipelineStatusCard pipelineStatus={pipelineStatus} error={error} />
+                )}
 
                 <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
     <Tab label="Sources Requiring Review" {...a11yProps(0)} />
     <Tab label="Master Source list" {...a11yProps(1)} />
-  
+                            
         </Tabs>   
         <CustomTabPanel value={tab} index={0}>   
             <InteractiveTable 
@@ -437,11 +440,11 @@ const [tab, setTab] = React.useState(0);
                   actionButtons={[
                    // { label: 'Edit', onClick: (data) => navigate(`/sources/edit/${data._id}`) }, 
                   //  { label: 'Delete', onClick: (data) => handleDelete(data._id) },
-                    { label: 'Approve', onClick: (data) => handleApprove(data._id, sourceTypeFilter) , loading: approveLoading }
+                    { label: 'Approve', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab), loading: actionLoading }
                   ]}
                   handleCheckboxChange={handleCheckboxChange}
                   handleAllCheckboxChange={handleAllCheckboxChange}
-                  skip={perPage * (currentPage - 1)}
+                  currentPage={currentPage}
                     perPage={perPage}
                 />
         </CustomTabPanel>
@@ -472,10 +475,14 @@ const [tab, setTab] = React.useState(0);
                 setSelectedIds={setSelectedSourceIds} 
                 selectedIds={selectedSourceIds}
                 actionButtons={[
+                    //process
+                    ...(pipelineStatus !== 'error' && pipelineStatus !== 'unavailable') ? [{
+                        label: 'Process', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab), loading: actionLoading
+                    }] : []
                 ]}
                 handleCheckboxChange={handleCheckboxChange}
                 handleAllCheckboxChange={handleAllCheckboxChange}
-                skip={perPage * (currentPage - 1)}
+                currentPage={currentPage}
                 perPage={perPage}
               />
               

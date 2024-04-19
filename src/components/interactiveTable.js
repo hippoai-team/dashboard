@@ -3,6 +3,8 @@ import Button from '@mui/material/Button';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 const InteractiveTable = ({
   columns,
   dataSource,
@@ -14,12 +16,15 @@ const InteractiveTable = ({
   actionButtons,
   handleAllCheckboxChange,
   handleCheckboxChange,
-  skip,
+  currentPage,
   perPage,
 }) => {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
   };
+
+  const skip = perPage * (currentPage - 1);
+
 
   
   return (
@@ -35,6 +40,12 @@ const InteractiveTable = ({
               <li className="paginate_button page-item next">
                 <button className="page-link" onClick={handleNextPage}>Next</button>
               </li>
+              <Box component="span" sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
+                <Typography component="span">Page </Typography>
+                <Typography component="span" sx={{ ml: 0.5 }}>
+                  {currentPage}
+                </Typography>
+              </Box>
             </ul>
             <div className="col-sm-12 col-md-5">
           <div className="dataTables_info">Showing {skip + 1}-{Math.min(skip + perPage, totalEntries)} of {totalEntries} entries</div>
@@ -42,6 +53,7 @@ const InteractiveTable = ({
         </div>
           </div>
         </div>
+
       <table className="table table-bordered table-hover">
         <thead>
           <tr>
