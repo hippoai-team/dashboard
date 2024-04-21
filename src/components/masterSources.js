@@ -353,7 +353,7 @@ const getActionType = (tab, action) => {
                       variant="contained"
                       color="primary"
                       component={Link}
-                      to="/add-new"
+                      to="/source-form"
                       style={{textTransform: 'none'}}
                     >
                       <AddIcon style={{marginRight: '5px'}} />
@@ -419,10 +419,12 @@ const getActionType = (tab, action) => {
                   setSelectedIds={setSelectedSourceIds} 
                   selectedIds={selectedSourceIds}
                   actionButtons={[
-                   // { label: 'Edit', onClick: (data) => navigate(`/sources/edit/${data._id}`) }, 
-                  //  { label: 'Delete', onClick: (data) => handleDelete(data._id) },
+                  
                     { label: 'Approve', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'approve'), loading: actionLoading },
-                    { label: 'Reject', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'reject'), loading: actionLoading }
+                    { label: 'Reject', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'reject'), loading: actionLoading },
+                    {label: 'Edit', onClick: (data) => navigate(`/source-form/${data._id}/${tab}/${sourceTypeFilter}` )}
+
+
                   ]}
                   handleCheckboxChange={handleCheckboxChange}
                   handleAllCheckboxChange={handleAllCheckboxChange}
@@ -459,7 +461,8 @@ const getActionType = (tab, action) => {
                 actionButtons={
                     (pipelineStatus !== 'error' && pipelineStatus !== 'unavailable') ? [
                         {label: 'Process', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'process'), loading: actionLoading},
-                        {label: 'Delete', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'delete'), loading: actionLoading}
+                        {label: 'Delete', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'delete'), loading: actionLoading},
+                        {label: 'Edit', onClick: (data) => navigate(`/source-form/${data._id}/${tab}` )}
                     ] : []
                 }
 

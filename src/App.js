@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SourceList from './components/SourceList';
 import BetaList from './components/BetaList';
-import AddSource from './components/AddNewSource';
+import SourceForm from './components/SourceForm';
 import AddBetaUser from './components/AddBetaUser';
 import EditSource from './components/EditSource';
 import EditBetaUser from './components/EditBetaUser';
@@ -51,9 +51,11 @@ function App() {
                   <Route path='' element={<APIUsageLog />} />
                 </Route>
 
-                <Route path="add-new" element={<PrivateRoute />} >
-                  <Route path='' element={<AddSource />} />
-                </Route>
+                <Route path="source-form" element={<PrivateRoute />}>
+                    <Route index element={<SourceForm />} />
+                    <Route path=":sourceId/:tab/:sourceType" element={<SourceForm />} />
+                    <Route path=":sourceId/:tab" element={<SourceForm />} />
+                  </Route>
 
                 <Route path="/betalist/add" element={<PrivateRoute />} >
                   <Route path='' element={<AddBetaUser />} />

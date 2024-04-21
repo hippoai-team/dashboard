@@ -1,12 +1,51 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper } from '@mui/material';
 import { Link } from 'react-router-dom';
 import Layout from './Layout';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+function SourceForm() {
+    const { sourceId , tab, sourceType } = useParams();
+    
+    const isEditMode = sourceId !== undefined;
+    const navigate = useNavigate();
+    const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
-function AddSource() {
+    useEffect(() => {
+      if (isEditMode) {
+        axios.get(`${API_BASE_URL}/api/master-sources/${sourceId}?tab=${tab}&sourceTypeFilter=${encodeURIComponent(sourceType)}`)
+          .then(response => {
+            setSources([response.data]);  // Ensure the response is treated as an array
+          })
+          .catch(error => {
+            toast.error("Failed to fetch source data: " + error.message);
+          });
+      
+      } else {
+        setSources([{
+          source_url: "",
+          date_published: "",
+          subject_specialty: "",
+          title: "",
+          publisher: "",
+          source_type: "",
+          access_status: "open_access",
+          load_type: "",
+          content_type: "",
+          language: "",
+          audience: "",
+          keywords: [],
+          country: "",
+          status: "active",
+
+        }]);
+      }
+    }, [sourceId, API_BASE_URL, isEditMode]);
+
   const [sources, setSources] = useState([{
     source_url: "",
     date_published: "",
@@ -23,7 +62,6 @@ function AddSource() {
     country: "",
     status: "active",
   }]);
-  const navigate = useNavigate();
 
   const ContentType = {
     TEXT: 'text',
@@ -127,7 +165,6 @@ function AddSource() {
     PATIENTS: 'patients',
     HEALTHCARE_PROFESSIONALS: 'healthcare_professionals',
   };
-  const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
   const handleChange = (index, e) => {
     const newSources = [...sources];
@@ -171,12 +208,15 @@ function AddSource() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/master-sources/store`, { sources });
-      if (response.status === 201) {
+      const url = `${API_BASE_URL}/api/master-sources/${isEditMode ? 'update' : 'store'}`;
+      const method = isEditMode ? 'put' : 'post';
+      const payload = isEditMode ? { ...sources[0], sourceType: sourceType, tab:tab, id: sourceId } : { sources, tab, sourceType };
+      const response = await axios[method](url, payload);
+      if (response.status === 200 || response.status === 201) {
         toast.success(
           <>
-            <div>Sources successfully created!</div>
-            {response.data.sourceCreationStatus.map((status, index) => (
+            <div>Source successfully {isEditMode ? 'updated' : 'created'}!</div>
+            {response.data.sourceActionStatus.map((status, index) => (
               <div key={index}>{`${status.source_title} ${status.source_url}: ${status.status}`}</div>
             ))}
           </>,
@@ -184,10 +224,10 @@ function AddSource() {
         );
         setTimeout(() => navigate("/mastersources"), 2000);
       } else {
-        toast.error("Failed to create source: " + response.data.error, { autoClose: 2000 });
+        toast.error("Failed to save source: " + response.data.error);
       }
     } catch (error) {
-      toast.error("There was an exception: " + error.response.data.error, { autoClose: 2000 });
+      toast.error("There was an error: " + (error.response?.data.error || error.message));
     }
   };
 
@@ -337,24 +377,29 @@ function AddSource() {
                         fullWidth
                         label="Keywords (comma-separated)"
                         name="keywords"
-                        value={source.keywords.join(', ')} // Join array elements into a string separated by commas
+                        value={source.keywords ? source.keywords.join(', ') : ''} // Join array elements into a string separated by commas, handle if keywords are undefined or null
                         onChange={(e) => handleChange(index, e)}
                         margin="normal"
                     />
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => handleRemoveSource(index)}
-                  >
-                    Remove
-                  </Button>
+                  {isEditMode ? (
+                    <Box sx={{ marginTop: 2 }}>
+                      <Button type="submit" variant="contained" color="primary">Submit</Button>
+                      <Button component={Link} to="/sources" variant="contained" color="secondary">Cancel</Button>
+                    </Box>
+                  ) : (
+                    <>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleRemoveSource(index)}
+                      >
+                        Remove
+                      </Button>
+                      <Button variant="contained" onClick={handleAddSource}>Add Another Source</Button>
+                    </>
+                  )}
                 </Box>
               ))}
-              <Button variant="contained" onClick={handleAddSource}>Add Another Source</Button>
-              <Box sx={{ marginTop: 2 }}>
-                <Button type="submit" variant="contained" color="primary">Submit</Button>
-                <Button component={Link} to="/sources" variant="contained" color="secondary">Cancel</Button>
-              </Box>
             </form>
           </Paper>
         </Box>
@@ -363,4 +408,5 @@ function AddSource() {
   );
 }
 
-export default AddSource;
+      
+export default SourceForm;
