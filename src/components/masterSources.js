@@ -19,7 +19,7 @@ import InteractiveTable from "./interactiveTable";
 import PageTitle from "./pageTitle";
 import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
-import PipelineStatusCard from "./PipelineStatusCard";
+import TaskStatusCards from "./TaskStatusCard";
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -106,24 +106,6 @@ const [tab, setTab] = React.useState(0);
 
   };
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      axios.post(`${API_BASE_URL}/api/master-sources/status`)
-        .then(response => {
-          // Assuming the response contains a field 'status' indicating the pipeline status
-          setPipelineStatus(response.data.status);
-          setError(null);
-          if (response.data.status === 'error' || response.data.status==='unavailable') {
-            setError(response.data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching pipeline status:', error);
-        });
-    }, 10000); // 10000 ms = 10 seconds
-
-    return () => clearInterval(intervalId); // This is the cleanup function to stop the interval when the component unmounts
-  }, []);
 
   // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
@@ -238,14 +220,20 @@ const [tab, setTab] = React.useState(0);
     }
   };
 
-  const getActionType = (tab, multiple = false) => {
-    const action = tab === 0 ? 'approve' : 'process';
-    return multiple ? `${action}-multiple` : action;
+// Function to determine action type
+const getActionType = (tab, action) => {
+    if (tab === 0) {
+      return action === 'approve' ? 'approve' : 'reject';
+    } else if (tab === 1) {
+      return action === 'process' ? 'process' : 'delete';
+    }
+    return 'unknown';
   };
   
-  // Generic function to handle API requests
+  // Function to handle API requests
   const performAction = async ({ endpoint, payload, successMessage, errorMessage }) => {
     try {
+        console.log(endpoint, payload);
       const response = await axios.post(endpoint, payload);
       if (response.status === 200) {
         toast.success(successMessage, { autoClose: toastDuration + 1000 });
@@ -261,16 +249,15 @@ const [tab, setTab] = React.useState(0);
     }
   };
   
-  // Function to handle single or multiple source actions
-  const handleSourceAction = async (sourceIds, sourceTypeFilter, tab) => {
+  // Function to handle source actions
+  const handleSourceAction = async (sourceIds, sourceTypeFilter, tab, action) => {
     setActionLoading(true);
-    const multiple = Array.isArray(sourceIds) && sourceIds.length > 1;
-    const actionType = getActionType(tab, multiple);
+    const actionType = getActionType(tab, action);
     const endpoint = `${API_BASE_URL}/api/master-sources/${actionType}`;
-    const payload = multiple ? { sourceIds, sourceType: sourceTypeFilter } : { sourceId: sourceIds[0], sourceType: sourceTypeFilter };
-    const successMessage = multiple ? (tab === 0 ? "Selected sources approved!" : "Selected sources processed!") 
-                                     : (tab === 0 ? `Source ${sourceIds} approved!` : `Source ${sourceIds} processed!`);
-    const errorMessage = `Failed to ${actionType.replace('-', ' ')}`;
+    const payload = { sourceIds, sourceType: sourceTypeFilter };
+
+    const successMessage = `Source(s) successfully ${actionType}${'ed'}!`;
+    const errorMessage = `Failed to ${actionType}`;
   
     const success = await performAction({ endpoint, payload, successMessage, errorMessage });
     if (success) {
@@ -405,7 +392,7 @@ const [tab, setTab] = React.useState(0);
                   </div>
                 </div>
                 {tab === 1 && (
-                    <PipelineStatusCard pipelineStatus={pipelineStatus} error={error} />
+                    <TaskStatusCards />
                 )}
 
                 <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
@@ -440,7 +427,8 @@ const [tab, setTab] = React.useState(0);
                   actionButtons={[
                    // { label: 'Edit', onClick: (data) => navigate(`/sources/edit/${data._id}`) }, 
                   //  { label: 'Delete', onClick: (data) => handleDelete(data._id) },
-                    { label: 'Approve', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab), loading: actionLoading }
+                    { label: 'Approve', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'approve'), loading: actionLoading },
+                    { label: 'Reject', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'reject'), loading: actionLoading }
                   ]}
                   handleCheckboxChange={handleCheckboxChange}
                   handleAllCheckboxChange={handleAllCheckboxChange}
@@ -474,12 +462,15 @@ const [tab, setTab] = React.useState(0);
                 handleNextPage={handleNextPage} 
                 setSelectedIds={setSelectedSourceIds} 
                 selectedIds={selectedSourceIds}
-                actionButtons={[
-                    //process
-                    ...(pipelineStatus !== 'error' && pipelineStatus !== 'unavailable') ? [{
-                        label: 'Process', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab), loading: actionLoading
-                    }] : []
-                ]}
+                actionButtons={
+                    (pipelineStatus !== 'error' && pipelineStatus !== 'unavailable') ? [
+                        {label: 'Process', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'process'), loading: actionLoading},
+                        {label: 'Delete', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'delete'), loading: actionLoading}
+                    ] : []
+                }
+
+
+                    
                 handleCheckboxChange={handleCheckboxChange}
                 handleAllCheckboxChange={handleAllCheckboxChange}
                 currentPage={currentPage}
