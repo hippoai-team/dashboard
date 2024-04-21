@@ -98,6 +98,7 @@ const [tab, setTab] = React.useState(0);
         setSources(sources);
       } else {
         setMasterSources(master_sources);
+        console.log('master sources', master_sources)
       }
       setTotalSources(total_source_counts);
     } catch (error) {
@@ -233,7 +234,6 @@ const getActionType = (tab, action) => {
   // Function to handle API requests
   const performAction = async ({ endpoint, payload, successMessage, errorMessage }) => {
     try {
-        console.log(endpoint, payload);
       const response = await axios.post(endpoint, payload);
       if (response.status === 200) {
         toast.success(successMessage, { autoClose: toastDuration + 1000 });
@@ -364,7 +364,7 @@ const getActionType = (tab, action) => {
                       variant="contained"
                       color="primary"
                       component={Link}
-                      to="/sources/add"
+                      to="/add-new"
                       style={{textTransform: 'none'}}
                     >
                       <AddIcon style={{marginRight: '5px'}} />
