@@ -20,7 +20,8 @@ import PageTitle from "./pageTitle";
 import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
 import TaskStatusCards from "./TaskStatusCard";
-
+import RefreshIcon from '@mui/icons-material/Refresh';
+import IconButton from '@mui/material/IconButton';
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
   
@@ -62,10 +63,10 @@ const MasterSources = () => {
   const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
   const [perPage, setPerPage] = useState(50); // Initialize perPage state
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("")
   const [totalSources, setTotalSources] = useState({});
   const [allSourceTypes, setAllSourceTypes] = useState([]);
-  const [sourceTypeFilter, setSourceTypeFilter] = useState("");
+  const [sourceTypeFilter, setSourceTypeFilter] = useState("clinical_guidelines");
   const [actionLoading, setActionLoading] = useState(false);
   const toastDuration = 2000; // 2 seconds
   const [lastFilters, setLastFilters] = useState({ 0: {}, 1: {} });
@@ -155,32 +156,6 @@ const [tab, setTab] = React.useState(0);
     setTab(newValue);
   };
 
-  const handleDeleteSelected = () => {
-    axios
-      .delete(`${API_BASE_URL}/api/master-sources/delete-multiple`, {
-        data: { sourceIds: selectedSourceIds },
-      })
-      .then((response) => {
-        // Display success toast
-        toast.success("Selected sources deleted successfully!", {
-          autoClose: toastDuration,
-        });
-
-        // Refresh the list after the toast disappears
-        setTimeout(() => {
-          fetchSources();
-          setSelectedSourceIds([]); // Clear the selectedSourceIds state
-        }, toastDuration);
-      })
-      .catch((error) => {
-        // Display error toast
-        toast.error("Error deleting selected sources!", {
-          autoClose: toastDuration,
-        });
-        console.error("Error deleting selected sources:", error);
-      });
-  };
-
   // Function to handle clicking the "Next" button
   const handleNextPage = () => {
     if ((currentPage * perPage) < totalSources[tab === 0 ? 'sources' : 'master_sources']) {
@@ -192,32 +167,6 @@ const [tab, setTab] = React.useState(0);
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleDelete = async (sourceId) => {
-    try {
-      const response = await axios.delete(
-        `${API_BASE_URL}/api/master-sources/destroy/${sourceId}`
-      );
-
-      if (response.status === 200) {
-        // Display success toast
-        toast.success("Source successfully deleted!", {
-          autoClose: toastDuration,
-        });
-
-        // Refresh the list after the toast disappears
-        setTimeout(() => {
-          fetchSources();
-        }, toastDuration);
-      } else {
-        console.error("Failed to delete source:", response.data);
-      }
-    } catch (error) {
-      // Display error toast
-      toast.error("Error deleting the source!", { autoClose: toastDuration });
-      console.error("Error deleting the source:", error);
     }
   };
 
@@ -236,7 +185,23 @@ const getActionType = (tab, action) => {
     try {
       const response = await axios.post(endpoint, payload);
       if (response.status === 200) {
-        toast.success(successMessage, { autoClose: toastDuration + 1000 });
+        if (response.data.statusReport) {
+          toast.success(
+            <div>
+              {successMessage}
+              <ul>
+                {response.data.statusReport.map((report, index) => (
+                  <li key={index}>
+                    {report.title} ({report.url}): {report.status}
+                  </li>
+                ))}
+              </ul>
+            </div>, 
+            { autoClose: toastDuration + 1000 }
+          );
+        } else {
+          toast.success(successMessage, { autoClose: toastDuration + 1000 });
+        }
         return true;
       } else {
         console.error(errorMessage, response.data);
@@ -256,7 +221,7 @@ const getActionType = (tab, action) => {
     const endpoint = `${API_BASE_URL}/api/master-sources/${actionType}`;
     const payload = { sourceIds, sourceType: sourceTypeFilter };
 
-    const successMessage = `Source(s) successfully ${actionType}${'ed'}!`;
+    const successMessage = `Task to ${actionType} source(s) has been successfully submitted. Check the status above for updates.`
     const errorMessage = `Failed to ${actionType}`;
   
     const success = await performAction({ endpoint, payload, successMessage, errorMessage });
@@ -324,7 +289,7 @@ const getActionType = (tab, action) => {
                             setCurrentPage(1);
                             }}
                         >
-                          <option value="">Source Type</option>
+                          {tab==1 && <option value="">Source Type</option>}
                           {allSourceTypes.map((type) => (
                             <option key={type} value={type}>
                               {type}
@@ -354,9 +319,33 @@ const getActionType = (tab, action) => {
                       </div>
                     </form>
                   </div>
-                  
-
+                
+                <div className="col-4">
+                    <form onSubmit={(e) => e.preventDefault()}>
+                        <div className="form-group">
+                            <select
+                            name="status"
+                            className="form-control"
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            >
+                            <option value="">Status</option>
+                            {tab === 0 && <>
+                              <option value="pending">Pending</option>
+                              <option value="approved">Approved</option>
+                              <option value="rejected">Rejected</option>
+                            </>}
+                            {tab === 1 && <>
+                              <option value="active">Pending</option>
+                              <option value="processed">Processed</option>
+                              <option value="inactive">Inactive</option>
+                            </>}
+                            </select>
+                            </div>
+                        </form>
+                        </div>
                 </div>
+                    
 
 
                 <div className="row" style={{marginBottom: '10px'}}>
@@ -375,31 +364,36 @@ const getActionType = (tab, action) => {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={handleDeleteSelected}
+                      onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, tab === 0 ? 'reject' : 'delete')}
                       disabled={selectedSourceIds.length === 0}
                       style={{marginRight: '10px'}}
                     >
-                      Delete Selected
+                      {tab === 0 ? 'Reject Selected' : 'Delete Selected'}
                     </Button>
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab)}
+                      onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, tab === 0 ? 'approve' : 'process')}
                       disabled={selectedSourceIds.length === 0}
                     >
                         {tab === 0 ? 'Approve Selected' : 'Process Selected'}
                     </Button>
                   </div>
                 </div>
-                {tab === 1 && (
-                    <TaskStatusCards />
-                )}
+               
 
                 <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
     <Tab label="Sources Requiring Review" {...a11yProps(0)} />
     <Tab label="Master Source list" {...a11yProps(1)} />
-                            
-        </Tabs>   
+    <IconButton
+            onClick={() => fetchSources()}
+            >
+            <RefreshIcon />
+        </IconButton>         
+        </Tabs>  
+        {tab === 1 && (
+                    <TaskStatusCards />
+                )}
         <CustomTabPanel value={tab} index={0}>   
             <InteractiveTable 
                   columns={[

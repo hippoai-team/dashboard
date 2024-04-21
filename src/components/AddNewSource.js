@@ -173,7 +173,15 @@ function AddSource() {
     try {
       const response = await axios.post(`${API_BASE_URL}/api/master-sources/store`, { sources });
       if (response.status === 201) {
-        toast.success("Sources successfully created!", { autoClose: 2000 });
+        toast.success(
+          <>
+            <div>Sources successfully created!</div>
+            {response.data.sourceCreationStatus.map((status, index) => (
+              <div key={index}>{`${status.source_title} ${status.source_url}: ${status.status}`}</div>
+            ))}
+          </>,
+          { autoClose: 2000 }
+        );
         setTimeout(() => navigate("/mastersources"), 2000);
       } else {
         toast.error("Failed to create source: " + response.data.error, { autoClose: 2000 });
