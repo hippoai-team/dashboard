@@ -5,12 +5,17 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import IconButton from '@mui/material/IconButton';
+import ButtonGroup from '@mui/material/ButtonGroup';
 const InteractiveTable = ({
   columns,
   dataSource,
   totalEntries,
   handlePrevPage,
   handleNextPage,
+  handleSortOrderChange,
   setSelectedIds,
     selectedIds,
   actionButtons,
@@ -65,6 +70,16 @@ const InteractiveTable = ({
             {columns.map((column, i) => (
               <th key={i}>
                 {column.title}
+                {column.title === 'timestamp' && (
+                  <ButtonGroup>
+                  <IconButton size="small" onClick={() => handleSortOrderChange('asc')}>
+                    <ArrowUpwardIcon fontSize="inherit" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => handleSortOrderChange('desc')}>
+                    <ArrowDownwardIcon fontSize="inherit" />
+                  </IconButton>
+                  </ButtonGroup>
+                )}
                 {column.copyButton && (
                   <Button variant="outlined" onClick={() => {
                     const copiedData = dataSource.map(data => data[column.dataIndex]);

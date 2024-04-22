@@ -6,11 +6,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
-import Chart from "react-apexcharts";
-import NumDisplay from "./numDisplay";
-import ChartGraph from "./chartGraph";
+
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button"; 
 import AddIcon from '@mui/icons-material/Add';
 import Tabs from '@mui/material/Tabs';
@@ -73,6 +70,7 @@ const MasterSources = () => {
 const [pipelineStatus, setPipelineStatus] = React.useState('idle');
 const [error, setError] = React.useState(null);
 const [tab, setTab] = React.useState(0);
+const [sortOrder, setSortOrder] = React.useState('desc');
   const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
   const chartOptions = {
     chart: {
@@ -90,6 +88,7 @@ const [tab, setTab] = React.useState(0);
     if (sourceTypeFilter) endpoint += `&source_type=${sourceTypeFilter}`;
     if (statusFilter) endpoint += `&status=${statusFilter}`;
     if (perPage) endpoint += `&perPage=${perPage}`;
+    if (sortOrder) endpoint += `&sortOrder=${sortOrder}`;
   
     try {
       const response = await axios.get(endpoint);
@@ -156,6 +155,10 @@ const [tab, setTab] = React.useState(0);
     setTab(newValue);
   };
 
+    const handleSortOrderChange = (order) => {
+    setSortOrder(order);
+    fetchSources();
+    };
   // Function to handle clicking the "Next" button
   const handleNextPage = () => {
     if ((currentPage * perPage) < totalSources[tab === 0 ? 'sources' : 'master_sources']) {
@@ -397,6 +400,7 @@ const getActionType = (tab, action) => {
         <CustomTabPanel value={tab} index={0}>   
             <InteractiveTable 
                   columns={[
+                    {title: 'timestamp', dataIndex: 'timestamp', copyButton: false},
                     { title: 'ID', dataIndex: '_id', copyButton: false },
                     { title: 'Title', dataIndex: 'title', copyButton: false },
                     { title: 'Publisher', dataIndex: 'publisher', copyButton: false },
@@ -416,6 +420,7 @@ const getActionType = (tab, action) => {
                   totalEntries={totalSources['sources']}
                   handlePrevPage={handlePreviousPage} 
                   handleNextPage={handleNextPage} 
+                  handleSortOrderChange={handleSortOrderChange}
                   setSelectedIds={setSelectedSourceIds} 
                   selectedIds={selectedSourceIds}
                   actionButtons={[
@@ -436,6 +441,7 @@ const getActionType = (tab, action) => {
             
               <InteractiveTable 
                   columns={[
+                    {title: 'timestamp', dataIndex: 'timestamp', copyButton: false},
                     { title: 'ID', dataIndex: 'source_id', copyButton: false },
                     {title:'Processed', dataIndex:'processed', copyButton:false},
                     { title: 'Title', dataIndex: 'title', copyButton: false },
@@ -456,6 +462,7 @@ const getActionType = (tab, action) => {
                 totalEntries={totalSources['master_sources']}
                 handlePrevPage={handlePreviousPage} 
                 handleNextPage={handleNextPage} 
+                handleSortOrderChange={handleSortOrderChange}
                 setSelectedIds={setSelectedSourceIds} 
                 selectedIds={selectedSourceIds}
                 actionButtons={
