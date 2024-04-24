@@ -13,10 +13,16 @@ import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import ClearIcon from '@mui/icons-material/Clear';
 import Tooltip from '@mui/material/Tooltip';
-const API_BASE_URL = 'http://localhost:8000';  // Set this to your API base URL
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+
+const API_BASE_URL = 'http://localhost:8000';
 
 const TaskStatusCards = () => {
+  const [currentTab, setCurrentTab] = useState(0);
   const [tasks, setTasks] = useState({});
+  const [logs, setLogs] = useState([]);
   const [pipelineStatus, setPipelineStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -24,7 +30,6 @@ const TaskStatusCards = () => {
     const intervalId = setInterval(() => {
       axios.get(`${API_BASE_URL}/status`)
         .then(response => {
-          console.log(response.data.tasks)
           setTasks(response.data.tasks);
           setPipelineStatus(response.data.pipeline_status);
           setErrorMessage(""); // Clear any previous error messages
@@ -38,6 +43,25 @@ const TaskStatusCards = () => {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/logs`);
+        setLogs(response.data.logs); // assuming response data is an array of log messages
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+      }
+    };
+
+    if (currentTab === 1) { // Only fetch logs if the Logs tab is active
+      fetchLogs();
+    }
+  }, [currentTab]);
+
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -54,10 +78,34 @@ const TaskStatusCards = () => {
     }
   };
 
+  const parseLogEntry = (logEntry) => {
+  const parts = logEntry.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - (\w+) - (.*)/);
+  if (parts) {
+    return {
+      timestamp: parts[1],
+      level: parts[2],
+      message: parts[3]
+    };
+  }
+  return null; // or a default structure
+};
+
+const logLevelColor = (level) => {
+  switch (level) {
+    case 'INFO':
+      return 'blue';
+    case 'WARNING':
+      return 'orange';
+    case 'ERROR':
+      return 'red';
+    default:
+      return 'black';
+  }
+};
+
   const removeTask = (taskId) => {
     axios.delete(`${API_BASE_URL}/task/${taskId}`)
       .then(() => {
-        // Remove the task from the state
         setTasks((prevTasks) => {
           const updatedTasks = { ...prevTasks };
           delete updatedTasks[taskId];
@@ -69,53 +117,105 @@ const TaskStatusCards = () => {
       });
   };
 
+  const logItems = logs.map((log, index) => (
+    <Typography key={index} variant="body2" style={{ fontFamily: 'Monospace', whiteSpace: 'pre-wrap', margin: '5px 0' }}>
+      {log}
+    </Typography>
+  ));
+
   return (
     <Card sx={{ margin: '20px' }}>
       <CardContent>
-        <Typography variant="h5" component="div" style={{ color: getStatusColor(pipelineStatus), marginBottom: '20px' }}>
-          Pipeline Status: {pipelineStatus !== "unavailable" ? pipelineStatus.charAt(0).toUpperCase() + pipelineStatus.slice(1) : "Unavailable"}
-        </Typography>
-        {errorMessage && (
-          <Typography variant="subtitle1" style={{ color: 'red', marginBottom: '20px' }}>
-            {errorMessage}
-          </Typography>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={currentTab} onChange={handleTabChange} aria-label="basic tabs example">
+            <Tab label="Tasks" />
+            <Tab label="Logs" />
+          </Tabs>
+        </Box>
+        {currentTab === 0 && (
+          <>
+            <Typography variant="h5" component="div" style={{ color: getStatusColor(pipelineStatus), marginBottom: '20px' }}>
+              Pipeline Status: {pipelineStatus !== "unavailable" ? pipelineStatus.charAt(0).toUpperCase() + pipelineStatus.slice(1) : "Unavailable"}
+            </Typography>
+            {errorMessage && (
+              <Typography variant="subtitle1" style={{ color: 'red', marginBottom: '20px' }}>
+                {errorMessage}
+              </Typography>
+            )}
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Task ID</TableCell>
+                    <TableCell align="right">Status</TableCell>
+                    <TableCell align="right">Error Message</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Object.entries(tasks).map(([taskID, taskInfo]) => (
+                    <TableRow
+                      key={taskID}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 }, bgcolor: getStatusColor(taskInfo.status) }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {taskID}
+                      </TableCell>
+                      <TableCell align="right">{taskInfo.status.charAt(0).toUpperCase() + taskInfo.status.slice(1)}</TableCell>
+                      <Tooltip title={JSON.stringify(taskInfo.details) || ''} placement="bottom" arrow>
+                        <TableCell align="right">{taskInfo.status === 'error' && taskInfo.error ? taskInfo.error : 'N/A'}</TableCell>
+                      </Tooltip>
+                      <TableCell align="right">
+                        <IconButton onClick={() => removeTask(taskID)}>
+                          <ClearIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
         )}
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Task ID</TableCell>
-                <TableCell align="right">Status</TableCell>
-                <TableCell align="right">Error Message</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.entries(tasks).map(([taskID, taskInfo]) => (
-                <TableRow
-                  key={taskID}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 }, bgcolor: getStatusColor(taskInfo.status) }}
-                >
-                  <TableCell component="th" scope="row">
-                    {taskID}
-                  </TableCell>
-                  <TableCell align="right">{taskInfo.status.charAt(0).toUpperCase() + taskInfo.status.slice(1)}</TableCell>
-                  <Tooltip title={JSON.stringify(taskInfo.details) || ''} placement="bottom" arrow>
-                    <TableCell align="right">{taskInfo.status === 'error' && taskInfo.error ? taskInfo.error : 'N/A'}</TableCell>
-                  </Tooltip>
-                  <TableCell align="right">
-                    <IconButton onClick={() => removeTask(taskID)}>
-                      <ClearIcon />
-                    </IconButton>
-                  </TableCell>
+        {currentTab === 1 && (
+  <Box sx={{ padding: '20px', maxHeight: '300px', overflowY: 'auto' }}>
+    <TableContainer component={Paper}>
+      <Table stickyHeader>
+        <TableHead>
+          <TableRow>
+            <TableCell>Timestamp</TableCell>
+            <TableCell>Level</TableCell>
+            <TableCell>Message</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {logs.length > 0 ? (
+            logs.map((log, index) => {
+              const parsedLog = parseLogEntry(log);
+              return parsedLog ? (
+                <TableRow key={index} hover>
+                  <TableCell>{parsedLog.timestamp}</TableCell>
+                  <TableCell style={{ color: logLevelColor(parsedLog.level) }}>{parsedLog.level}</TableCell>
+                  <TableCell>{parsedLog.message}</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              ) : null;
+            })
+          ) : (
+            <TableRow>
+              <TableCell colSpan={3}>
+                <Typography>No logs available.</Typography>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </Box>
+)}
       </CardContent>
     </Card>
   );
 };
 
 export default TaskStatusCards;
+
