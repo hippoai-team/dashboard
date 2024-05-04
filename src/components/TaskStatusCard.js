@@ -16,6 +16,9 @@ import Tooltip from '@mui/material/Tooltip';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -25,7 +28,9 @@ const TaskStatusCards = () => {
   const [logs, setLogs] = useState([]);
   const [pipelineStatus, setPipelineStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [expanded, setExpanded] = useState(false);
+  
   useEffect(() => {
     const intervalId = setInterval(() => {
       axios.get(`${API_BASE_URL}/status`)
@@ -149,28 +154,48 @@ const logLevelColor = (level) => {
                     <TableCell>Task ID</TableCell>
                     <TableCell align="right">Status</TableCell>
                     <TableCell align="right">Error Message</TableCell>
+                    <TableCell align="right">Details</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {Object.entries(tasks).map(([taskID, taskInfo]) => (
-                    <TableRow
-                      key={taskID}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 }, bgcolor: getStatusColor(taskInfo.status) }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {taskID}
-                      </TableCell>
-                      <TableCell align="right">{taskInfo.status.charAt(0).toUpperCase() + taskInfo.status.slice(1)}</TableCell>
-                      <Tooltip title={JSON.stringify(taskInfo.details) || ''} placement="bottom" arrow>
+                    <React.Fragment key={taskID}>
+                      <TableRow sx={{ bgcolor: getStatusColor(taskInfo.status) }}>
+                        <TableCell component="th" scope="row">
+                          {taskID}
+                        </TableCell>
+                        <TableCell align="right">{taskInfo.status.charAt(0).toUpperCase() + taskInfo.status.slice(1)}</TableCell>
                         <TableCell align="right">{taskInfo.status === 'error' && taskInfo.error ? taskInfo.error : 'N/A'}</TableCell>
-                      </Tooltip>
-                      <TableCell align="right">
-                        <IconButton onClick={() => removeTask(taskID)}>
-                          <ClearIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
+                        <TableCell align="right">
+                          <IconButton
+                            onClick={() => setExpanded(expanded => expanded === taskID ? false : taskID)}
+                            aria-expanded={expanded === taskID}
+                            aria-label="show more"
+                          >
+                            <ExpandMoreIcon />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton onClick={() => removeTask(taskID)}>
+                            <ClearIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                          <Collapse in={expanded === taskID} timeout="auto" unmountOnExit>
+                            <Box margin={1}>
+                              <Typography variant="h6" gutterBottom component="div">
+                                Details
+                              </Typography>
+                              {taskInfo.details && <Typography gutterBottom>{`Details: ${taskInfo.details}`}</Typography>}
+                              {taskInfo.cost && <Typography gutterBottom>{`Cost: ${taskInfo.cost}`}</Typography>}
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
                   ))}
                 </TableBody>
               </Table>

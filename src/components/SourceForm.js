@@ -8,9 +8,17 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import { IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+//import react dropzone 
+import { useDropzone } from 'react-dropzone';
+//loading spinner
+import CircularProgress from '@mui/material/CircularProgress';
+
+
 function SourceForm() {
     const { sourceId , tab, sourceType } = useParams();
-    
+    const [autoFillLoading, setAutoFillLoading] = useState(false);
     const isEditMode = sourceId !== undefined;
     const navigate = useNavigate();
     const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
@@ -41,6 +49,7 @@ function SourceForm() {
           keywords: [],
           country: "",
           status: "active",
+          pdfFile: null,
 
         }]);
       }
@@ -61,6 +70,7 @@ function SourceForm() {
     keywords: [],
     country: "",
     status: "active",
+    pdfFile: null,
   }]);
 
   const ContentType = {
@@ -168,17 +178,90 @@ function SourceForm() {
 
   const handleChange = (index, e) => {
     const newSources = [...sources];
-    if (e.target.name === "keywords") {
-        // Split string into array by comma, trim spaces, and convert to lowercase
+    if (e.target.name === 'keywords') {
         newSources[index][e.target.name] = e.target.value.toLowerCase().split(',').map(item => item.trim());
+    } else if (e.target.type === 'file') {
+        newSources[index][e.target.name] = e.target.files[0]; // Handle file input
     } else {
-        // Convert text to lowercase before setting it in state
         newSources[index][e.target.name] = e.target.value.toLowerCase();
     }
     setSources(newSources);
 };
 
 
+  const handleAutoFillPdfUrl = async (index) => {
+    setAutoFillLoading(true);
+    if (!sources[index].source_url) {
+      console.error('No URL provided for autofill.');
+      return;
+    }
+    try {
+      console.log('Extracting metadata from URL:', sources[index].source_url);
+      const response = await axios.post('http://localhost:8000/extract_metadata_url', { url: sources[index].source_url });
+      // Update the source at the specified index with the new metadata
+      const updatedSources = [...sources];
+      updatedSources[index] = { ...updatedSources[index], ...response.data.metadata };
+      // Update the state to reflect the changes
+      setSources(updatedSources);
+      setAutoFillLoading(false);
+    } catch (error) {
+      console.error('Error extracting metadata:', error);
+      setAutoFillLoading(false);
+    }
+  };
+
+  const handleAutoFillPdfFile = async (index) => {
+    setAutoFillLoading(true);
+    if (!sources[index].pdfFile) {
+      console.error('No file selected for autofill.');
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", sources[index].pdfFile);
+
+    try {
+      const response = await axios.post('http://localhost:8000/extract_metadata_file', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      // Update the source at the specified index with the new metadata
+      const updatedSources = [...sources];
+      updatedSources[index] = { ...updatedSources[index], ...response.data.metadata };
+      // Update the state to reflect the changes
+      setSources(updatedSources);
+      setAutoFillLoading(false);
+    } catch (error) {
+      console.error('Error extracting metadata:', error);
+      setAutoFillLoading(false);
+    }
+  };
+
+  const Dropzone = ({ onDrop }) => {
+    const { getRootProps, getInputProps } = useDropzone({
+      onDrop: acceptedFiles => {
+        const newSources = [...sources];
+        newSources[0].pdfFile = acceptedFiles[0];
+        setSources(newSources);
+        onDrop(acceptedFiles[0]);
+      }
+    });
+    return (
+      <section>
+        <div {...getRootProps()} style={{ border: '1px dashed #ccc', padding: '20px', textAlign: 'center' }}>
+          <input {...getInputProps()} />
+          {sources[0].pdfFile ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography style={{ flex: 1 }}>{sources[0].pdfFile.name}</Typography>
+              <IconButton onClick={() => handleRemoveFile(0)}><CloseIcon /></IconButton>
+            </div>
+          ) : (
+            <p>Drag 'n' drop a PDF file here, or click to select a file</p>
+          )}
+        </div>
+      </section>
+    );
+  };
   const handleAddSource = () => {
     setSources([...sources, {
       source_url: "",
@@ -196,12 +279,19 @@ function SourceForm() {
       country: "",
       source_id: "",
       status: "new",
+      pdfFile: null,
     }]);
   };
 
   const handleRemoveSource = index => {
     const newSources = [...sources];
     newSources.splice(index, 1);
+    setSources(newSources);
+  };
+
+  const handleRemoveFile = index => {
+    const newSources = [...sources];
+    newSources[index].pdfFile = null;
     setSources(newSources);
   };
 
@@ -240,6 +330,44 @@ function SourceForm() {
             <form onSubmit={handleSubmit}>
               {sources.map((source, index) => (
                 <Box key={index} sx={{ marginBottom: 2 }}>
+                  <Dropzone onDrop={acceptedFiles => console.log(acceptedFiles)}>
+                    {({ getRootProps, getInputProps }) => (
+                      <section>
+                        <div {...getRootProps()} style={{ border: '1px dashed #ccc', padding: '20px', textAlign: 'center' }}>
+                          <input {...getInputProps()} />
+                          <p>Drag 'n' drop some files here, or click to select files</p>
+                        </div>
+                      </section>
+                    )}
+
+                  </Dropzone>
+                  {source.pdfFile && (
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      onClick={() => handleAutoFillPdfFile(index)}
+                    >
+                      {autoFillLoading ? <CircularProgress size={24} /> : 'Autofill from file'}
+                    </Button>
+                  )}
+                  <TextField
+                    fullWidth
+                    label="Source URL"
+                    name="source_url"
+                    value={source.source_url}
+                    onChange={(e) => handleChange(index, e)}
+                    margin="normal"
+                  />
+                  
+                  {source.source_url && (
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      onClick={() => handleAutoFillPdfUrl(index)}
+                    >
+                      {autoFillLoading ? <CircularProgress size={24} /> : 'Autofill from URL'}
+                    </Button>
+                  )}
                   <TextField
                     fullWidth
                     label="Title"
@@ -256,14 +384,7 @@ function SourceForm() {
                     onChange={(e) => handleChange(index, e)}
                     margin="normal"
                   />
-                  <TextField
-                    fullWidth
-                    label="Source URL"
-                    name="source_url"
-                    value={source.source_url}
-                    onChange={(e) => handleChange(index, e)}
-                    margin="normal"
-                  />
+               
                   <TextField
                     fullWidth
                     label="Date Published (YYYY-MM-DD)"
