@@ -283,10 +283,35 @@ function SourceForm() {
     }]);
   };
 
+  const resetForm = () => {
+    setSources([{
+      source_url: "",
+      date_published: "",
+      subject_specialty: "",
+      title: "",
+      publisher: "",
+      source_type: "",
+      access_status: "",
+      load_type: "",
+      content_type: "",
+      language: "",
+      audience: "",
+      keywords: [],
+      country: "",
+      source_id: "",
+      status: "new",
+      pdfFile: null,
+    }]);
+  };
+
   const handleRemoveSource = index => {
-    const newSources = [...sources];
-    newSources.splice(index, 1);
-    setSources(newSources);
+    if (sources.length === 1) {
+      resetForm();
+    } else {
+      const newSources = [...sources];
+      newSources.splice(index, 1);
+      setSources(newSources);
+    }
   };
 
   const handleRemoveFile = index => {
@@ -329,7 +354,7 @@ function SourceForm() {
             <Typography variant="h6">Add New Sources</Typography>
             <form onSubmit={handleSubmit}>
               {sources.map((source, index) => (
-                <Box key={index} sx={{ marginBottom: 2 }}>
+                <Box key={index} sx={{ marginBottom: 2, backgroundColor: index % 2 === 0 ? '#fff' : '#f0f0f0' }}>
                   <Dropzone onDrop={acceptedFiles => console.log(acceptedFiles)}>
                     {({ getRootProps, getInputProps }) => (
                       <section>
@@ -359,7 +384,7 @@ function SourceForm() {
                     margin="normal"
                   />
                   
-                  {source.source_url && (
+                  {source.source_url.includes('.') && source.source_url.length > 5 ? (
                     <Button 
                       variant="contained" 
                       color="primary" 
@@ -367,7 +392,7 @@ function SourceForm() {
                     >
                       {autoFillLoading ? <CircularProgress size={24} /> : 'Autofill from URL'}
                     </Button>
-                  )}
+                  ) : null}
                   <TextField
                     fullWidth
                     label="Title"
@@ -502,26 +527,25 @@ function SourceForm() {
                         onChange={(e) => handleChange(index, e)}
                         margin="normal"
                     />
-                  {isEditMode ? (
-                    <Box sx={{ marginTop: 2 }}>
-                      <Button type="submit" variant="contained" color="primary">Submit</Button>
-                      <Button component={Link} to="/sources" variant="contained" color="secondary">Cancel</Button>
-                    </Box>
-                  ) : (
-                    <>
+                  {!isEditMode && (
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', marginTop: 2 }}>
                       <Button
-                        variant="contained"
+                        variant="outlined"
                         color="error"
                         onClick={() => handleRemoveSource(index)}
+                        sx={{ borderColor: 'error.main', color: 'error.main', '&:hover': { borderColor: 'error.dark', backgroundColor: 'error.light' } }}
                       >
-                        Remove
+                        {index === 0 ? 'Clear' : 'Remove'}
                       </Button>
-                      <Button variant="contained" onClick={handleAddSource}>Add Another Source</Button>
-                    </>
+                      <Button variant="contained" color="info" onClick={handleAddSource} sx={{ backgroundColor: 'info.main', '&:hover': { backgroundColor: 'info.dark' } }}>Add Another Source</Button>
+
+                    </Box>
                   )}
                 </Box>
               ))}
             </form>
+            <Button type="submit" variant="contained" color="success" onClick={handleSubmit} sx={{ backgroundColor: 'success.main', '&:hover': { backgroundColor: 'success.dark' } }}>Submit</Button>
+            <Button component={Link} to="/sources" variant="outlined" color="secondary" sx={{ borderColor: 'secondary.main', color: 'secondary.main', '&:hover': { borderColor: 'secondary.dark', backgroundColor: 'secondary.light' } }}>Cancel</Button>
           </Paper>
         </Box>
       </div>
