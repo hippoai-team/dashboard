@@ -322,11 +322,34 @@ function SourceForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    console.log('Sources:', JSON.stringify(sources));
+    // Attach source data
+    formData.append('sources', JSON.stringify(sources));
+  
+    // If in edit mode, append additional data as needed
+    if (isEditMode) {
+      formData.append('sourceType', sourceType);
+      formData.append('tab', tab);
+      formData.append('id', sourceId);
+    }
+  
+    // Check if there's a file to upload and append it to formData
+    if (sources[0].pdfFile) {
+      formData.append('pdfFile', sources[0].pdfFile);
+    }
+    console.log('Form data pdf:', formData.get('pdfFile'));
+  
     try {
       const url = `${API_BASE_URL}/api/master-sources/${isEditMode ? 'update' : 'store'}`;
       const method = isEditMode ? 'put' : 'post';
-      const payload = isEditMode ? { ...sources[0], sourceType: sourceType, tab:tab, id: sourceId } : { sources, tab, sourceType };
-      const response = await axios[method](url, payload);
+      const response = await axios({
+        method: method,
+        url: url,
+        data: formData
+        
+      });
+  
       if (response.status === 200 || response.status === 201) {
         toast.success(
           <>
@@ -345,6 +368,7 @@ function SourceForm() {
       toast.error("There was an error: " + (error.response?.data.error || error.message));
     }
   };
+  
 
   return (
     <Layout>
