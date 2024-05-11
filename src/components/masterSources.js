@@ -6,9 +6,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
+import { Modal, Box, Checkbox, FormControlLabel, TextField, Button } from '@mui/material';
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button"; 
 import AddIcon from '@mui/icons-material/Add';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -19,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import TaskStatusCards from "./TaskStatusCard";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import IconButton from '@mui/material/IconButton';
+import RejectModal from "./rejectModal";
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
   
@@ -71,6 +71,9 @@ const [pipelineStatus, setPipelineStatus] = React.useState('idle');
 const [error, setError] = React.useState(null);
 const [tab, setTab] = React.useState(0);
 const [sortOrder, setSortOrder] = React.useState('desc');
+const [showRejectModal, setShowRejectModal] = useState(false);
+const [rejectReason, setRejectReason] = useState('');
+const [customRejectReason, setCustomRejectReason] = useState('');
   const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
   const chartOptions = {
     chart: {
@@ -218,12 +221,11 @@ const getActionType = (tab, action) => {
   };
   
   // Function to handle source actions
-  const handleSourceAction = async (sourceIds, sourceTypeFilter, tab, action) => {
+  const handleSourceAction = async (sourceIds, sourceTypeFilter, tab, action, rejectReason = '') => {
     setActionLoading(true);
     const actionType = getActionType(tab, action);
     const endpoint = `${API_BASE_URL}/api/master-sources/${actionType}`;
-    const payload = { sourceIds, sourceType: sourceTypeFilter };
-
+    const payload = actionType === 'reject' ? { sourceIds, sourceType: sourceTypeFilter, rejectReason } : { sourceIds, sourceType: sourceTypeFilter };
     const successMessage = `Task to ${actionType} source(s) has been successfully submitted. Check the status above for updates.`
     const errorMessage = `Failed to ${actionType}`;
   
@@ -239,8 +241,47 @@ const getActionType = (tab, action) => {
     }
   };
 
+
+  const handleRejectSource = (sourceIds) => {
+    setShowRejectModal(true);
+    setSelectedSourceIds(sourceIds);
+
+  };
+
+  const handleSubmitRejectSource = (sourceIds) => {
+    if (rejectReason || customRejectReason) {
+      handleSourceAction(sourceIds, sourceTypeFilter, tab, 'reject', rejectReason || customRejectReason);
+      setShowRejectModal(false);
+      setRejectReason(''); // Reset the selected reason
+      setCustomRejectReason(''); // Reset the custom reason
+    } else {
+      alert('Please select or enter a reason for rejection.');
+    }
+  };
+  
+  // Ensure that closing the modal only happens in response to user action
+  const closeRejectModal = () => {
+    setShowRejectModal(false);
+    setRejectReason(''); // Clear reject reason when closing
+    setCustomRejectReason(''); // Clear custom reject reason when closing
+  };
+
+ 
+ 
   return (
     <Layout>
+      <RejectModal 
+        showRejectModal={showRejectModal}
+        setShowRejectModal={setShowRejectModal}
+        rejectReason={rejectReason}
+        setRejectReason={setRejectReason}
+        customRejectReason={customRejectReason}
+        setCustomRejectReason={setCustomRejectReason}
+        selectedSourceIds={selectedSourceIds}
+        handleSubmitRejectSource={handleSubmitRejectSource}
+        closeRejectModal={closeRejectModal}
+      />
+
       <div className="content-wrapper">
         <PageTitle title={'Sources'} />
         <section className="content">
@@ -383,7 +424,7 @@ const getActionType = (tab, action) => {
                     </Button>
                   </div>
                 </div>
-               
+
 
                 <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
     <Tab label="Sources Requiring Review" {...a11yProps(0)} />
@@ -402,6 +443,7 @@ const getActionType = (tab, action) => {
                   columns={[
                     {title: 'timestamp', dataIndex: 'timestamp', copyButton: false},
                     { title: 'ID', dataIndex: '_id', copyButton: false },
+                    {title: 'Status', dataIndex:'status', copyButton:false},
                     { title: 'Title', dataIndex: 'title', copyButton: false },
                     { title: 'Publisher', dataIndex: 'publisher', copyButton: false },
                     { title: 'Source URL', dataIndex: 'source_url', copyButton: true, render: (text, record) => <a href={text} target='_blank' rel="noopener noreferrer">{text}</a> },
@@ -414,7 +456,8 @@ const getActionType = (tab, action) => {
                     { title: 'Language', dataIndex: 'language', copyButton: false },
                     { title: 'Audience', dataIndex: 'audience', copyButton: false },
                     { title: 'Keywords', dataIndex: 'keywords', copyButton: false, render: (keywords) => keywords.join(', ') },
-                    { title: 'Country', dataIndex: 'country', copyButton: false }
+                    { title: 'Country', dataIndex: 'country', copyButton: false },
+
                   ]}
                   dataSource={sources || []} 
                   totalEntries={totalSources['sources']}
@@ -426,7 +469,7 @@ const getActionType = (tab, action) => {
                   actionButtons={[
                   
                     { label: 'Approve', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'approve'), loading: actionLoading },
-                    { label: 'Reject', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'reject'), loading: actionLoading },
+                    { label: 'Reject', onClick: (data) => handleRejectSource([data._id]), loading: actionLoading },
                     {label: 'Edit', onClick: (data) => navigate(`/source-form/${data._id}/${tab}/${sourceTypeFilter}` )}
 
 
