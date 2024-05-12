@@ -487,6 +487,7 @@ const getActionType = (tab, action) => {
                     {title: 'timestamp', dataIndex: 'timestamp', copyButton: false},
                     { title: 'ID', dataIndex: 'source_id', copyButton: false },
                     {title:'Processed', dataIndex:'processed', copyButton:false},
+                    {title:'Status', dataIndex:'status', copyButton:false},
                     { title: 'Title', dataIndex: 'title', copyButton: false },
                     { title: 'Publisher', dataIndex: 'publisher', copyButton: false },
                     { title: 'Source URL', dataIndex: 'source_url', copyButton: true, render: (text, record) => <a href={text} target='_blank' rel="noopener noreferrer">{text}</a> },

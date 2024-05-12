@@ -22,7 +22,22 @@ function SourceForm() {
     const isEditMode = sourceId !== undefined;
     const navigate = useNavigate();
     const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
-
+    const [sources, setSources] = useState([{
+      source_url: "",
+      date_published: "",
+      subject_specialty: "",
+      title: "",
+      publisher: "",
+      source_type: "",
+      access_status: "open_access",
+      load_type: "",
+      content_type: "",
+      language: "",
+      audience: "",
+      keywords: [],
+      country: "",
+      pdfFile: null,
+    }]);
     useEffect(() => {
       if (isEditMode) {
         axios.get(`${API_BASE_URL}/api/master-sources/${sourceId}?tab=${tab}&sourceTypeFilter=${encodeURIComponent(sourceType)}`)
@@ -48,30 +63,13 @@ function SourceForm() {
           audience: "",
           keywords: [],
           country: "",
-          status: "active",
           pdfFile: null,
 
         }]);
       }
     }, [sourceId, API_BASE_URL, isEditMode]);
 
-  const [sources, setSources] = useState([{
-    source_url: "",
-    date_published: "",
-    subject_specialty: "",
-    title: "",
-    publisher: "",
-    source_type: "",
-    access_status: "open_access",
-    load_type: "",
-    content_type: "",
-    language: "",
-    audience: "",
-    keywords: [],
-    country: "",
-    status: "active",
-    pdfFile: null,
-  }]);
+
 
   const ContentType = {
     TEXT: 'text',
@@ -283,7 +281,6 @@ function SourceForm() {
       keywords: [],
       country: "",
       source_id: "",
-      status: "new",
       pdfFile: null,
     }]);
   };
@@ -304,7 +301,6 @@ function SourceForm() {
       keywords: [],
       country: "",
       source_id: "",
-      status: "new",
       pdfFile: null,
     }]);
   };
