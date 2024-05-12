@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from 'react-toastify';
-import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper } from '@mui/material';
+import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Chip} from '@mui/material';
 import { Link } from 'react-router-dom';
 import Layout from './Layout';
 import { useEffect } from 'react';
@@ -237,23 +237,27 @@ function SourceForm() {
     }
   };
 
-  const Dropzone = ({ onDrop }) => {
+  const Dropzone = ({ index, onDrop }) => {
     const { getRootProps, getInputProps } = useDropzone({
       onDrop: acceptedFiles => {
         const newSources = [...sources];
-        newSources[0].pdfFile = acceptedFiles[0];
-        setSources(newSources);
-        onDrop(acceptedFiles[0]);
+        if (newSources[index]) {  // Check if the source exists
+          newSources[index].pdfFile = acceptedFiles[0];
+          newSources[index].load_type = LoadType.PDF;
+          setSources(newSources);
+          onDrop(acceptedFiles[0], index);
+        }
       }
     });
+  
     return (
       <section>
         <div {...getRootProps()} style={{ border: '1px dashed #ccc', padding: '20px', textAlign: 'center' }}>
           <input {...getInputProps()} />
-          {sources[0].pdfFile ? (
+          {sources[index] && sources[index].pdfFile ? (  // Check if source and pdfFile exist
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography style={{ flex: 1 }}>{sources[0].pdfFile.name}</Typography>
-              <IconButton onClick={() => handleRemoveFile(0)}><CloseIcon /></IconButton>
+              <Typography style={{ flex: 1 }}>{sources[index].pdfFile.name}</Typography>
+              <IconButton onClick={() => handleRemoveFile(index)}><CloseIcon /></IconButton>
             </div>
           ) : (
             <p>Drag 'n' drop a PDF file here, or click to select a file</p>
@@ -262,6 +266,7 @@ function SourceForm() {
       </section>
     );
   };
+  
   const handleAddSource = () => {
     setSources([...sources, {
       source_url: "",
@@ -323,7 +328,6 @@ function SourceForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    console.log('Sources:', JSON.stringify(sources));
     // Attach source data
     formData.append('sources', JSON.stringify(sources));
   
@@ -338,8 +342,23 @@ function SourceForm() {
     if (sources[0].pdfFile) {
       formData.append('pdfFile', sources[0].pdfFile);
     }
-    console.log('Form data pdf:', formData.get('pdfFile'));
-  
+    
+    const essentialFields = ['title', 'publisher', 'source_type', 'load_type', 'content_type', 'language', 'audience', 'country', 'source_url'];
+    let missingFields = [];
+    sources.forEach(source => {
+      essentialFields.forEach(field => {
+        if (!source[field] || (Array.isArray(source[field]) && source[field].length === 0)) {
+          if (!missingFields.includes(field)) {
+            missingFields.push(field);
+          }
+        }
+      });
+    });
+
+    if (missingFields.length > 0) {
+      toast.error(`Missing essential fields: ${missingFields.join(', ')}`);
+      return;
+    }
     try {
       const url = `${API_BASE_URL}/api/master-sources/${isEditMode ? 'update' : 'store'}`;
       const method = isEditMode ? 'put' : 'post';
@@ -353,14 +372,18 @@ function SourceForm() {
       if (response.status === 200 || response.status === 201) {
         toast.success(
           <>
-            <div>Source successfully {isEditMode ? 'updated' : 'created'}!</div>
+            <div>Source {isEditMode ? 'update' : 'added'} status:</div>
             {response.data.sourceActionStatus.map((status, index) => (
-              <div key={index}>{`${status.source_title} ${status.source_url}: ${status.status}`}</div>
+              <div key={index}>
+                <Chip label={status.status} color="success" /> {`${status.source_title} ${status.source_url}`}
+              </div>
             ))}
           </>,
           { autoClose: 2000 }
         );
-        setTimeout(() => navigate("/mastersources"), 2000);
+        if (response.data.sourceActionStatus.every(status => status.status === 'created' || status.status === 'updated')) {
+          setTimeout(() => navigate("/mastersources"), 2000);
+        }
       } else {
         toast.error("Failed to save source: " + response.data.error);
       }
@@ -379,7 +402,7 @@ function SourceForm() {
             <form onSubmit={handleSubmit}>
               {sources.map((source, index) => (
                 <Box key={index} sx={{ marginBottom: 2, backgroundColor: index % 2 === 0 ? '#fff' : '#f0f0f0' }}>
-                  <Dropzone onDrop={acceptedFiles => console.log(acceptedFiles)}>
+                  <Dropzone index={index} onDrop={acceptedFiles => console.log(acceptedFiles)}>
                     {({ getRootProps, getInputProps }) => (
                       <section>
                         <div {...getRootProps()} style={{ border: '1px dashed #ccc', padding: '20px', textAlign: 'center' }}>
