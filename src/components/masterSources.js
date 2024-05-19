@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
-import { Modal, Box, Checkbox, FormControlLabel, TextField, Button } from '@mui/material';
+import { Modal, Box, Checkbox, FormControlLabel, TextField, Button, Card, CardContent } from '@mui/material';
 
 import AddIcon from '@mui/icons-material/Add';
 import Tabs from '@mui/material/Tabs';
@@ -384,6 +384,11 @@ const getActionType = (tab, action) => {
                               <option value="processed">Processed</option>
                               <option value="inactive">Inactive</option>
                             </>}
+                            {tab === 2 && <>
+                              <option value="active">Pending</option>
+                              <option value="processed">Processed</option>
+                              <option value="inactive">Inactive</option>
+                            </>}
                             </select>
                             </div>
                         </form>
@@ -503,7 +508,18 @@ const getActionType = (tab, action) => {
                     { title: 'Language', dataIndex: 'language', copyButton: false },
                     { title: 'Audience', dataIndex: 'audience', copyButton: false },
                     { title: 'Keywords', dataIndex: 'keywords', copyButton: false, render: (keywords) => keywords ? keywords.join(', ') : 'No Keywords' },
-                    { title: 'Country', dataIndex: 'country', copyButton: false }
+                    { title: 'Country', dataIndex: 'country', copyButton: false },
+                    { title: 'Nodes', dataIndex: 'nodes', copyButton: false, hidden: true, render: (nodes) => (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        {nodes ? nodes.map((node, index) => (
+                          <Card key={index} variant="outlined" sx={{ mb: 1 }}>
+                            <CardContent>
+                              <Typography variant="body2">Node {index + 1}: {node}</Typography>
+                            </CardContent>
+                          </Card>
+                        )) : <Typography variant="body2">No Nodes</Typography>}
+                      </Box>
+                    )},
                   ]}
                 dataSource={sources || []} 
                 totalEntries={totalSources}
@@ -537,8 +553,8 @@ const getActionType = (tab, action) => {
               {title: "Image", dataIndex: "source_url", render: (text, record) => <a href={text} target="_blank" rel="noopener noreferrer"><img src={text} alt="source" style={{width: '100px'}} /></a>},
               { title: 'Article Title', dataIndex: 'title', copyButton: false },
               {title:'Processed', dataIndex:'processed', copyButton:false},
-              {title:'Image Title', dataIndex:'image_title', copyButton:false},
-              {title:'Image Description', dataIndex:'description', copyButton:false},
+              {title:'Image Title', dataIndex:'image_title', copyButton:false, hidden: true},
+              {title:'Image Description', dataIndex:'description', copyButton:false, hidden: true},
 
             ]}
             dataSource={sources || []}
@@ -551,7 +567,7 @@ const getActionType = (tab, action) => {
             actionButtons={
               (pipelineStatus !== 'error' && pipelineStatus !== 'unavailable') ? [
                 {label: 'Process', onClick: (data) => handleSourceAction([{'image_id':data._id,'source_id':data.source_id}], sourceTypeFilter, tab, 'process'), loading: actionLoading},
-                {label: 'Delete', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'delete'), loading: actionLoading},
+                {label: 'Reject', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'delete'), loading: actionLoading},
               ] : []
             }
             handleCheckboxChange={handleCheckboxChange}
