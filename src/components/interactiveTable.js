@@ -88,6 +88,7 @@ const InteractiveTable = ({
                     <FileCopyIcon style={{ fontSize: 'small' }} />
                   </Button>
                 )}
+                
               </th>
             ))}
           </tr>

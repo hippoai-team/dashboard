@@ -55,13 +55,13 @@ function CustomTabPanel(props) {
 const MasterSources = () => {
   const navigate = useNavigate();
   const [sources, setSources] = useState([]);
-  const [masterSources, setMasterSources] = useState([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
   const [perPage, setPerPage] = useState(50); // Initialize perPage state
+  const [loadingData, setLoadingData] = useState(false);
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
   const [statusFilter, setStatusFilter] = useState("")
-  const [totalSources, setTotalSources] = useState({});
+  const [totalSources, setTotalSources] = useState(0);
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("clinical_guidelines");
   const [actionLoading, setActionLoading] = useState(false);
@@ -85,6 +85,7 @@ const [customRejectReason, setCustomRejectReason] = useState('');
  
 
   const fetchSources = async () => {
+    setLoadingData(true);
     let endpoint = `${API_BASE_URL}/api/master-sources?page=${currentPage}&active_tab=${tab}`;
   
     if (search) endpoint += `&search=${search}`;
@@ -95,17 +96,14 @@ const [customRejectReason, setCustomRejectReason] = useState('');
   
     try {
       const response = await axios.get(endpoint);
-      const { sources, source_types, master_sources, total_source_counts } = response.data;
+      const { sources, source_types, total_source_counts} = response.data;
       setAllSourceTypes(source_types);
-      if (tab === 0) {
-        setSources(sources);
-      } else {
-        setMasterSources(master_sources);
-        console.log('master sources', master_sources)
-      }
       setTotalSources(total_source_counts);
+      setSources(sources);
+      setLoadingData(false);
     } catch (error) {
       console.error("Error fetching sources:", error);
+      setLoadingData(false);
     }
 
   };
@@ -132,7 +130,7 @@ const [customRejectReason, setCustomRejectReason] = useState('');
 
   const handleAllCheckboxChange = (event) => {
     if (event.target.checked) {
-      const allSourceIds = tab === 0 ? sources.map((source) => source._id) : masterSources.map((source) => source._id);
+      const allSourceIds = tab === 0 ? sources.map((source) => source._id) : sources.map((source) => source._id);
       setSelectedSourceIds(allSourceIds);
     } else {
       setSelectedSourceIds([]);
@@ -164,7 +162,7 @@ const [customRejectReason, setCustomRejectReason] = useState('');
     };
   // Function to handle clicking the "Next" button
   const handleNextPage = () => {
-    if ((currentPage * perPage) < totalSources[tab === 0 ? 'sources' : 'master_sources']) {
+    if ((currentPage * perPage) < totalSources) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -183,7 +181,9 @@ const getActionType = (tab, action) => {
     } else if (tab === 1) {
       return action === 'process' ? 'process' : 'delete';
     }
-    return 'unknown';
+    else if (tab === 2) {
+      return action === 'process' ? 'process-images' : 'delete-images';
+    }
   };
   
   // Function to handle API requests
@@ -237,7 +237,7 @@ const getActionType = (tab, action) => {
         setActionLoading(false);
       }, toastDuration);
     } else {
-      setActionLoading(false);
+      setActionLoading(false);  
     }
   };
 
@@ -429,15 +429,18 @@ const getActionType = (tab, action) => {
                 <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
     <Tab label="Sources Requiring Review" {...a11yProps(0)} />
     <Tab label="Master Source list" {...a11yProps(1)} />
+    <Tab label="Image Sources" {...a11yProps(2)} />
     <IconButton
             onClick={() => fetchSources()}
             >
             <RefreshIcon />
         </IconButton>         
         </Tabs>  
-        {tab === 1 && (
+        {(tab === 1 || tab === 2) && (
                     <TaskStatusCards />
                 )}
+        {!loadingData && sources.length > 0 && (
+          <>
         <CustomTabPanel value={tab} index={0}>   
             <InteractiveTable 
                   columns={[
@@ -446,7 +449,7 @@ const getActionType = (tab, action) => {
                     {title: 'Status', dataIndex:'status', copyButton:false},
                     { title: 'Title', dataIndex: 'title', copyButton: false },
                     { title: 'Publisher', dataIndex: 'publisher', copyButton: false },
-                    { title: 'Source URL', dataIndex: 'source_url', copyButton: true, render: (text, record) => <a href={text} target='_blank' rel="noopener noreferrer">{text}</a> },
+                    { title: 'Source URL', dataIndex: 'source_url', copyButton: false, render: (text, record) => <a href={text} target='_blank' rel="noopener noreferrer">{text}</a> },
                     { title: 'Date Published', dataIndex: 'date_published', copyButton: false },
                     { title: 'Subject Specialty', dataIndex: 'subject_specialty', copyButton: false },
                     { title: 'Source Type', dataIndex: 'source_type', copyButton: false },
@@ -455,12 +458,12 @@ const getActionType = (tab, action) => {
                     { title: 'Content Type', dataIndex: 'content_type', copyButton: false },
                     { title: 'Language', dataIndex: 'language', copyButton: false },
                     { title: 'Audience', dataIndex: 'audience', copyButton: false },
-                    { title: 'Keywords', dataIndex: 'keywords', copyButton: false, render: (keywords) => keywords.join(', ') },
+                    { title: 'Keywords', dataIndex: 'keywords', copyButton: false, render: (keywords) => keywords ? keywords.join(', ') : 'No Keywords' },
                     { title: 'Country', dataIndex: 'country', copyButton: false },
 
                   ]}
                   dataSource={sources || []} 
-                  totalEntries={totalSources['sources']}
+                  totalEntries={totalSources}
                   handlePrevPage={handlePreviousPage} 
                   handleNextPage={handleNextPage} 
                   handleSortOrderChange={handleSortOrderChange}
@@ -490,7 +493,7 @@ const getActionType = (tab, action) => {
                     {title:'Status', dataIndex:'status', copyButton:false},
                     { title: 'Title', dataIndex: 'title', copyButton: false },
                     { title: 'Publisher', dataIndex: 'publisher', copyButton: false },
-                    { title: 'Source URL', dataIndex: 'source_url', copyButton: true, render: (text, record) => <a href={text} target='_blank' rel="noopener noreferrer">{text}</a> },
+                    { title: 'Source URL', dataIndex: 'source_url', copyButton: false, render: (text, record) => <a href={text} target='_blank' rel="noopener noreferrer">{text}</a> },
                     { title: 'Date Published', dataIndex: 'date_published', copyButton: false },
                     { title: 'Subject Specialty', dataIndex: 'subject_specialty', copyButton: false },
                     { title: 'Source Type', dataIndex: 'source_type', copyButton: false },
@@ -499,11 +502,11 @@ const getActionType = (tab, action) => {
                     { title: 'Content Type', dataIndex: 'content_type', copyButton: false },
                     { title: 'Language', dataIndex: 'language', copyButton: false },
                     { title: 'Audience', dataIndex: 'audience', copyButton: false },
-                    { title: 'Keywords', dataIndex: 'keywords', copyButton: false, render: (keywords) => keywords.join(', ') },
+                    { title: 'Keywords', dataIndex: 'keywords', copyButton: false, render: (keywords) => keywords ? keywords.join(', ') : 'No Keywords' },
                     { title: 'Country', dataIndex: 'country', copyButton: false }
                   ]}
-                dataSource={masterSources || []} 
-                totalEntries={totalSources['master_sources']}
+                dataSource={sources || []} 
+                totalEntries={totalSources}
                 handlePrevPage={handlePreviousPage} 
                 handleNextPage={handleNextPage} 
                 handleSortOrderChange={handleSortOrderChange}
@@ -526,6 +529,40 @@ const getActionType = (tab, action) => {
               />
               
         </CustomTabPanel>
+        <CustomTabPanel value={tab} index={2}>
+          <InteractiveTable 
+            columns={[
+              {title: 'timestamp', dataIndex: 'date_added', copyButton: false},
+              { title: 'Image ID', dataIndex: '_id', copyButton: false },
+              {title: "Image", dataIndex: "source_url", render: (text, record) => <a href={text} target="_blank" rel="noopener noreferrer"><img src={text} alt="source" style={{width: '100px'}} /></a>},
+              { title: 'Article Title', dataIndex: 'title', copyButton: false },
+              {title:'Processed', dataIndex:'processed', copyButton:false},
+              {title:'Image Title', dataIndex:'image_title', copyButton:false},
+              {title:'Image Description', dataIndex:'description', copyButton:false},
+
+            ]}
+            dataSource={sources || []}
+            totalEntries={totalSources}
+            handlePrevPage={handlePreviousPage}
+            handleNextPage={handleNextPage}
+            handleSortOrderChange={handleSortOrderChange}
+            setSelectedIds={setSelectedSourceIds}
+            selectedIds={selectedSourceIds}
+            actionButtons={
+              (pipelineStatus !== 'error' && pipelineStatus !== 'unavailable') ? [
+                {label: 'Process', onClick: (data) => handleSourceAction([{'image_id':data._id,'source_id':data.source_id}], sourceTypeFilter, tab, 'process'), loading: actionLoading},
+                {label: 'Delete', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'delete'), loading: actionLoading},
+              ] : []
+            }
+            handleCheckboxChange={handleCheckboxChange}
+            handleAllCheckboxChange={handleAllCheckboxChange}
+            currentPage={currentPage}
+            perPage={perPage}
+
+          />
+        </CustomTabPanel>
+        </>
+        )}
 
                
               </div>
