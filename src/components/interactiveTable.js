@@ -36,18 +36,28 @@ const InteractiveTable = ({
   };
 
   const skip = perPage * (currentPage - 1);
+  const currentEntriesStart = skip + 1;
+  const currentEntriesEnd = skip + dataSource.length;
 
   const toggleRowExpansion = (id) => {
     const currentExpandedRows = expandedRows.includes(id)
       ? expandedRows.filter(rowId => rowId !== id)
       : [...expandedRows, id];
-      console.log('id', id)
-      console.log('expandedRows', expandedRows)
     setExpandedRows(currentExpandedRows);
   };
 
   return (
     <>
+      <Box sx={{ width: '100%', overflowX: 'auto', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 1 }}>
+        <Button onClick={handlePrevPage} disabled={currentPage === 1}>Previous</Button>
+        <Typography component="span">
+          Page {currentPage} of {Math.ceil(totalEntries / perPage)}
+        </Typography>
+        <Button onClick={handleNextPage} disabled={currentEntriesEnd >= totalEntries}>Next</Button>
+        <Typography component="span">
+          Showing {currentEntriesStart} to {currentEntriesEnd} of {totalEntries} entries
+        </Typography>
+      </Box>
       <div className="table-responsive">
         <table className="table table-bordered table-hover">
           <thead>
@@ -151,6 +161,16 @@ const InteractiveTable = ({
           </tbody>
         </table>
       </div>
+      <Box sx={{ width: '100%', overflowX: 'auto', position: 'sticky', bottom: 0, bgcolor: 'background.paper', zIndex: 1 }}>
+        <Button onClick={handlePrevPage} disabled={currentPage === 1}>Previous</Button>
+        <Typography component="span">
+          Page {currentPage} of {Math.ceil(totalEntries / perPage)}
+        </Typography>
+        <Button onClick={handleNextPage} disabled={currentEntriesEnd >= totalEntries}>Next</Button>
+        <Typography component="span">
+          Showing {currentEntriesStart} to {currentEntriesEnd} of {totalEntries} entries
+        </Typography>
+      </Box>
     </>
   );
 };
