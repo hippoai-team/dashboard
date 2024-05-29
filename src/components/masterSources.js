@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
 import { Modal, Box, Checkbox, FormControlLabel, TextField, Button, Card, CardContent } from '@mui/material';
+import remarkGfm from 'remark-gfm';
 
 import AddIcon from '@mui/icons-material/Add';
 import Tabs from '@mui/material/Tabs';
@@ -19,6 +20,7 @@ import TaskStatusCards from "./TaskStatusCard";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import IconButton from '@mui/material/IconButton';
 import RejectModal from "./rejectModal";
+import ReactMarkdown from 'react-markdown';
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
   
@@ -514,7 +516,13 @@ const getActionType = (tab, action) => {
                         {nodes ? nodes.map((node, index) => (
                           <Card key={index} variant="outlined" sx={{ mb: 1 }}>
                             <CardContent>
-                              <Typography variant="body2">Node {index + 1}: {node}</Typography>
+                              <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              children={node}
+                              components={{
+                                  table: ({ node, ...props }) => (
+                                    <table style={{ border: '1px solid black' }} {...props} />
+                                  )}}>{`Node ${index + 1}: ${node}`}</ReactMarkdown>
                             </CardContent>
                           </Card>
                         )) : <Typography variant="body2">No Nodes</Typography>}
