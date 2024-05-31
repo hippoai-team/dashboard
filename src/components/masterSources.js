@@ -387,7 +387,7 @@ const getActionType = (tab, action) => {
                               <option value="inactive">Inactive</option>
                             </>}
                             {tab === 2 && <>
-                              <option value="active">Pending</option>
+                              <option value="pending">Pending</option>
                               <option value="processed">Processed</option>
                               <option value="inactive">Inactive</option>
                             </>}
