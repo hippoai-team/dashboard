@@ -76,7 +76,7 @@ const [sortOrder, setSortOrder] = React.useState('desc');
 const [showRejectModal, setShowRejectModal] = useState(false);
 const [rejectReason, setRejectReason] = useState('');
 const [customRejectReason, setCustomRejectReason] = useState('');
-  const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
+const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
   const chartOptions = {
     chart: {
       id: "basic-bar",

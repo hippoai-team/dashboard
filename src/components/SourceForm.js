@@ -181,7 +181,7 @@ function SourceForm() {
     } else if (e.target.type === 'file') {
         newSources[index][e.target.name] = e.target.files[0]; // Handle file input
     } else {
-        newSources[index][e.target.name] = e.target.value.toLowerCase();
+        newSources[index][e.target.name] = e.target.value;
     }
     setSources(newSources);
 };
