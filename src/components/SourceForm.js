@@ -356,6 +356,7 @@ function SourceForm() {
       return;
     }
     try {
+      console.log('Submitting form data:', formData);
       const url = `${API_BASE_URL}/api/master-sources/${isEditMode ? 'update' : 'store'}`;
       const method = isEditMode ? 'put' : 'post';
       const response = await axios({

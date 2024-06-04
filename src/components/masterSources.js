@@ -528,6 +528,21 @@ const getActionType = (tab, action) => {
                         )) : <Typography variant="body2">No Nodes</Typography>}
                       </Box>
                     )},
+                    {title: 'Processed Images', dataIndex: 'images', copyButton: false, hidden: true, render: (images) => (
+                      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 1 }}>
+                        {images ? images.map((image, index) => (
+                          <Card key={index} variant="outlined" sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
+                              <Typography variant="body2">{`Title: ${image.title}`}</Typography>
+                              <Typography variant="body2">{`Description: ${image.description}`}</Typography>
+                            </Box>
+                            <Box sx={{ p: 2 }}>
+                              <img src={image.source_url} alt={`Image ${index}`} style={{ width: '200px', height: 'auto' }} />
+                            </Box>
+                          </Card>
+                        )) : <Typography variant="body2">No Images</Typography>}
+                      </Box>
+                    )},
                   ]}
                 dataSource={sources || []} 
                 totalEntries={totalSources}
