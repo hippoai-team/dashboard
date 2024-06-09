@@ -113,19 +113,19 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
       const response = await axios.get(endpoint);
         setUsers(response.data.users.sort((a, b) => new Date(a.signup_date) - new Date(b.signup_date)));
         setTotalUsers(response.data.totalUsers);
-        setTotalUsageCount(response.data.totalUsageCount);
-        setTotalFeedbackCount(response.data.totalFeedbackCount);
-        setDailyActiveUsers(response.data.dailyActiveUsers);
-        setChurnData(response.data.churnData);
-        setQueriesByUserAndWeek(response.data.queriesByUserAndWeek);
-        setWeekOverWeekChanges(response.data.weekOverWeekChanges);
-        setTotalIds(response.data.totalUsers);
-        setWeeklyActiveUsers(response.data.weeklyActiveUsers);
-        setDescriptions(response.data.descriptions);
-        setTotalClickedSources(response.data.totalClickedSources);
-        setTotalSavedSources(response.data.totalSavedSources);
-        setTotalFollowupUsage(response.data.totalFollowUpCount);
-        setSavedSourceTypeCounts(response.data.savedSourceTypeCounts);
+        //setTotalUsageCount(response.data.totalUsageCount);
+        //setTotalFeedbackCount(response.data.totalFeedbackCount);
+        //setDailyActiveUsers(response.data.dailyActiveUsers);
+        //setChurnData(response.data.churnData);
+        //setQueriesByUserAndWeek(response.data.queriesByUserAndWeek);
+       // setWeekOverWeekChanges(response.data.weekOverWeekChanges);
+       // setTotalIds(response.data.totalUsers);
+       // setWeeklyActiveUsers(response.data.weeklyActiveUsers);
+        //setDescriptions(response.data.descriptions);
+        //setTotalClickedSources(response.data.totalClickedSources);
+        //setTotalSavedSources(response.data.totalSavedSources);
+        //setTotalFollowupUsage(response.data.totalFollowUpCount);
+        //setSavedSourceTypeCounts(response.data.savedSourceTypeCounts);
        
         
     } catch (error) {
@@ -370,7 +370,7 @@ const series = [
                               <div className="card-body">
                                   <Grid container spacing={3}>
                                       
-                                      <Grid item xs={12} sm={6} md={3}>
+                                     {/* <Grid item xs={12} sm={6} md={3}>
                                           <NumDisplay title="Total Users" value={totalUsers} />
                                       </Grid>
                                       <Grid item xs={12} sm={6} md={3}>
@@ -395,7 +395,7 @@ const series = [
                                             description={descriptions.churnDescription}
                                             value={churnData['churnPerWeek']} />
                                             </Grid>
-                                        <Grid item xs={12} sm={6} md={3}>
+                                        {/*<Grid item xs={12} sm={6} md={3}>
                                             <NumDisplay title="Clicked Sources" value={totalClickedSources}/>
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3}>
@@ -404,7 +404,7 @@ const series = [
                                           <Grid item xs={12} sm={6} md={5}>
                                             <NumDisplay title={Object.keys(savedSourceTypeCounts)} value={Object.values(savedSourceTypeCounts)} description={'Saved Source Type Counts'} />
                                             </Grid>
-                                            
+                                            */}
                                   </Grid>
                                   <div className="row">
                                   <div className="col-md-2">
@@ -480,7 +480,7 @@ const series = [
                                                     </div>
                                                 </div>
                                               </div>
-                                  <Grid container spacing={3}>
+                                 {/* <Grid container spacing={3}>
                                       
                                       <Grid item xs={12} md={6}>
                                           <DailyChartGraph title="Daily Active Users"
@@ -546,7 +546,7 @@ const series = [
                                             description='The graph below shows the difference in the number of queries made by each user from week to week. '
                                             />
                                       </Grid>
-                                  </Grid>
+                                          </Grid>*/}
                                         <div className="row">
                                             <div className="col-md-2">
                                                 <div className="form-group">
