@@ -78,7 +78,7 @@ const [sortOrder, setSortOrder] = React.useState('desc');
 const [showRejectModal, setShowRejectModal] = useState(false);
 const [rejectReason, setRejectReason] = useState('');
 const [customRejectReason, setCustomRejectReason] = useState('');
-const [pipelineState, setPipelineState] = useState('');
+const [pipelineState, setPipelineState] = useState('unknown');
 const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
   const chartOptions = {
@@ -267,46 +267,60 @@ const getActionType = (tab, action) => {
   };
 
   const handleLaunchPipeline = async () => {
-    try{
-      const response = await axios.post(`${API_BASE_URL}/api/pipeline/launch`);
-      console.log(response);
-      pollPipelineState()
+    try {
+      console.log('sending start signal')
+      const response = await axios.post(`${API_BASE_URL}/api/pipeline/start`);
+      toast.success('Starting amazon server instance, this may take a few minutes')
+      startPolling();
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const handleStopPipeline = async () => {
-    try{
+    try {
       const response = await axios.post(`${API_BASE_URL}/api/pipeline/stop`);
-      console.log(response)
-      pollPipelineState()
+      toast.success('Stopping amazon server instance, this may take a few minutes')
+      startPolling();
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const pollPipelineState = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/pipeline/check-state`);
-      console.log('pipeline',response.data.state)
+      console.log('pipeline', response.data.state);
       setPipelineState(response.data.state);
     } catch (error) {
       console.error('Error fetching pipeline state:', error);
     }
   };
 
+  const startPolling = () => {
+    pollPipelineState();
+    const intervalId = setInterval(async () => {
+      await pollPipelineState();
+      if (pipelineState === 'running' || pipelineState === 'stopped') {
+        clearInterval(intervalId);
+      }
+    }, 5000);
+    return intervalId;
+  };
+
   useEffect(() => {
     let intervalId;
-    if (pipelineState === 'pending' || pipelineState === 'stopping' || pipelineState === '' || pipelineState ==='initializing') {
-      intervalId = setInterval(() => {
-        pollPipelineState();
-      }, 5000);
-    } else {
-      clearInterval(intervalId);
+
+    // Initial state check on component mount
+    pollPipelineState();
+
+    if (pipelineState === 'pending' || pipelineState === 'stopping' || pipelineState === 'initializing' || pipelineState === 'starting') {
+      intervalId = startPolling();
     }
 
-    return () => clearInterval(intervalId);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [pipelineState]);
   
   // Ensure that closing the modal only happens in response to user action
@@ -316,7 +330,6 @@ const getActionType = (tab, action) => {
     setCustomRejectReason(''); // Clear custom reject reason when closing
   };
 
-  console.log('pipeline state',pipelineState)
  
  
   return (
@@ -494,29 +507,30 @@ const getActionType = (tab, action) => {
         </Tabs>  
         {(tab === 1 || tab === 2) && (
           <>
-           <Box display="flex" alignItems="center">
-             <Tooltip title={pipelineState === 'stopped' ? "Start the server to process documents" : "Stop the server when done processing"}>
-               <IconButton
-                 color="primary"
-                 onClick={() => {
-                   if (pipelineState === 'stopped') {
-                     handleLaunchPipeline();
-                   } else if (pipelineState === 'running') {
-                     handleStopPipeline();
-                   }
-                 }}
-                 disabled={pipelineState === 'stopping' || pipelineState === 'starting'}
-                 size="large"
-               >
-                 {pipelineState === 'stopped' ? <PlayCircleFilledIcon fontSize="large" /> : <StopCircleIcon fontSize="large" />}
-               </IconButton>
-             </Tooltip>
-             <Tooltip title={`Server is currently ${pipelineState}, it can take several minutes for the pipeline to start after server start`}>
-               <Typography variant="h6" color="textSecondary" style={{ marginLeft: '10px' }}>
-                 Amazon Server Status: {pipelineState}
-               </Typography>
-             </Tooltip>
-           </Box>
+              <Box display="flex" alignItems="center">
+      <Tooltip title={pipelineState === 'stopped' ? "Start the server to process documents" : "Stop the server when done processing"}>
+        <IconButton
+          color="primary"
+          onClick={() => {
+            console.log('clicked')
+            if (pipelineState === 'stopped') {
+              handleLaunchPipeline();
+            } else if (pipelineState === 'running') {
+              handleStopPipeline();
+            }
+          }}
+          disabled={pipelineState === 'stopping' || pipelineState === 'starting'}
+          size="large"
+        >
+          {pipelineState === 'stopped' ? <PlayCircleFilledIcon fontSize="large" /> : <StopCircleIcon fontSize="large" />}
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={`Server is currently ${pipelineState}, it can take several minutes for the pipeline to start after server start`}>
+        <Typography variant="h6" color="textSecondary" style={{ marginLeft: '10px' }}>
+          Amazon Server Status: {pipelineState}
+        </Typography>
+      </Tooltip>
+    </Box>
                     <TaskStatusCards />
                    
                     </>
