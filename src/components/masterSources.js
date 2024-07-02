@@ -566,7 +566,6 @@ const getActionType = (tab, action) => {
                    
                     </>
                 )}
-        {!loadingData && sources.length > 0 && (
           <>
         <CustomTabPanel value={tab} index={0}>   
             <InteractiveTable 
@@ -607,7 +606,8 @@ const getActionType = (tab, action) => {
                   handleCheckboxChange={handleCheckboxChange}
                   handleAllCheckboxChange={handleAllCheckboxChange}
                   currentPage={currentPage}
-                    perPage={perPage}
+                  perPage={perPage}
+                  loading={loadingData}
                 />
         </CustomTabPanel>
         <CustomTabPanel value={tab} index={1}>
@@ -685,6 +685,7 @@ const getActionType = (tab, action) => {
                 handleAllCheckboxChange={handleAllCheckboxChange}
                 currentPage={currentPage}
                 perPage={perPage}
+                loading={loadingData}
               />
               
         </CustomTabPanel>
@@ -717,11 +718,12 @@ const getActionType = (tab, action) => {
             handleAllCheckboxChange={handleAllCheckboxChange}
             currentPage={currentPage}
             perPage={perPage}
+            loading={loadingData}
 
           />
         </CustomTabPanel>
         </>
-        )}
+
 
                
               </div>

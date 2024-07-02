@@ -28,6 +28,7 @@ const InteractiveTable = ({
   handleCheckboxChange,
   currentPage,
   perPage,
+  loading,
 }) => {
   const [expandedRows, setExpandedRows] = useState([]);
 
@@ -67,7 +68,7 @@ const InteractiveTable = ({
               </th>
               {actionButtons && <th>Available Actions</th>}
               {columns.filter(column => !column.hidden).map((column, i) => (
-                <th key={i}>
+                <th key={i} >
                   {column.title}
                   {column.title === 'timestamp' && (
                     <ButtonGroup>
@@ -92,72 +93,88 @@ const InteractiveTable = ({
             </tr>
           </thead>
           <tbody>
-            {dataSource.map((data, i) => (
-              <>
-                <tr key={data._id}>
-                  <td>
-                    <input type="checkbox" onChange={(e) => handleCheckboxChange(e, data._id)} value={data._id} checked={selectedIds.includes(data._id)}></input>
-                  </td>
-                  {actionButtons && (
-                    <td>
-                      {actionButtons.map((button, k) => (
-                        <Button key={k} onClick={() => button.onClick(data)}
-                          disabled={button.loading}
-                        >{button.loading && selectedIds.includes(data._id) ? <CircularProgress size={20} /> : button.label}</Button>
-                      ))}
-                      {data.processed && (
-                    
-                    <Button onClick={() => toggleRowExpansion(data._id)}>
-                        {expandedRows.includes(data._id) ? 'Collapse' : 'Expand'}
-                      </Button>
-               
-                )}
-                    </td>
-                  )}
-                  
-                  {columns.filter(column => !column.hidden).map((column, j) => (
-                    <td key={j}>
-                      {column.render
-                        ? column.render(data[column.dataIndex], data)
-                        : typeof data[column.dataIndex] === 'boolean'
-                          ? data[column.dataIndex].toString()
-                          : data[column.dataIndex]
-                      }
-                      
-                    </td>
+            {loading ? (
+              Array.from({ length: 10 }).map((_, i) => (
+                <tr key={i}>
+                  {Array.from({ length: columns.length + (actionButtons ? 2 : 1) }).map((_, j) => (
+                    <td key={j}><CircularProgress /></td>
                   ))}
                 </tr>
-                {expandedRows.includes(data._id) && (
-                  <tr>
-                    <td colSpan={columns.length + (actionButtons ? 2 : 1)} style={{ maxWidth: '100%', overflowX: 'auto' }}>
-                      <Collapse in={expandedRows.includes(data._id)} timeout="auto" unmountOnExit>
-                        <Table size="small">
-                          <TableBody>
-                            {columns.filter(column => column.hidden).map((hiddenColumn, index) => (
-                              <>
-                                <TableRow key={`title-${index}`}>
-                                  <TableCell colSpan={2} style={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
-                                    {hiddenColumn.title}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow key={`data-${index}`}>
-                                  <TableCell colSpan={2} style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-                                    {hiddenColumn.render
-                                      ? hiddenColumn.render(data[hiddenColumn.dataIndex], data)
-                                      : data[hiddenColumn.dataIndex]
-                                    }
-                                  </TableCell>
-                                </TableRow>
-                              </>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </Collapse>
+              ))
+            ) : dataSource.length > 0 ? (
+              dataSource.map((data, i) => (
+                <>
+                  <tr key={data._id}>
+                    <td>
+                      <input type="checkbox" onChange={(e) => handleCheckboxChange(e, data._id)} value={data._id} checked={selectedIds.includes(data._id)}></input>
                     </td>
+                    {actionButtons && (
+                      <td>
+                        {actionButtons.map((button, k) => (
+                          <Button key={k} onClick={() => button.onClick(data)}
+                            disabled={button.loading}
+                          >{button.loading && selectedIds.includes(data._id) ? <CircularProgress size={20} /> : button.label}</Button>
+                        ))}
+                        {data.processed && (
+                      
+                      <Button onClick={() => toggleRowExpansion(data._id)}>
+                          {expandedRows.includes(data._id) ? 'Collapse' : 'Expand'}
+                        </Button>
+                 
+                  )}
+                      </td>
+                    )}
+                    
+                    {columns.filter(column => !column.hidden).map((column, j) => (
+                      <td key={j}>
+                        {column.render
+                          ? column.render(data[column.dataIndex], data)
+                          : typeof data[column.dataIndex] === 'boolean'
+                            ? data[column.dataIndex].toString()
+                            : data[column.dataIndex]
+                        }
+                        
+                      </td>
+                    ))}
                   </tr>
-                )}
-              </>
-            ))}
+                  {expandedRows.includes(data._id) && (
+                    <tr>
+                      <td colSpan={columns.length + (actionButtons ? 2 : 1)} style={{ maxWidth: '100%', overflowX: 'auto' }}>
+                        <Collapse in={expandedRows.includes(data._id)} timeout="auto" unmountOnExit>
+                          <Table size="small">
+                            <TableBody>
+                              {columns.filter(column => column.hidden).map((hiddenColumn, index) => (
+                                <>
+                                  <TableRow key={`title-${index}`}>
+                                    <TableCell colSpan={2} style={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
+                                      {hiddenColumn.title}
+                                    </TableCell>
+                                  </TableRow>
+                                  <TableRow key={`data-${index}`}>
+                                    <TableCell colSpan={2} style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
+                                      {hiddenColumn.render
+                                        ? hiddenColumn.render(data[hiddenColumn.dataIndex], data)
+                                        : data[hiddenColumn.dataIndex]
+                                      }
+                                    </TableCell>
+                                  </TableRow>
+                                </>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Collapse>
+                      </td>
+                    </tr>
+                  )}
+                </>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={columns.length + (actionButtons ? 2 : 1)} style={{ textAlign: 'center' }}>
+                  No data found for the given query or filter.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -176,4 +193,3 @@ const InteractiveTable = ({
 };
 
 export default InteractiveTable;
-
