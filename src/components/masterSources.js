@@ -68,6 +68,7 @@ const MasterSources = () => {
   const [totalSources, setTotalSources] = useState(0);
   const [allSourceTypes, setAllSourceTypes] = useState([]);
   const [sourceTypeFilter, setSourceTypeFilter] = useState("clinical_guidelines");
+  const [loadType, setLoadType] = useState("")
   const [actionLoading, setActionLoading] = useState(false);
   const toastDuration = 2000; // 2 seconds
   const [lastFilters, setLastFilters] = useState({ 0: {}, 1: {} });
@@ -80,6 +81,7 @@ const [rejectReason, setRejectReason] = useState('');
 const [customRejectReason, setCustomRejectReason] = useState('');
 const [pipelineState, setPipelineState] = useState('unknown');
 const [dockerStatus, setDockerStatus] = useState('unknown');
+
 const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
   const chartOptions = {
@@ -94,12 +96,13 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
   const fetchSources = async () => {
     setLoadingData(true);
     let endpoint = `${API_BASE_URL}/api/master-sources?page=${currentPage}&active_tab=${tab}`;
-  
+    console.log(endpoint);
     if (search) endpoint += `&search=${search}`;
     if (sourceTypeFilter) endpoint += `&source_type=${sourceTypeFilter}`;
     if (statusFilter) endpoint += `&status=${statusFilter}`;
     if (perPage) endpoint += `&perPage=${perPage}`;
     if (sortOrder) endpoint += `&sortOrder=${sortOrder}`;
+    if (loadType) endpoint += `&load_type=${loadType}`;
   
     try {
       const response = await axios.get(endpoint);
@@ -119,7 +122,7 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
   // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
     fetchSources();
-  }, [currentPage, search, sourceTypeFilter, perPage, statusFilter, tab]);
+  }, [currentPage, search, sourceTypeFilter, perPage, statusFilter, tab, loadType]);
 
 
   const handleSearchChange = (e) => {
@@ -430,6 +433,25 @@ const getActionType = (tab, action) => {
                       </div>
                     </form>
                   </div>
+                  {(tab === 0 || tab === 1) && (
+                  <div className="col-4">
+                    <form onSubmit={(e) => e.preventDefault()}>
+                      <div className="form-group">
+                        <select
+                          name="load_type"
+                          className="form-control"
+                          value={loadType}
+                          onChange={(e) => setLoadType(e.target.value)}
+                        >
+                          <option value="">Load Type</option>
+                          <option value="pdf">PDF</option>
+                          <option value="website">Website</option>
+                          <option value="image">Image</option>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                  )}
               
             
                   <div className="col-4">
