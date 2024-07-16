@@ -716,8 +716,9 @@ const getActionType = (tab, action) => {
             columns={[
               {title: 'timestamp', dataIndex: 'date_added', copyButton: false},
               { title: 'Image ID', dataIndex: '_id', copyButton: false },
-              {title: "Image", dataIndex: "source_url", render: (text, record) => <a href={text} target="_blank" rel="noopener noreferrer"><img src={text} alt="source" style={{width: '100px'}} /></a>},
-              { title: 'Article Title', dataIndex: 'title', copyButton: false },
+              {title: "Image", dataIndex: "image_url", render: (text, record) => <a href={text} target="_blank" rel="noopener noreferrer"><img src={text} alt="source" style={{width: '100px'}} /></a>},
+              {title: "Source URL", dataIndex: "source_url", render: (text, record) => <a href={text} target="_blank" rel="noopener noreferrer">{text}</a>},
+              {title: 'Article Title', dataIndex: 'title', copyButton: false },
               {title:'Processed', dataIndex:'processed', copyButton:false},
               {title:'Image Title', dataIndex:'image_title', copyButton:false, hidden: true},
               {title:'Image Description', dataIndex:'description', copyButton:false, hidden: true},
