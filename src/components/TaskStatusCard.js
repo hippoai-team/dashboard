@@ -21,8 +21,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 //const API_BASE_URL = 'http://34.231.170.38:8000';
-//const API_BASE_URL = 'http://localhost:8000/pipeline';
-const API_BASE_URL = 'https://pendiumdev.com/pipeline';
+const API_BASE_URL = 'http://localhost:8000/pipeline';
+//const API_BASE_URL = 'https://pendiumdev.com/pipeline';
 
 
 const TaskStatusCards = () => {
@@ -157,52 +157,59 @@ const logLevelColor = (level) => {
                     <TableCell>Task ID</TableCell>
                     <TableCell align="right">Status</TableCell>
                     <TableCell align="right">Error Message</TableCell>
+                    <TableCell align="right">Elapsed Time (min)</TableCell>
                     <TableCell align="right">Details</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Object.entries(tasks).map(([taskID, taskInfo]) => (
-                    <React.Fragment key={taskID}>
-                      <TableRow sx={{ bgcolor: getStatusColor(taskInfo.status) }}>
-                        <TableCell component="th" scope="row">
-                          {taskID}
-                        </TableCell>
-                        <TableCell align="right">{taskInfo.status.charAt(0).toUpperCase() + taskInfo.status.slice(1)}</TableCell>
-                        <TableCell align="right">{taskInfo.status === 'error' && taskInfo.error ? taskInfo.error : 'N/A'}</TableCell>
-                        <TableCell align="right">
-                          <IconButton
-                            onClick={() => setExpanded(expanded => expanded === taskID ? false : taskID)}
-                            aria-expanded={expanded === taskID}
-                            aria-label="show more"
-                          >
-                            <ExpandMoreIcon />
-                          </IconButton>
-                        </TableCell>
-                        <TableCell align="right">
-                          <IconButton onClick={() => removeTask(taskID)}>
-                            <ClearIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                          <Collapse in={expanded === taskID} timeout="auto" unmountOnExit>
-                            <Box margin={1}>
-                              <Typography variant="h6" gutterBottom component="div">
-                                Details
-                              </Typography>
-                              {taskInfo.details && <Typography gutterBottom>{`Details: ${taskInfo.details}`}</Typography>}
-                              {taskInfo.cost && <Typography gutterBottom>{`Cost: ${taskInfo.cost}`}</Typography>}
-                            </Box>
-                          </Collapse>
-                        </TableCell>
-                      </TableRow>
-                    </React.Fragment>
-                  ))}
+                  {Object.entries(tasks).map(([taskID, taskInfo]) => {
+                    const elapsedTime = taskInfo.timestamp && taskInfo.created_at ? 
+                      Math.round((new Date(taskInfo.timestamp) - new Date(taskInfo.created_at)) / 60000) : 'N/A';
+                    return (
+                      <React.Fragment key={taskID}>
+                        <TableRow sx={{ bgcolor: getStatusColor(taskInfo.status) }}>
+                          <TableCell component="th" scope="row">
+                            {taskID}
+                          </TableCell>
+                          <TableCell align="right">{taskInfo.status.charAt(0).toUpperCase() + taskInfo.status.slice(1)}</TableCell>
+                          <TableCell align="right">{taskInfo.status === 'error' && taskInfo.error ? taskInfo.error : 'N/A'}</TableCell>
+                          <TableCell align="right">{elapsedTime}</TableCell>
+                          <TableCell align="right">
+                            <IconButton
+                              onClick={() => setExpanded(expanded => expanded === taskID ? false : taskID)}
+                              aria-expanded={expanded === taskID}
+                              aria-label="show more"
+                            >
+                              <ExpandMoreIcon />
+                            </IconButton>
+                          </TableCell>
+                          <TableCell align="right">
+                            <IconButton onClick={() => removeTask(taskID)}>
+                              <ClearIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                            <Collapse in={expanded === taskID} timeout="auto" unmountOnExit>
+                              <Box margin={1}>
+                                <Typography variant="h6" gutterBottom component="div">
+                                  Details
+                                </Typography>
+                                {taskInfo.details && <Typography gutterBottom>{`Details: ${taskInfo.details}`}</Typography>}
+                                {taskInfo.cost && <Typography gutterBottom>{`Cost: ${taskInfo.cost}`}</Typography>}
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      </React.Fragment>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
+            
           </>
         )}
         {currentTab === 1 && (
