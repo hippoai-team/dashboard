@@ -233,6 +233,18 @@ const getActionType = (tab, action) => {
   
   // Function to handle source actions
   const handleSourceAction = async (sourceIds, sourceTypeFilter, tab, action, rejectReason = '') => {
+    if (sourceIds.length === 0) {
+      toast.error('Please select at least one source to perform this action.');
+      return;
+    }
+    //if tab == 2 and action == 'process, make the sourceIds an array of objects with sourceId and matching ._id from sources array so the final structure is {source_id: sourceId, image_id:_id}
+    if (tab === 2 && action === 'process') {
+      const newSourceIds = sourceIds.map(sourceId => {
+        const foundSource = sources.find(source => source._id == sourceId);
+        return { source_id: foundSource? foundSource.source_id : null, image_id: sourceId };
+      });
+      sourceIds = newSourceIds;
+    }
     setActionLoading(true);
     const actionType = getActionType(tab, action);
     const endpoint = `${API_BASE_URL}/api/master-sources/${actionType}`;
@@ -734,7 +746,7 @@ const getActionType = (tab, action) => {
             selectedIds={selectedSourceIds}
             actionButtons={
               (pipelineStatus !== 'error' && pipelineStatus !== 'unavailable') ? [
-                {label: 'Process', onClick: (data) => handleSourceAction([{'image_id':data._id,'source_id':data.source_id}], sourceTypeFilter, tab, 'process'), loading: actionLoading},
+                {label: 'Process', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'process'), loading: actionLoading},
                 {label: 'Reject', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'delete'), loading: actionLoading},
               ] : []
             }

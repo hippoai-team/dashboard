@@ -20,10 +20,7 @@ import Collapse from '@mui/material/Collapse';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
-//const API_BASE_URL = 'http://34.231.170.38:8000';
-//const API_BASE_URL = 'http://localhost:8000/pipeline';
-const API_BASE_URL = 'https://pendiumdev.com/pipeline';
-
+const API_BASE_URL = process.env.REACT_APP_PIPELINE_API_URL || 'https://pendiumdev.com/pipeline';
 
 const TaskStatusCards = () => {
   const [currentTab, setCurrentTab] = useState(0);
