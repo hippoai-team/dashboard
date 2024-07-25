@@ -606,7 +606,7 @@ const getActionType = (tab, action) => {
             <InteractiveTable 
                   columns={[
                     {title: 'timestamp', dataIndex: 'timestamp', copyButton: false},
-                    { title: 'ID', dataIndex: '_id', copyButton: false },
+                    { title: 'ID', dataIndex: '_id', copyButton: true },
                     {title: 'Status', dataIndex:'status', copyButton:false},
                     { title: 'Title', dataIndex: 'title', copyButton: false },
                     { title: 'Publisher', dataIndex: 'publisher', copyButton: false },
@@ -650,7 +650,7 @@ const getActionType = (tab, action) => {
               <InteractiveTable 
                   columns={[
                     {title: 'timestamp', dataIndex: 'timestamp', copyButton: false},
-                    { title: 'ID', dataIndex: 'source_id', copyButton: false },
+                    { title: 'ID', dataIndex: 'source_id', copyButton: true },
                     {title:'Processed', dataIndex:'processed', copyButton:false},
                     {title:'Status', dataIndex:'status', copyButton:false},
                     { title: 'Title', dataIndex: 'title', copyButton: false },
