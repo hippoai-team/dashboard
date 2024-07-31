@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
-import { Modal, Box, Checkbox, FormControlLabel, TextField, Button, Card, CardContent, Tooltip } from '@mui/material';
+import { Modal, Box, Checkbox, FormControlLabel, TextField, Button, Card, CardContent, Tooltip, CardHeader } from '@mui/material';
 import remarkGfm from 'remark-gfm';
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -122,7 +122,7 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
   // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
     fetchSources();
-  }, [currentPage, search, sourceTypeFilter, perPage, statusFilter, tab, loadType]);
+  }, [currentPage, search, sourceTypeFilter, perPage, statusFilter, tab, loadType, sortOrder]);
 
 
   const handleSearchChange = (e) => {
@@ -169,7 +169,6 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
 
     const handleSortOrderChange = (order) => {
     setSortOrder(order);
-    fetchSources();
     };
   // Function to handle clicking the "Next" button
   const handleNextPage = () => {
@@ -602,7 +601,12 @@ const getActionType = (tab, action) => {
                     </>
                 )}
           <>
-        <CustomTabPanel value={tab} index={0}>   
+        <CustomTabPanel value={tab} index={0}> 
+        {selectedSourceIds.length > 0 && (
+          <Box sx={{ position: 'fixed', bottom: 10, right: 10, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.7)', borderRadius: '8px', padding: '10px', color: 'white' }}>
+            <Typography variant="body1">{selectedSourceIds.length} items selected</Typography>
+          </Box>
+        )}
             <InteractiveTable 
                   columns={[
                     {title: 'timestamp', dataIndex: 'timestamp', copyButton: false},
@@ -646,7 +650,11 @@ const getActionType = (tab, action) => {
                 />
         </CustomTabPanel>
         <CustomTabPanel value={tab} index={1}>
-            
+        {selectedSourceIds.length > 0 && (
+          <Box sx={{ position: 'fixed', bottom: 10, right: 10, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.7)', borderRadius: '8px', padding: '10px', color: 'white' }}>
+            <Typography variant="body1">{selectedSourceIds.length} items selected</Typography>
+          </Box>
+        )}
               <InteractiveTable 
                   columns={[
                     {title: 'timestamp', dataIndex: 'timestamp', copyButton: false},
@@ -725,6 +733,11 @@ const getActionType = (tab, action) => {
               
         </CustomTabPanel>
         <CustomTabPanel value={tab} index={2}>
+        {selectedSourceIds.length > 0 && (
+          <Box sx={{ position: 'fixed', bottom: 10, right: 10, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.7)', borderRadius: '8px', padding: '10px', color: 'white' }}>
+            <Typography variant="body1">{selectedSourceIds.length} items selected</Typography>
+          </Box>
+        )}
           <InteractiveTable 
             columns={[
               {title: 'timestamp', dataIndex: 'date_added', copyButton: false},
