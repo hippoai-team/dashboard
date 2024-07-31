@@ -163,7 +163,14 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
       setSearch(filters.search || "");
       setSourceTypeFilter(filters.sourceTypeFilter || (allSourceTypes.length > 0 ? allSourceTypes[0] : ""));
       setStatusFilter(filters.statusFilter || "");
+    } else if (newValue === 2) {
+      // Reapply last used filters or default when moving to image sources tab
+      const filters = lastFilters[2];
+      setSearch(filters.search || "");
+      setSourceTypeFilter(filters.sourceTypeFilter || (allSourceTypes.length > 0 ? allSourceTypes[0] : ""));
+      setStatusFilter("pending");
     }
+    
     setTab(newValue);
   };
 
