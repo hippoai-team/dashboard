@@ -78,8 +78,11 @@ const TaskStatusCards = () => {
         return 'red';
       case 'unavailable':
         return 'grey';
+      case 'warning':
+        return 'yellow';
       default:
         return 'grey';
+      
     }
   };
 
