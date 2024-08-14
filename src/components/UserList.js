@@ -18,8 +18,6 @@ const UserList = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1); // Initialize currentPage state
   const [perPage, setPerPage] = useState(20); // Initialize perPage state
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [totalIds, setTotalIds] = useState(0); // Initialize totalUsers state
   const toastDuration = 1000; // 2 seconds
   const [statusFilter, setStatusFilter] = useState("");
   const [totalUsers, setTotalUsers] = useState(0);
@@ -46,6 +44,7 @@ const UserList = () => {
     const [savedSourceTypeCounts, setSavedSourceTypeCounts] = useState({'guidelines': 0, 'drugs': 0, 'bugs': 0, 'pearls': 0, 'general': 0});
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [loadingData, setLoadingData] = useState(false);
     const chartOptions = {
 
             chart: {
@@ -84,6 +83,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
 
   const fetchUsers = async () => {
     try {
+      setLoadingData(true);
         let endpoint = `${API_BASE_URL}/api/users?page=${currentPage}`;
 
         if (search) {
@@ -111,6 +111,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
             endpoint += `&dateRange=${dateRange}`;
         }
       const response = await axios.get(endpoint);
+      setLoadingData(false);
         setUsers(response.data.users.sort((a, b) => new Date(a.signup_date) - new Date(b.signup_date)));
         setTotalUsers(response.data.totalUsers);
         //setTotalUsageCount(response.data.totalUsageCount);
@@ -130,6 +131,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
         
     } catch (error) {
       console.log(error);
+      setLoadingData(false);
     }
   };
   useEffect(() => {
@@ -658,7 +660,7 @@ const series = [
                                     handleCheckboxChange={handleCheckboxChange}
                                     handleAllCheckboxChange={handleAllCheckboxChange}
                                     selectedIds={selectedUserIds}
-                                    totalEntries={totalIds}
+                                    totalEntries={totalUsers}
                                     currentPage={currentPage}
                                     perPage={perPage}
                                     handleNextPage={handleNextPage}
@@ -668,6 +670,7 @@ const series = [
                                         { label: 'Delete', onClick: (user) => handleDelete(user._id) },
                                         
                                     ]}
+                                    loading={loadingData}
                                     />
                                       <InactiveUserTable churnData={churnData} />
 

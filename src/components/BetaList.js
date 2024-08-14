@@ -38,7 +38,7 @@ const BetaList = () => {
     const [sourceFilter, setSourceFilter] = useState("");
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [users, setUsers] = useState([]);
-
+    const [loadingData, setLoadingData] = useState(false);
 
       const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
       const chartOptions = {
@@ -49,6 +49,7 @@ const BetaList = () => {
       };
     const fetchUsers = async () => {
         // Base endpoint
+        setLoadingData(true);
         let endpoint = `${API_BASE_URL}/api/betalist?page=${currentPage}`;
     
         // If there's a search query, append it to the endpoint
@@ -78,6 +79,7 @@ const BetaList = () => {
     
           // Destructure the response data
         const { totalBetaUsers, statusCounts, betaUsers } = response.data;
+          setLoadingData(false);
           // Use the response data to update users state
           //modify date_added to be more readable
           betaUsers.forEach((user) => {
@@ -91,6 +93,7 @@ const BetaList = () => {
 
         } catch (error) {
           console.error("Error fetching users:", error);
+          setLoadingData(false);
         }
       };
     
@@ -430,6 +433,8 @@ const BetaList = () => {
                               <option value="20">20 per page</option>
                               <option value="50">50 per page</option>
                               <option value="100">100 per page</option>
+                              <option value="200">200 per page</option>
+                              <option value="500">500 per page</option>
                             </select>
                           </div>
                         </form>
@@ -484,8 +489,8 @@ const BetaList = () => {
                     dataSource={users}
                     columns={[
                       { dataIndex: 'invite_sent', title: 'Invite Sent' },
-                      { dataIndex: 'name', title: 'Name' },
-                      { dataIndex: 'email', title: 'Email' },
+                      { dataIndex: 'name', title: 'Name', copyButton: true },
+                      { dataIndex: 'email', title: 'Email', copyButton: true },
                       { dataIndex: 'status', title: 'Status' },
                       { dataIndex: 'date_added', title: 'Date Added' },
                       { dataIndex: 'source', title: 'Added from' },
@@ -508,7 +513,9 @@ const BetaList = () => {
                     totalEntries={totalUsers}
                     handleNextPage={handleNextPage}
                     handlePreviousPage={handlePreviousPage}
-
+                    currentPage={currentPage}
+                    perPage={perPage}
+                    loading={loadingData}
                     />                
     
                     
