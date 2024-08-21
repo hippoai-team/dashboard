@@ -95,6 +95,7 @@ const ChatLogList = () => {
             numChatsWithClickedSources,
 
         } = res.data;
+        console.log('chatLogs', chatLogs)
         setChatLogs(chatLogs);
         setTotalLogs(totalCount);
         setCurrentPage(page);
@@ -317,7 +318,7 @@ const ChatLogList = () => {
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div className="col-md-2">
+                                            {/* <div className="col-md-2">
                                                 <div className="form-group">
                                                     <label>User Group</label>
                                                     <select
@@ -332,7 +333,7 @@ const ChatLogList = () => {
                                                         ))}
                                                     </select>
                                                 </div>
-                                            </div>
+                                            </div> */}
                                             <div className="col-md-2">
                                                 <div className="form-group">
                                                     <label>Date</label>
@@ -413,7 +414,7 @@ const ChatLogList = () => {
                                                         />
                                                     </div>
                                                 </div>
-                                            <div className="col-md-2">
+                                            {/* <div className="col-md-2">
                                                 <div className="form-group">
                                                     <label>User Rating</label>
                                                     <select
@@ -426,7 +427,7 @@ const ChatLogList = () => {
                                                         <option value="No">Not Helpful</option>
                                                     </select>
                                                 </div>
-                                            </div>
+                                            </div> */}
                                                             
                                         </div>
                                     <div className="row">
@@ -453,8 +454,8 @@ const ChatLogList = () => {
                                                 }}
                                                 />
                                                 </div>
-                                                <div className="col-md-4">
-                                            <NumDisplay
+                                              {/*  <div className="col-md-4">
+                                           <NumDisplay
                                                 title={["Positive Feedback", "Negative Feedback"]}
                                                 value={feedBackCount}
                                                 description={["Number of users who found the chatbot helpful", "Number of users who did not find the chatbot helpful"]}
@@ -498,11 +499,11 @@ const ChatLogList = () => {
                                                     color: '#2196F3',
                                                     margin: '10px'
                                                 }}
-                                                />
+                                                />*/}
                                         </div>
                                  
 
-                                    <div className="row">
+                                    {/*<div className="row">
                                         
                                         <div className="col-md-6">
                                             <ChartGraph
@@ -552,7 +553,7 @@ const ChatLogList = () => {
                                                 />
                                                 </div>
                                        
-                                    </div>
+                                    </div>*/}
                             
                                         <div className="table-responsive">
                                             <div style={{padding: '10px'}}>
@@ -573,6 +574,7 @@ const ChatLogList = () => {
                                                 <thead>
                                                     <tr>
                                                         <th>Date</th>
+                                                        <th>Time</th>
                                                         <th>
                                                             User
                                                             <Button 
@@ -584,64 +586,52 @@ const ChatLogList = () => {
                                                             </Button>
                                                         </th>
                                                         <th>Query</th>
-                                                        <th>Query Length</th>
                                                         <th style={{minWidth: '500px'}}>Response</th>
                                                         <th>Sources</th>
-                                                        <th>Feedback</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     
-                                                    {chatLogs.map((chatLog) => (
-                                                        <tr key={chatLog._id}>
-                                                            <td>{chatLog.date}</td>
-                                                            <td>{chatLog.email}</td>
-                                                            <td>
-                                                                {chatLog.filters && Object.entries(chatLog.filters)
-                                                                    .filter(([key, value]) => value !== null)
-                                                                    .map(([key, value]) => (
-                                                                        <Chip key={key} label={`${value}`} variant="outlined" style={{marginRight: '5px'}}/>
-                                                                    ))
-                                                                }
-                                                                <br/>
-                                                                {chatLog.query}
-                                                            </td>
-                                                            <td>{chatLog.query.split(' ').length}</td>
-                                                            <td>
-                                                                
-                                                                <ReactMarkdown
-                                                                remarkPlugins={[remarkGfm]}
-                                                                children={chatLog.response}
-                                                                components={{
-                                                                    table: ({ node, ...props }) => (
-                                                                      <table style={{ border: '1px solid black' }} {...props} />
-                                                                    )}}
-                                                                >{chatLog.response}</ReactMarkdown></td>
-
-                                                            <td>
-                                                               
-                                                                {chatLog.sources && createSourceChips(chatLog.sources)}
-                                                            
-                                                                
-                                                            </td>
-                                                            <td>
-                                                            {chatLog.user_rating && <Chip 
-                                                                label={`Was Helpful: ${chatLog.user_rating}`} 
-                                                                variant="outlined"
-                                                                style={{ marginBottom:'5px',backgroundColor: chatLog.user_rating === 'Yes' ? 'green' : chatLog.user_rating === 'No' ? 'red' : 'green' }}
-                                                                />}
-
-                                                                {chatLog.feedback && Object.entries(chatLog.feedback)
-                                                                    .filter(([key, value]) => value === true)
-                                                                    .map(([key, value]) => (
-                                                                        <div key={key} style={{marginBottom: '10px'}}>
-                                                                        <Chip label={`${key}: ${value}`} variant="outlined" />
-                                                                        </div>
+                                                    {chatLogs
+                                                        .flatMap((chatLog) => 
+                                                            chatLog.chat_history.map((history, index) => ({
+                                                                ...history,
+                                                                email: chatLog.email,
+                                                                id: `${chatLog._id}-${index}`
+                                                            }))
+                                                        )
+                                                        .sort((a, b) => {
+                                                            const dateA = new Date(`${a.currentDate} ${a.currentTime}`);
+                                                            const dateB = new Date(`${b.currentDate} ${b.currentTime}`);
+                                                            return dateB - dateA;
+                                                        })
+                                                        .map((history) => (
+                                                            <tr key={history.id}>
+                                                                <td>{history.currentDate}</td>
+                                                                <td>{history.currentTime}</td>
+                                                                <td>{history.email}</td>
+                                                                <td>
+                                                                    {history.query}
+                                                                </td>
+                                                                <td>
+                                                                    <ReactMarkdown
+                                                                        remarkPlugins={[remarkGfm]}
+                                                                        children={history.response}
+                                                                        components={{
+                                                                            table: ({ node, ...props }) => (
+                                                                                <table style={{ border: '1px solid black' }} {...props} />
+                                                                            )}}
+                                                                    >{history.response}</ReactMarkdown>
+                                                                </td>
+                                                                <td>
+                                                                    {history.sources.map((source) => (
+                                                                        <Chip key={source.message.source_id} label={source.message.title} variant="outlined" style={{marginRight: '5px'}} onClick={() => window.open(source.message.source_url, '_blank')}/>
                                                                     ))}
-                                                            </td>
-                                            
-                                                        </tr>
-                                                    ))}
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    }
+                                                                
                                                 </tbody>
                                             </table>
                                         </div>
