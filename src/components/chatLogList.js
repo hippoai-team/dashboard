@@ -585,6 +585,7 @@ const ChatLogList = () => {
                                                                 <FileCopyIcon style={{fontSize: 'small'}}/>
                                                             </Button>
                                                         </th>
+                                                        <th>Thread UUID</th>
                                                         <th>Query</th>
                                                         <th style={{minWidth: '500px'}}>Response</th>
                                                         <th>Sources</th>
@@ -597,6 +598,7 @@ const ChatLogList = () => {
                                                             chatLog.chat_history.map((history, index) => ({
                                                                 ...history,
                                                                 email: chatLog.email,
+                                                                thread_uuid: chatLog.thread_uuid,
                                                                 id: `${chatLog._id}-${index}`
                                                             }))
                                                         )
@@ -611,6 +613,11 @@ const ChatLogList = () => {
                                                                 <td>{history.currentTime}</td>
                                                                 <td>{history.email}</td>
                                                                 <td>
+                                                                    <a href={`https://hippo.pendium.health/chat?thread_id=${history.thread_uuid}`} target="_blank" rel="noopener noreferrer">
+                                                                        {history.thread_uuid}
+                                                                    </a>
+                                                                </td>
+                                                                <td>
                                                                     {history.query}
                                                                 </td>
                                                                 <td>
@@ -624,9 +631,22 @@ const ChatLogList = () => {
                                                                     >{history.response}</ReactMarkdown>
                                                                 </td>
                                                                 <td>
-                                                                    {history.sources.map((source) => (
-                                                                        <Chip key={source.message.source_id} label={source.message.title} variant="outlined" style={{marginRight: '5px'}} onClick={() => window.open(source.message.source_url, '_blank')}/>
-                                                                    ))}
+                                                                    {history.sources.map((source) => {
+                                                                        console.log('user email and source', history.email, source);
+                                                                        if (!source.message.title) {
+                                                                            console.log(source);
+                                                                            return null;
+                                                                        }
+                                                                        return (
+                                                                            <Chip 
+                                                                                key={source.message.source_id} 
+                                                                                label={source.message.title} 
+                                                                                variant="outlined" 
+                                                                                style={{marginRight: '5px'}} 
+                                                                                onClick={() => window.open(source.message.source_url, '_blank')}
+                                                                            />
+                                                                        );
+                                                                    })}
                                                                 </td>
                                                             </tr>
                                                         ))
