@@ -58,7 +58,12 @@ const Sidebar = () => {
                 <p>API Usage Log</p>
               </Link>
             </li>
-          
+            <li className="nav-item">
+              <Link to="/kpi" className="nav-link">
+                <i className="nav-icon fas fa-chart-pie"></i>
+                <p>KPI Dashboard</p>
+              </Link>
+            </li>
           </ul>
         </nav>
         {/* /.sidebar-menu */}

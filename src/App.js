@@ -15,6 +15,8 @@ import ChatLogList from './components/chatLogList';
 import APIUsageLog from './components/APIUsageLog';
 import EditUser from './components/EditUser';
 import MasterSources from './components/masterSources';
+import KPIDashboard from './components/kpiDashboard';
+
 function App() {
   return (
     console.log(process.env.NODE_API_URL),
@@ -71,6 +73,10 @@ function App() {
 
                 <Route path="/users/edit/:id" element={<PrivateRoute />} >
                   <Route path='' element={<EditUser />} />
+                </Route>
+
+                <Route path="/kpi" element={<PrivateRoute />} >
+                  <Route path='' element={<KPIDashboard />} />
                 </Route>
 
                 
