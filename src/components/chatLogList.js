@@ -39,6 +39,7 @@ const ChatLogList = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [dateRange, setDateRange] = useState('last-week')
+    const [filterOutAdmin, setFilterOutAdmin] = useState(false);
     const toastDuration = 3000;
     const [feedbackPlotObject, setFeedbackPlotObject] = useState({series: [], labels: []});//[yes, no
     const chartOptions = {
@@ -66,6 +67,9 @@ const ChatLogList = () => {
             }
         if (selectedDate) {
             endpoint += `&date=${selectedDate}`;
+            }
+        if (filterOutAdmin) {
+            endpoint += `&filterOutAdmin=true`;
             }
         
         //add date range
@@ -569,7 +573,17 @@ const ChatLogList = () => {
                                             >
                                                 Export to CSV
                                             </Button>
-                                
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={filterOutAdmin}
+                                                        onChange={(e) => setFilterOutAdmin(e.target.checked)}
+                                                        name="filterOutAdmin"
+                                                        color="primary"
+                                                    />
+                                                }
+                                                label="Filter Admin"
+                                            />
                                             <table className="table table-bordered table-hover">
                                                 <thead>
                                                     <tr>
