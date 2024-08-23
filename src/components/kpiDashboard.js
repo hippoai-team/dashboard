@@ -70,7 +70,9 @@ const KPIDashboard = () => {
         setSelectedKPIs(event.target.value);
     };
 
-    const renderChart = (kpi, data) => {
+    const renderChart = (kpi) => {
+        const data = kpi.data
+        const kpi_name = kpi.kpi
         if (!data || (Array.isArray(data) && data.length === 0) || (typeof data === 'object' && Object.keys(data).length === 0)) {
             console.error(`No data available for KPI: ${kpi}`);
             return <div>No data available for {kpi}</div>;
@@ -83,7 +85,7 @@ const KPIDashboard = () => {
             if (Array.isArray(data)) {
                 categories = data.map(item => item.date || `${item.year}-${item.week}` || `${item.year}-${item.month}` || 'Unknown');
                 series = [{
-                    name: kpi,
+                    name: kpi_name,
                     data: data.map(item => {
                         const value = item.percentageWithInteraction !== undefined ? item.percentageWithInteraction :
                                       item.value !== undefined ? item.value :
@@ -104,7 +106,7 @@ const KPIDashboard = () => {
             } else if (typeof data === 'object') {
                 categories = Object.keys(data);
                 series = [{
-                    name: kpi,
+                    name: kpi_name,
                     data: Object.values(data)
                 }];
             }
@@ -118,7 +120,7 @@ const KPIDashboard = () => {
                     categories: categories
                 },
                 title: {
-                    text: kpi,
+                    text: kpi_name,
                     align: 'center'
                 },
                 noData: {
@@ -133,32 +135,62 @@ const KPIDashboard = () => {
         }
     };
 
-    const renderRawData = (data) => {
+    const renderRawData = (kpi) => {
+        const data = kpi.data
+        const kpi_name = kpi.kpi
         if (!data || data.length === 0) return null;
         console.log('data',data)
         const headers = Object.keys(data[0]);
 
+        const exportToCSV = () => {
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row => headers.map(header => row[header]).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `${kpi_name}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        };
+
         return (
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            {headers.map((header, index) => (
-                                <TableCell key={index}>{header}</TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {data.map((row, rowIndex) => (
-                            <TableRow key={rowIndex}>
-                                {headers.map((header, cellIndex) => (
-                                    <TableCell key={cellIndex}>{row[header]}</TableCell>
+            <>
+                <Button variant="contained" color="primary" onClick={exportToCSV} style={{ marginBottom: '1rem' }}>
+                    Export to CSV
+                </Button>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                {headers.map((header, index) => (
+                                    <TableCell key={index}>
+                                        {header.replace(/([A-Z])/g, ' $1')
+                                               .replace(/^./, str => str.toUpperCase())
+                                               .trim()}
+                                    </TableCell>
                                 ))}
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {data.map((row, rowIndex) => (
+                                <TableRow key={rowIndex}>
+                                    {headers.map((header, cellIndex) => (
+                                        <TableCell key={cellIndex}>{row[header]}</TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </>
         );
     };
 
@@ -222,10 +254,10 @@ const KPIDashboard = () => {
                                         
                                         {Object.entries(kpiData).map(([kpi, data]) => (
                                             <div key={kpi}>
-                                                <Typography variant="h6" gutterBottom>{kpi}</Typography>
-                                                {renderChart(kpi, data.data)}
+                                                <Typography variant="h6" gutterBottom>{data.kpi}</Typography>
+                                                {renderChart(data)}
                                                 <Typography variant="h6" gutterBottom>Raw Data</Typography>
-                                                {renderRawData(data.data)}
+                                                {renderRawData(data)}
                                             </div>
                                         ))}
                                     </div>
