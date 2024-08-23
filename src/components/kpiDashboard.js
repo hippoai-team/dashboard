@@ -28,7 +28,7 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
 
 const KPIDashboard = () => {
     const [selectedKPIs, setSelectedKPIs] = useState([]);
-    const [startDate, setStartDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 7)));
     const [endDate, setEndDate] = useState(new Date());
     const [kpiData, setKpiData] = useState({});
 
