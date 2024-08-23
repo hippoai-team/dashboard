@@ -17,6 +17,11 @@ import PageTitle from "./pageTitle";
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+//spinner
+import CircularProgress from '@mui/material/CircularProgress';
+
 const ChatLogList = () => {
 
     const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
@@ -39,7 +44,8 @@ const ChatLogList = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [dateRange, setDateRange] = useState('last-week')
-    const [filterOutAdmin, setFilterOutAdmin] = useState(false);
+    const [filterOutAdmin, setFilterOutAdmin] = useState(true);
+
     const toastDuration = 3000;
     const [feedbackPlotObject, setFeedbackPlotObject] = useState({series: [], labels: []});//[yes, no
     const chartOptions = {
@@ -150,7 +156,7 @@ const ChatLogList = () => {
 
     useEffect(() => {
         fetchChatLogs();
-    }, [currentPage, perPage, search, selectedUser, selectedDate, dateRange, userRatingFilter, selectedUserGroup, startDate, endDate]);
+    }, [currentPage, perPage, search, selectedUser, selectedDate, dateRange, userRatingFilter, selectedUserGroup, startDate, endDate, filterOutAdmin]);
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -190,6 +196,10 @@ const ChatLogList = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
         }
+    }
+
+    const handleFilterOutAdminChange = (e) => {
+        setFilterOutAdmin(e.target.checked);
     }
 
     const copyToClipboard = (array) => {
@@ -577,7 +587,7 @@ const ChatLogList = () => {
                                                 control={
                                                     <Checkbox
                                                         checked={filterOutAdmin}
-                                                        onChange={(e) => setFilterOutAdmin(e.target.checked)}
+                                                        onChange={handleFilterOutAdminChange}
                                                         name="filterOutAdmin"
                                                         color="primary"
                                                     />
@@ -606,66 +616,102 @@ const ChatLogList = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    
-                                                    {chatLogs
-                                                        .flatMap((chatLog) => 
-                                                            chatLog.chat_history.map((history, index) => ({
-                                                                ...history,
-                                                                email: chatLog.email,
-                                                                thread_uuid: chatLog.thread_uuid,
-                                                                id: `${chatLog._id}-${index}`
-                                                            }))
-                                                        )
-                                                        .sort((a, b) => {
-                                                            const dateA = new Date(`${a.currentDate} ${a.currentTime}`);
-                                                            const dateB = new Date(`${b.currentDate} ${b.currentTime}`);
-                                                            return dateB - dateA;
-                                                        })
-                                                        .map((history) => (
-                                                            <tr key={history.id}>
-                                                                <td>{history.currentDate}</td>
-                                                                <td>{history.currentTime}</td>
-                                                                <td>{history.email}</td>
-                                                                <td>
-                                                                    <a href={`https://hippo.pendium.health/chat?thread_id=${history.thread_uuid}`} target="_blank" rel="noopener noreferrer">
-                                                                        {history.thread_uuid}
-                                                                    </a>
-                                                                </td>
-                                                                <td>
-                                                                    {history.query}
-                                                                </td>
-                                                                <td>
-                                                                    <ReactMarkdown
-                                                                        remarkPlugins={[remarkGfm]}
-                                                                        children={history.response}
-                                                                        components={{
-                                                                            table: ({ node, ...props }) => (
-                                                                                <table style={{ border: '1px solid black' }} {...props} />
-                                                                            )}}
-                                                                    >{history.response}</ReactMarkdown>
-                                                                </td>
-                                                                <td>
-                                                                    {history.sources.map((source) => {
-                                                                        console.log('user email and source', history.email, source);
-                                                                        if (!source.message.title) {
-                                                                            console.log(source);
-                                                                            return null;
-                                                                        }
-                                                                        return (
-                                                                            <Chip 
-                                                                                key={source.message.source_id} 
-                                                                                label={source.message.title} 
+                                                    {loading ? (
+                                                        <tr>
+                                                            <td colSpan="7" style={{textAlign: 'center'}}>
+                                                                <CircularProgress />
+                                                                <Typography variant="body1" style={{marginLeft: '10px'}}>
+                                                                    Fetching data...
+                                                                </Typography>
+                                                            </td>
+                                                        </tr>
+                                                    ) : (
+                                                        chatLogs
+                                                            .flatMap((chatLog) => 
+                                                                chatLog.chat_history.map((history, index) => ({
+                                                                    ...history,
+                                                                    email: chatLog.email,
+                                                                    thread_uuid: chatLog.thread_uuid,
+                                                                    id: `${chatLog._id}-${index}`
+                                                                }))
+                                                            )
+                                                            .sort((a, b) => {
+                                                                const dateA = new Date(`${a.currentDate} ${a.currentTime}`);
+                                                                const dateB = new Date(`${b.currentDate} ${b.currentTime}`);
+                                                                return dateB - dateA;
+                                                            })
+                                                            .map((history) => (
+                                                                <tr key={history.id}>
+                                                                    <td>{history.currentDate}</td>
+                                                                    <td>{history.currentTime}</td>
+                                                                    <td>{history.email}</td>
+                                                                    <td>
+                                                                        <a href={`https://hippo.pendium.health/chat?thread_id=${history.thread_uuid}`} target="_blank" rel="noopener noreferrer">
+                                                                            {history.thread_uuid}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td>
+                                                                        {history.query}
+                                                                    </td>
+                                                                    <td>
+                                                                        <div>
+                                                                            <div>
+                                                                                <ReactMarkdown
+                                                                                    remarkPlugins={[remarkGfm]}
+                                                                                    children={history.response.split('\n').slice(0, 4).join('\n')}
+                                                                                    components={{
+                                                                                        table: ({ node, ...props }) => (
+                                                                                            <table style={{ border: '1px solid black' }} {...props} />
+                                                                                        )}}
+                                                                                >{history.response.split('\n').slice(0, 4).join('\n')}</ReactMarkdown>
+                                                                                {history.response.split('\n').length > 4 && '...'}
+                                                                            </div>
+                                                                            <Button 
                                                                                 variant="outlined" 
-                                                                                style={{marginRight: '5px'}} 
-                                                                                onClick={() => window.open(source.message.source_url, '_blank')}
-                                                                            />
-                                                                        );
-                                                                    })}
-                                                                </td>
-                                                            </tr>
-                                                        ))
-                                                    }
-                                                                
+                                                                                onClick={() => {
+                                                                                    const element = document.getElementById(`response-${history.id}`);
+                                                                                    if (element.style.display === "none") {
+                                                                                        element.style.display = "block";
+                                                                                    } else {
+                                                                                        element.style.display = "none";
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                Expand
+                                                                            </Button>
+                                                                            <div id={`response-${history.id}`} style={{ display: 'none' }}>
+                                                                                <ReactMarkdown
+                                                                                    remarkPlugins={[remarkGfm]}
+                                                                                    children={history.response}
+                                                                                    components={{
+                                                                                        table: ({ node, ...props }) => (
+                                                                                            <table style={{ border: '1px solid black' }} {...props} />
+                                                                                        )}}
+                                                                                >{history.response}</ReactMarkdown>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        {history.sources.map((source) => {
+                                                                            console.log('user email and source', history.email, source);
+                                                                            if (!source.message.title) {
+                                                                                console.log(source);
+                                                                                return null;
+                                                                            }
+                                                                            return (
+                                                                                <div key={source.message.source_id} style={{marginBottom: '5px'}}>
+                                                                                    <Chip 
+                                                                                        label={source.message.title} 
+                                                                                        variant="outlined" 
+                                                                                        onClick={() => window.open(source.message.source_url, '_blank')}
+                                                                                    />
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>
