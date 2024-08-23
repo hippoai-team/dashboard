@@ -94,13 +94,14 @@ const InteractiveTable = ({
           </thead>
           <tbody>
             {loading ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <tr key={i}>
-                  {Array.from({ length: columns.length + (actionButtons ? 2 : 1) }).map((_, j) => (
-                    <td key={j}><CircularProgress /></td>
-                  ))}
-                </tr>
-              ))
+            <tr>
+              <td colSpan={columns.length + (actionButtons ? 2 : 1)} style={{textAlign: 'center'}}>
+                <CircularProgress />
+                <Typography variant="body1" style={{marginLeft: '10px'}}>
+                  Fetching data...
+                </Typography>
+              </td>
+            </tr>
             ) : dataSource.length > 0 ? (
               dataSource.map((data, i) => (
                 <>
