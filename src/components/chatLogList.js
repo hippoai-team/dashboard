@@ -45,7 +45,7 @@ const ChatLogList = () => {
     const [endDate, setEndDate] = useState('');
     const [dateRange, setDateRange] = useState('last-week')
     const [filterOutAdmin, setFilterOutAdmin] = useState(true);
-
+    const [expandedIds, setExpandedIds] = useState([]);
     const toastDuration = 3000;
     const [feedbackPlotObject, setFeedbackPlotObject] = useState({series: [], labels: []});//[yes, no
     const chartOptions = {
@@ -177,6 +177,10 @@ const ChatLogList = () => {
     const handleDateChange = (e) => {
         setSelectedDate(e.target.value);
 
+    }
+
+    const handleExpand = (id) => {
+        setExpandedIds(expandedIds.includes(id) ? expandedIds.filter(i => i !== id) : [...expandedIds, id]);
     }
 
     const handleDateRangeChange= (e) => {
@@ -655,39 +659,39 @@ const ChatLogList = () => {
                                                                     </td>
                                                                     <td>
                                                                         <div>
-                                                                            <div>
-                                                                                <ReactMarkdown
-                                                                                    remarkPlugins={[remarkGfm]}
-                                                                                    children={history.response.split('\n').slice(0, 4).join('\n')}
-                                                                                    components={{
-                                                                                        table: ({ node, ...props }) => (
-                                                                                            <table style={{ border: '1px solid black' }} {...props} />
-                                                                                        )}}
-                                                                                >{history.response.split('\n').slice(0, 4).join('\n')}</ReactMarkdown>
-                                                                                {history.response.split('\n').length > 4 && '...'}
-                                                                            </div>
                                                                             <Button 
                                                                                 variant="outlined" 
-                                                                                onClick={() => {
-                                                                                    const element = document.getElementById(`response-${history.id}`);
-                                                                                    if (element.style.display === "none") {
-                                                                                        element.style.display = "block";
-                                                                                    } else {
-                                                                                        element.style.display = "none";
-                                                                                    }
-                                                                                }}
+                                                                                onClick={() => handleExpand(history.id)}
                                                                             >
-                                                                                Expand
+                                                                                {expandedIds.includes(history.id) ? 'Collapse' : 'Expand'}
                                                                             </Button>
-                                                                            <div id={`response-${history.id}`} style={{ display: 'none' }}>
-                                                                                <ReactMarkdown
-                                                                                    remarkPlugins={[remarkGfm]}
-                                                                                    children={history.response}
-                                                                                    components={{
-                                                                                        table: ({ node, ...props }) => (
-                                                                                            <table style={{ border: '1px solid black' }} {...props} />
-                                                                                        )}}
-                                                                                >{history.response}</ReactMarkdown>
+                                                                            <div>
+                                                                                {expandedIds.includes(history.id) ? (
+                                                                                    <ReactMarkdown
+                                                                                        remarkPlugins={[remarkGfm]}
+                                                                                        components={{
+                                                                                            table: ({ node, ...props }) => (
+                                                                                                <table style={{ border: '1px solid black' }} {...props} />
+                                                                                            )
+                                                                                        }}
+                                                                                    >
+                                                                                        {history.response}
+                                                                                    </ReactMarkdown>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <ReactMarkdown
+                                                                                            remarkPlugins={[remarkGfm]}
+                                                                                            components={{
+                                                                                                table: ({ node, ...props }) => (
+                                                                                                    <table style={{ border: '1px solid black' }} {...props} />
+                                                                                                )
+                                                                                            }}
+                                                                                        >
+                                                                                            {history.response.split('\n').slice(0, 4).join('\n')}
+                                                                                        </ReactMarkdown>
+                                                                                        {history.response.split('\n').length > 4 && '...'}
+                                                                                    </>
+                                                                                )}
                                                                             </div>
                                                                         </div>
                                                                     </td>
