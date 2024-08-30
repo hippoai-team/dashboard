@@ -13,6 +13,10 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const InteractiveTable = ({
   columns = [],
@@ -29,6 +33,8 @@ const InteractiveTable = ({
   currentPage = 1,
   perPage = 10,
   loading = false,
+  expandedNodeData = {},
+  fetchNodes = null,
 }) => {
   const [expandedRows, setExpandedRows] = useState([]);
 
@@ -45,6 +51,11 @@ const InteractiveTable = ({
       ? expandedRows.filter(rowId => rowId !== id)
       : [...expandedRows, id];
     setExpandedRows(currentExpandedRows);
+    
+    if (!expandedNodeData[id] && !expandedRows.includes(id) && fetchNodes) {
+      fetchNodes(id);
+      console.log(expandedNodeData);
+    }
   };
 
   return (
@@ -117,12 +128,10 @@ const InteractiveTable = ({
                           >{button.loading && selectedIds.includes(data._id) ? <CircularProgress size={20} /> : button.label}</Button>
                         ))}
                         {data.processed && (
-                      
-                      <Button onClick={() => toggleRowExpansion(data._id)}>
-                          {expandedRows.includes(data._id) ? 'Collapse' : 'Expand'}
-                        </Button>
-                 
-                  )}
+                          <Button onClick={() => toggleRowExpansion(data._id)}>
+                            {expandedRows.includes(data._id) ? 'Collapse' : 'Expand'}
+                          </Button>
+                        )}
                       </td>
                     )}
                     
@@ -134,7 +143,6 @@ const InteractiveTable = ({
                             ? data[column.dataIndex].toString()
                             : data[column.dataIndex]
                         }
-                        
                       </td>
                     ))}
                   </tr>
@@ -153,9 +161,44 @@ const InteractiveTable = ({
                                   </TableRow>
                                   <TableRow>
                                     <TableCell colSpan={2} style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-                                      {hiddenColumn.render
-                                        ? hiddenColumn.render(data[hiddenColumn.dataIndex], data)
-                                        : data[hiddenColumn.dataIndex]
+                                      {hiddenColumn.dataIndex === 'nodes' ? 
+                                        (expandedNodeData[data._id] ? 
+                                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            {expandedNodeData[data._id]['nodes'].map((node, nodeIndex) => (
+                                              <Card key={nodeIndex} variant="outlined" sx={{ mb: 1 }}>
+                                                <CardContent>
+                                                  <ReactMarkdown
+                                                    remarkPlugins={[remarkGfm]}
+                                                    components={{
+                                                      table: ({ node, ...props }) => (
+                                                        <table style={{ border: '1px solid black' }} {...props} />
+                                                      )
+                                                    }}
+                                                  >{`Node ${nodeIndex + 1}: ${node}`}</ReactMarkdown>
+                                                </CardContent>
+                                              </Card>
+                                            ))}
+                                          </Box>
+                                          : <CircularProgress />
+                                        )
+                                      : hiddenColumn.dataIndex === 'images' ?
+                                        (expandedNodeData[data._id] ? 
+                                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            {expandedNodeData[data._id]['images'].map((image, imageIndex) => (
+                                              <Card key={imageIndex} variant="outlined" sx={{ mb: 1 }}>
+                                                <CardContent>
+                                                  <Typography variant="body2">{`Image ${imageIndex + 1}: ${image.title}`}</Typography>
+                                                  <Typography variant="body2">{`Description: ${image.description}`}</Typography>
+                                                  <img src={image.source_url} alt={`Image ${imageIndex + 1}`} style={{ maxWidth: '100%', height: 'auto' }} />
+                                                </CardContent>
+                                              </Card>
+                                            ))}
+                                          </Box>
+                                          : <CircularProgress />
+                                        )
+                                      : (hiddenColumn.render
+                                          ? hiddenColumn.render(data[hiddenColumn.dataIndex], data)
+                                          : data[hiddenColumn.dataIndex])
                                       }
                                     </TableCell>
                                   </TableRow>

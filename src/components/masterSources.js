@@ -81,6 +81,7 @@ const [rejectReason, setRejectReason] = useState('');
 const [customRejectReason, setCustomRejectReason] = useState('');
 const [pipelineState, setPipelineState] = useState('unknown');
 const [dockerStatus, setDockerStatus] = useState('unknown');
+const [expandedNodeData, setExpandedNodeData] = useState({});
 
 const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
@@ -106,9 +107,6 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
     try {
       const response = await axios.get(endpoint);
       const { sources, source_types, total_source_counts} = response.data;
-      console.log('length of sources', sources.length);
-      console.log('source_types', source_types);
-      console.log('total_source_counts', total_source_counts);
       setAllSourceTypes(source_types || []);
       setTotalSources(total_source_counts || 0);
       setSources(sources || []);
@@ -121,11 +119,24 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
   };
 
 
+
   // useEffect for fetching sources on initial load and when currentPage changes
   useEffect(() => {
     fetchSources();
   }, [currentPage, search, sourceTypeFilter, perPage, statusFilter, tab, loadType, sortOrder]);
 
+  const fetchNodes = async (sourceId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/master-sources/nodes/${sourceId}`);
+    setExpandedNodeData(prevData => ({
+      ...prevData,
+      [sourceId]: response.data
+    }));
+  } catch (error) {
+    console.error("Error fetching nodes:", error);
+    toast.error("Failed to fetch nodes");
+  }
+};
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -731,6 +742,8 @@ const getActionType = (tab, action) => {
                 currentPage={currentPage}
                 perPage={perPage}
                 loading={loadingData}
+                expandedNodeData={expandedNodeData}
+                fetchNodes={fetchNodes}
               />
               
         </CustomTabPanel>
