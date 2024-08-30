@@ -96,7 +96,6 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
   const fetchSources = async () => {
     setLoadingData(true);
     let endpoint = `${API_BASE_URL}/api/master-sources?page=${currentPage}&active_tab=${tab}`;
-    console.log(endpoint);
     if (search) endpoint += `&search=${search}`;
     if (sourceTypeFilter) endpoint += `&source_type=${sourceTypeFilter}`;
     if (statusFilter) endpoint += `&status=${statusFilter}`;
@@ -107,6 +106,9 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
     try {
       const response = await axios.get(endpoint);
       const { sources, source_types, total_source_counts} = response.data;
+      console.log('length of sources', sources.length);
+      console.log('source_types', source_types);
+      console.log('total_source_counts', total_source_counts);
       setAllSourceTypes(source_types || []);
       setTotalSources(total_source_counts || 0);
       setSources(sources || []);
