@@ -107,9 +107,9 @@ const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api
     try {
       const response = await axios.get(endpoint);
       const { sources, source_types, total_source_counts} = response.data;
-      setAllSourceTypes(source_types);
-      setTotalSources(total_source_counts);
-      setSources(sources);
+      setAllSourceTypes(source_types || []);
+      setTotalSources(total_source_counts || 0);
+      setSources(sources || []);
       setLoadingData(false);
     } catch (error) {
       console.error("Error fetching sources:", error);
