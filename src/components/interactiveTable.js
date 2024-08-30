@@ -15,20 +15,20 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 
 const InteractiveTable = ({
-  columns,
-  dataSource,
-  totalEntries,
+  columns = [],
+  dataSource = [],
+  totalEntries = 0,
   handlePrevPage,
   handleNextPage,
   handleSortOrderChange,
   setSelectedIds,
-  selectedIds,
-  actionButtons,
+  selectedIds = [],
+  actionButtons = [],
   handleAllCheckboxChange,
   handleCheckboxChange,
-  currentPage,
-  perPage,
-  loading,
+  currentPage = 1,
+  perPage = 10,
+  loading = false,
 }) => {
   const [expandedRows, setExpandedRows] = useState([]);
 
@@ -38,7 +38,7 @@ const InteractiveTable = ({
 
   const skip = perPage * (currentPage - 1);
   const currentEntriesStart = skip + 1;
-  const currentEntriesEnd = skip + dataSource.length;
+  const currentEntriesEnd = skip + (dataSource ? dataSource.length : 0);
 
   const toggleRowExpansion = (id) => {
     const currentExpandedRows = expandedRows.includes(id)
@@ -66,7 +66,7 @@ const InteractiveTable = ({
               <th>
                 <input type="checkbox" onChange={handleAllCheckboxChange}></input>
               </th>
-              {actionButtons && <th>Available Actions</th>}
+              {actionButtons && actionButtons.length > 0 && <th>Available Actions</th>}
               {columns.filter(column => !column.hidden).map((column, i) => (
                 <th key={i} >
                   {column.title}
@@ -95,21 +95,21 @@ const InteractiveTable = ({
           <tbody>
             {loading ? (
             <tr>
-              <td colSpan={columns.length + (actionButtons ? 2 : 1)} style={{textAlign: 'center'}}>
+              <td colSpan={columns.length + (actionButtons && actionButtons.length > 0 ? 2 : 1)} style={{textAlign: 'center'}}>
                 <CircularProgress />
                 <Typography variant="body1" style={{marginLeft: '10px'}}>
                   Fetching data...
                 </Typography>
               </td>
             </tr>
-            ) : dataSource.length > 0 ? (
+            ) : dataSource && dataSource.length > 0 ? (
               dataSource.map((data, i) => (
-                <>
-                  <tr key={data._id}>
+                <React.Fragment key={data._id || i}>
+                  <tr>
                     <td>
                       <input type="checkbox" onChange={(e) => handleCheckboxChange(e, data._id)} value={data._id} checked={selectedIds.includes(data._id)}></input>
                     </td>
-                    {actionButtons && (
+                    {actionButtons && actionButtons.length > 0 && (
                       <td>
                         {actionButtons.map((button, k) => (
                           <Button key={k} onClick={() => button.onClick(data)}
@@ -140,18 +140,18 @@ const InteractiveTable = ({
                   </tr>
                   {expandedRows.includes(data._id) && (
                     <tr>
-                      <td colSpan={columns.length + (actionButtons ? 2 : 1)} style={{ maxWidth: '100%', overflowX: 'auto' }}>
+                      <td colSpan={columns.length + (actionButtons && actionButtons.length > 0 ? 2 : 1)} style={{ maxWidth: '100%', overflowX: 'auto' }}>
                         <Collapse in={expandedRows.includes(data._id)} timeout="auto" unmountOnExit>
                           <Table size="small">
                             <TableBody>
                               {columns.filter(column => column.hidden).map((hiddenColumn, index) => (
-                                <>
-                                  <TableRow key={`title-${index}`}>
+                                <React.Fragment key={index}>
+                                  <TableRow>
                                     <TableCell colSpan={2} style={{ whiteSpace: 'nowrap', fontWeight: 'bold' }}>
                                       {hiddenColumn.title}
                                     </TableCell>
                                   </TableRow>
-                                  <TableRow key={`data-${index}`}>
+                                  <TableRow>
                                     <TableCell colSpan={2} style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
                                       {hiddenColumn.render
                                         ? hiddenColumn.render(data[hiddenColumn.dataIndex], data)
@@ -159,7 +159,7 @@ const InteractiveTable = ({
                                       }
                                     </TableCell>
                                   </TableRow>
-                                </>
+                                </React.Fragment>
                               ))}
                             </TableBody>
                           </Table>
@@ -167,11 +167,11 @@ const InteractiveTable = ({
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length + (actionButtons ? 2 : 1)} style={{ textAlign: 'center' }}>
+                <td colSpan={columns.length + (actionButtons && actionButtons.length > 0 ? 2 : 1)} style={{ textAlign: 'center' }}>
                   No data found for the given query or filter.
                 </td>
               </tr>

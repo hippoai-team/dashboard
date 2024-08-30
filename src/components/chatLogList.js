@@ -111,7 +111,6 @@ const ChatLogList = () => {
         setCurrentPage(page);
         setUserList(users);
         setDateCountObj(dateCountObj);
-        console.log('dateCountObj', dateCountObj)
         setFeedBackCount(totalFeedback);
         setLoading(false);
         setNumChatsClickedSources(numChatsWithClickedSources);
