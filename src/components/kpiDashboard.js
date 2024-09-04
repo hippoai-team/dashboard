@@ -14,7 +14,9 @@ import {
     TableContainer, 
     TableHead, 
     TableRow,
-    TextField
+    TextField,
+    ToggleButton,
+    ToggleButtonGroup
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -31,6 +33,8 @@ const KPIDashboard = () => {
     const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 7)));
     const [endDate, setEndDate] = useState(new Date());
     const [kpiData, setKpiData] = useState({});
+    const [chartType, setChartType] = useState('line');
+    const [chartTypes, setChartTypes] = useState({});
 
     const kpiOptions = [
         'averageDailyQueries',
@@ -72,6 +76,15 @@ const KPIDashboard = () => {
     const roundToOneDecimal = (value) => {
         return Number(value.toFixed(1));
     };
+    const handleChartTypeChange = (kpi, newChartType) => {
+        if (newChartType !== null) {
+            setChartTypes(prevTypes => ({
+                ...prevTypes,
+                [kpi]: newChartType
+            }));
+        }
+    };
+
     const renderChart = (kpi) => {
         const data = kpi.data;
         const kpi_name = kpi.kpi;
@@ -85,47 +98,16 @@ const KPIDashboard = () => {
 
         try {
             if (Array.isArray(data)) {
-                categories = data.map(item => {
-                    if (item.date) return item.date;
-                    if (item.week && item.year) return `${item.year}-W${item.week.toString().padStart(2, '0')}`;
-                    return 'Unknown';
-                });
+                categories = data.map(item => item.date || `${item.year}-W${item.week?.toString().padStart(2, '0')}` || 'Unknown');
 
-                const roundToOneDecimal = (value) => {
-                    return Number(value.toFixed(1));
-                };
+                const dataKeys = Object.keys(data[0]).filter(key => 
+                    key !== 'date' && key !== 'year' && key !== 'week' && key !== '_id'
+                );
 
-                const getValueFromItem = (item) => {
-                    const keys = ['percentageWithInteraction', 'value', 'averageQueries', 'activeUsers', 'turnoverRate', 'churnRate', 'totalQueries', 'interactionCount', 'queriesPerUser', 'changeInQueriesPerUser', 'percentageChange', 'changePercentage'];
-                    for (let key of keys) {
-                        if (item[key] !== undefined) return roundToOneDecimal(item[key]);
-                    }
-                    console.warn(`No valid value found for data point in ${kpi_name}`);
-                    return null;
-                };
-
-                series = [{
-                    name: kpi_name,
-                    data: data.map(item => getValueFromItem(item)).filter(value => value !== null)
-                }];
-
-                // Add additional series for weekly data if available
-                if (data[0].queriesPerUser !== undefined) {
-                    series.push({
-                        name: 'Queries per User',
-                        data: data.map(item => roundToOneDecimal(item.queriesPerUser))
-                    });
-                    series.push({
-                        name: 'Change in Queries per User',
-                        data: data.map(item => roundToOneDecimal(item.changeInQueriesPerUser))
-                    });
-                }
-                if (data[0].changePercentage !== undefined) {
-                    series.push({
-                        name: 'Change Percentage',
-                        data: data.map(item => roundToOneDecimal(item.changePercentage))
-                    });
-                }
+                series = dataKeys.map(key => ({
+                    name: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+                    data: data.map(item => roundToOneDecimal(item[key]))
+                }));
             } else if (typeof data === 'object') {
                 categories = Object.keys(data);
                 series = [{
@@ -136,11 +118,16 @@ const KPIDashboard = () => {
 
             const options = {
                 chart: {
-                    type: 'line',
+                    type: chartTypes[kpi_name] || 'line',
                     height: 350
                 },
                 xaxis: {
-                    categories: categories
+                    categories: categories,
+                    labels: {
+                        rotate: -45,
+                        rotateAlways: false,
+                        hideOverlappingLabels: true
+                    }
                 },
                 title: {
                     text: kpi_name,
@@ -155,13 +142,52 @@ const KPIDashboard = () => {
                     },
                     labels: {
                         formatter: function (value) {
-                            return value.toFixed(1);
+                            return value?.toFixed(1);
                         }
                     }
-                }
+                },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'center',
+                    onItemClick: {
+                        toggleDataSeries: true
+                    },
+                    onItemHover: {
+                        highlightDataSeries: true
+                    }
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        legend: {
+                            position: 'bottom',
+                            offsetX: -10,
+                            offsetY: 0
+                        }
+                    }
+                }]
             };
 
-            return <Chart options={options} series={series} type="line" height={350} />;
+            return (
+                <>
+                    <ToggleButtonGroup
+                        value={chartTypes[kpi_name] || 'line'}
+                        exclusive
+                        onChange={(event, newType) => handleChartTypeChange(kpi_name, newType)}
+                        aria-label="chart type"
+                        size="small"
+                        style={{ marginBottom: '1rem' }}
+                    >
+                        <ToggleButton value="line" aria-label="line chart">
+                            Line
+                        </ToggleButton>
+                        <ToggleButton value="bar" aria-label="bar chart">
+                            Bar
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                    <Chart options={options} series={series} type={chartTypes[kpi_name] || 'line'} height={350} />
+                </>
+            );
         } catch (error) {
             console.error(`Error rendering chart for KPI ${kpi_name}:`, error);
             return <div>Error rendering chart for {kpi_name}</div>;
