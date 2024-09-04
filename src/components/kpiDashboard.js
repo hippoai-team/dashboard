@@ -69,13 +69,15 @@ const KPIDashboard = () => {
     const handleKPIChange = (event) => {
         setSelectedKPIs(event.target.value);
     };
-
+    const roundToOneDecimal = (value) => {
+        return Number(value.toFixed(1));
+    };
     const renderChart = (kpi) => {
-        const data = kpi.data
-        const kpi_name = kpi.kpi
+        const data = kpi.data;
+        const kpi_name = kpi.kpi;
         if (!data || (Array.isArray(data) && data.length === 0) || (typeof data === 'object' && Object.keys(data).length === 0)) {
-            console.error(`No data available for KPI: ${kpi}`);
-            return <div>No data available for {kpi}</div>;
+            console.error(`No data available for KPI: ${kpi_name}`);
+            return <div>No data available for {kpi_name}</div>;
         }
 
         let series = [];
@@ -83,31 +85,52 @@ const KPIDashboard = () => {
 
         try {
             if (Array.isArray(data)) {
-                categories = data.map(item => item.date || `${item.year}-${item.week}` || `${item.year}-${item.month}` || 'Unknown');
+                categories = data.map(item => {
+                    if (item.date) return item.date;
+                    if (item.week && item.year) return `${item.year}-W${item.week.toString().padStart(2, '0')}`;
+                    return 'Unknown';
+                });
+
+                const roundToOneDecimal = (value) => {
+                    return Number(value.toFixed(1));
+                };
+
+                const getValueFromItem = (item) => {
+                    const keys = ['percentageWithInteraction', 'value', 'averageQueries', 'activeUsers', 'turnoverRate', 'churnRate', 'totalQueries', 'interactionCount', 'queriesPerUser', 'changeInQueriesPerUser', 'percentageChange', 'changePercentage'];
+                    for (let key of keys) {
+                        if (item[key] !== undefined) return roundToOneDecimal(item[key]);
+                    }
+                    console.warn(`No valid value found for data point in ${kpi_name}`);
+                    return null;
+                };
+
                 series = [{
                     name: kpi_name,
-                    data: data.map(item => {
-                        const value = item.percentageWithInteraction !== undefined ? item.percentageWithInteraction :
-                                      item.value !== undefined ? item.value :
-                                      item.averageQueries !== undefined ? item.averageQueries :
-                                      item.activeUsers !== undefined ? item.activeUsers :
-                                      item.turnoverRate !== undefined ? item.turnoverRate :
-                                      item.churnRate !== undefined ? item.churnRate :
-                                      item.totalQueries !== undefined ? item.totalQueries :
-                                      item.interactionCount !== undefined ? item.interactionCount :
-                                      null;
-                        
-                        if (value === null) {
-                            console.warn(`No valid value found for data point in ${kpi}`);
-                        }
-                        return value;
-                    }).filter(value => value !== null)
+                    data: data.map(item => getValueFromItem(item)).filter(value => value !== null)
                 }];
+
+                // Add additional series for weekly data if available
+                if (data[0].queriesPerUser !== undefined) {
+                    series.push({
+                        name: 'Queries per User',
+                        data: data.map(item => roundToOneDecimal(item.queriesPerUser))
+                    });
+                    series.push({
+                        name: 'Change in Queries per User',
+                        data: data.map(item => roundToOneDecimal(item.changeInQueriesPerUser))
+                    });
+                }
+                if (data[0].changePercentage !== undefined) {
+                    series.push({
+                        name: 'Change Percentage',
+                        data: data.map(item => roundToOneDecimal(item.changePercentage))
+                    });
+                }
             } else if (typeof data === 'object') {
                 categories = Object.keys(data);
                 series = [{
                     name: kpi_name,
-                    data: Object.values(data)
+                    data: Object.values(data).map(value => roundToOneDecimal(value))
                 }];
             }
 
@@ -125,13 +148,23 @@ const KPIDashboard = () => {
                 },
                 noData: {
                     text: 'No data available'
+                },
+                yaxis: {
+                    title: {
+                        text: kpi_name
+                    },
+                    labels: {
+                        formatter: function (value) {
+                            return value.toFixed(1);
+                        }
+                    }
                 }
             };
 
             return <Chart options={options} series={series} type="line" height={350} />;
         } catch (error) {
-            console.error(`Error rendering chart for KPI ${kpi}:`, error);
-            return <div>Error rendering chart for {kpi}</div>;
+            console.error(`Error rendering chart for KPI ${kpi_name}:`, error);
+            return <div>Error rendering chart for {kpi_name}</div>;
         }
     };
 
