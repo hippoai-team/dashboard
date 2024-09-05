@@ -205,7 +205,13 @@ const getActionType = (tab, action) => {
       return action === 'process' ? 'process' : 'delete';
     }
     else if (tab === 2) {
-      return action === 'process' ? 'process-images' : 'delete-images';
+      if (action === 'process') {
+        return 'process-images';
+      } else if (action === 'approve') {
+        return 'approve-images';
+      } else {
+        return 'delete-images';
+      }
     }
   };
   
@@ -519,6 +525,7 @@ const getActionType = (tab, action) => {
                             </>}
                             {tab === 2 && <>
                               <option value="pending">Pending</option>
+                              <option value="active">Approved</option>
                               <option value="processed">Processed</option>
                               <option value="inactive">Inactive</option>
                             </>}
@@ -774,6 +781,7 @@ const getActionType = (tab, action) => {
             selectedIds={selectedSourceIds}
             actionButtons={
               (pipelineStatus !== 'error' && pipelineStatus !== 'unavailable') ? [
+                {label: 'Approve', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'approve'), loading: actionLoading},
                 {label: 'Process', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'process'), loading: actionLoading},
                 {label: 'Reject', onClick: (data) => handleSourceAction([data._id], sourceTypeFilter, tab, 'delete'), loading: actionLoading},
               ] : []

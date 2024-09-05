@@ -17,6 +17,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Checkbox from '@mui/material/Checkbox';  // Add this import
 
 const InteractiveTable = ({
   columns = [],
@@ -75,7 +76,10 @@ const InteractiveTable = ({
           <thead>
             <tr>
               <th>
-                <input type="checkbox" onChange={handleAllCheckboxChange}></input>
+                <Checkbox
+                  onChange={handleAllCheckboxChange}
+                  size="large"  // Set the size to medium for a larger checkbox
+                />
               </th>
               {actionButtons && actionButtons.length > 0 && <th>Available Actions</th>}
               {columns.filter(column => !column.hidden).map((column, i) => (
@@ -118,7 +122,11 @@ const InteractiveTable = ({
                 <React.Fragment key={data._id || i}>
                   <tr>
                     <td>
-                      <input type="checkbox" onChange={(e) => handleCheckboxChange(e, data._id)} value={data._id} checked={selectedIds.includes(data._id)}></input>
+                      <Checkbox
+                        onChange={(e) => handleCheckboxChange(e, data._id)}
+                        checked={selectedIds.includes(data._id)}
+                        size="large"  // Set the size to medium for a larger checkbox
+                      />
                     </td>
                     {actionButtons && actionButtons.length > 0 && (
                       <td>
