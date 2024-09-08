@@ -45,7 +45,9 @@ const KPIDashboard = () => {
         'totalQueries',
         'featureUseFrequencySaveSources',
         'featureUseFrequencyPrimaryLiteratureVsSource',
-        'featureInteractionRateCalculator'
+        'featureInteractionRateCalculator',
+        'newUserSignups',
+        'combinedFeatureInteractions'
     ];
     const fetchKPIData = async () => {
         try {
@@ -98,16 +100,25 @@ const KPIDashboard = () => {
 
         try {
             if (Array.isArray(data)) {
-                categories = data.map(item => item.weekStart || item.date || 'Unknown');
+                categories = data.map(item => item.date || item.weekStart || 'Unknown');
 
-                const dataKeys = Object.keys(data[0]).filter(key => 
-                    !['weekStart', 'weekEnd', 'date', 'year', 'week', '_id'].includes(key)
-                );
+                if (kpi_name === 'Combined Feature Interactions') {
+                    series = [
+                        { name: 'Calculator Submitted', data: data.map(item => item.calculator_submitted) },
+                        { name: 'Source Interactions', data: data.map(item => item.source_interactions) },
+                        { name: 'Clicked Chat History Thread', data: data.map(item => item.clicked_chat_history_thread) },
+                        { name: 'Opened Modal', data: data.map(item => item.opened_modal) }
+                    ];
+                } else {
+                    const dataKeys = Object.keys(data[0]).filter(key => 
+                        !['weekStart', 'weekEnd', 'date', 'year', 'week', '_id'].includes(key)
+                    );
 
-                series = dataKeys.map(key => ({
-                    name: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-                    data: data.map(item => roundToOneDecimal(item[key]))
-                }));
+                    series = dataKeys.map(key => ({
+                        name: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+                        data: data.map(item => roundToOneDecimal(item[key]))
+                    }));
+                }
             } else if (typeof data === 'object') {
                 categories = Object.keys(data);
                 series = [{
@@ -208,7 +219,6 @@ const KPIDashboard = () => {
         const data = kpi.data
         const kpi_name = kpi.kpi
         if (!data || data.length === 0) return null;
-        console.log('data',data)
         const headers = Object.keys(data[0]);
 
         const exportToCSV = () => {
