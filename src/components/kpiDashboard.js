@@ -98,10 +98,10 @@ const KPIDashboard = () => {
 
         try {
             if (Array.isArray(data)) {
-                categories = data.map(item => item.date || `${item.year}-W${item.week?.toString().padStart(2, '0')}` || 'Unknown');
+                categories = data.map(item => item.weekStart || item.date || 'Unknown');
 
                 const dataKeys = Object.keys(data[0]).filter(key => 
-                    key !== 'date' && key !== 'year' && key !== 'week' && key !== '_id'
+                    !['weekStart', 'weekEnd', 'date', 'year', 'week', '_id'].includes(key)
                 );
 
                 series = dataKeys.map(key => ({
@@ -154,6 +154,16 @@ const KPIDashboard = () => {
                     },
                     onItemHover: {
                         highlightDataSeries: true
+                    }
+                },
+                tooltip: {
+                    x: {
+                        formatter: function(val, opts) {
+                            const dataPoint = data[opts.dataPointIndex];
+                            return dataPoint.weekStart && dataPoint.weekEnd 
+                                ? `${dataPoint.weekStart} to ${dataPoint.weekEnd}`
+                                : val;
+                        }
                     }
                 },
                 responsive: [{
