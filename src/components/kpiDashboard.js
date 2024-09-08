@@ -47,7 +47,6 @@ const KPIDashboard = () => {
         'featureUseFrequencyPrimaryLiteratureVsSource',
         'featureInteractionRateCalculator',
         'newUserSignups',
-        'combinedFeatureInteractions'
     ];
     const fetchKPIData = async () => {
         try {
