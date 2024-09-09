@@ -567,6 +567,17 @@ const getActionType = (tab, action) => {
                     >
                         {tab === 0 ? 'Approve Selected' : 'Process Selected'}
                     </Button>
+                    {tab === 2 && (
+                      <Button
+                      variant="contained"
+                      color="primary"
+                      style={{marginLeft: '10px'}}
+                      onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'approve')}
+                      disabled={selectedSourceIds.length === 0}
+                    >
+                        Approve Selected
+                    </Button>
+                    )}
                   </div>
                 </div>
 
