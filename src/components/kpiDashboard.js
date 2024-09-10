@@ -284,9 +284,45 @@ const KPIDashboard = () => {
     };
 
     const renderRawData = (kpi) => {
-        const data = kpi.data
-        const kpi_name = kpi.kpi
-        if (!data || data.length === 0) return null;
+        const data = kpi.data;
+        const kpi_name = kpi.kpi;
+
+        if (!data || (Array.isArray(data) && data.length === 0)) return null;
+
+        if (kpi_name === 'Token Usage Distribution') {
+            // Handle Token Usage Distribution separately
+            return (
+                <>
+                    {Object.entries(data).map(([distributionType, distributionData]) => (
+                        <div key={distributionType}>
+                            <Typography variant="h6" gutterBottom>{distributionType}</Typography>
+                            <TableContainer component={Paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Min</TableCell>
+                                            <TableCell>Max</TableCell>
+                                            <TableCell>Count</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {distributionData.map((row, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>{row._id}</TableCell>
+                                                <TableCell>{row.max === 'Infinity' ? '∞' : row.max}</TableCell>
+                                                <TableCell>{row.count}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </div>
+                    ))}
+                </>
+            );
+        }
+
+        // For other KPIs, use the existing logic
         const headers = Object.keys(data[0]);
 
         const exportToCSV = () => {
