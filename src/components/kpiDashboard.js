@@ -36,6 +36,7 @@ const KPIDashboard = () => {
     const [chartType, setChartType] = useState('line');
     const [chartTypes, setChartTypes] = useState({});
     const [histogramData, setHistogramData] = useState({});
+    const [customBins, setCustomBins] = useState('');
 
     const kpiOptions = [
         'averageDailyQueries',
@@ -59,7 +60,8 @@ const KPIDashboard = () => {
                     params: {
                         kpi: kpi,
                         startDate: startDate.toISOString(),
-                        endDate: endDate.toISOString()
+                        endDate: endDate.toISOString(),
+                        bins: customBins
                     }
                 })
             );
@@ -247,7 +249,7 @@ const KPIDashboard = () => {
                     const minValue = typeof bin.min === 'number' ? bin.min.toFixed(2) : bin.min;
                     let maxValue;
                     if (bin.max === "Infinity" || index === data.length - 1) {
-                        return `${minValue}+`;  // Changed this line
+                        return `${minValue}+`;
                     } else {
                         maxValue = typeof bin.max === 'number' ? (bin.max - 1).toFixed(2) : bin.max;
                         return `${minValue} - ${maxValue}`;
@@ -339,6 +341,12 @@ const KPIDashboard = () => {
         );
     };
 
+    const handleCustomBinsChange = (event) => {
+        setCustomBins(event.target.value);
+    };
+
+    const isDistributionKPISelected = selectedKPIs.some(kpi => kpi.includes('Distribution'));
+
     return (
         <Layout>
             <div className="content-wrapper">
@@ -390,6 +398,17 @@ const KPIDashboard = () => {
                                                     />
                                                 </LocalizationProvider>
                                             </Grid>
+                                            {isDistributionKPISelected && (
+                                                <Grid item xs={12} md={6}>
+                                                    <TextField
+                                                        fullWidth
+                                                        label="Custom Bins (comma-separated)"
+                                                        value={customBins}
+                                                        onChange={handleCustomBinsChange}
+                                                        helperText="Enter comma-separated values for custom bins (e.g., 0,1,5,10,20,50,100)"
+                                                    />
+                                                </Grid>
+                                            )}
                                             <Grid item xs={12}>
                                                 <Button variant="contained" color="primary" onClick={fetchKPIData}>
                                                     Fetch KPI Data
