@@ -101,23 +101,14 @@ const KPIDashboard = () => {
             if (Array.isArray(data)) {
                 categories = data.map(item => item.date || item.weekStart || 'Unknown');
 
-                if (kpi_name === 'Combined Feature Interactions') {
-                    series = [
-                        { name: 'Calculator Submitted', data: data.map(item => item.calculator_submitted) },
-                        { name: 'Source Interactions', data: data.map(item => item.source_interactions) },
-                        { name: 'Clicked Chat History Thread', data: data.map(item => item.clicked_chat_history_thread) },
-                        { name: 'Opened Modal', data: data.map(item => item.opened_modal) }
-                    ];
-                } else {
-                    const dataKeys = Object.keys(data[0]).filter(key => 
-                        !['weekStart', 'weekEnd', 'date', 'year', 'week', '_id'].includes(key)
-                    );
+                const dataKeys = Object.keys(data[0]).filter(key => 
+                    !['weekStart', 'weekEnd', 'date', 'year', 'week','month', '_id'].includes(key)
+                );
 
-                    series = dataKeys.map(key => ({
-                        name: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-                        data: data.map(item => roundToOneDecimal(item[key]))
-                    }));
-                }
+                series = dataKeys.map(key => ({
+                    name: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+                    data: data.map(item => roundToOneDecimal(item[key]))
+                }));
             } else if (typeof data === 'object') {
                 categories = Object.keys(data);
                 series = [{
@@ -170,9 +161,10 @@ const KPIDashboard = () => {
                     x: {
                         formatter: function(val, opts) {
                             const dataPoint = data[opts.dataPointIndex];
-                            return dataPoint.weekStart && dataPoint.weekEnd 
-                                ? `${dataPoint.weekStart} to ${dataPoint.weekEnd}`
-                                : val;
+                            if (dataPoint.weekStart && dataPoint.weekEnd) {
+                                return `${dataPoint.weekStart} to ${dataPoint.weekEnd}`;
+                            }
+                            return categories[val];
                         }
                     }
                 },
