@@ -35,6 +35,7 @@ const KPIDashboard = () => {
     const [kpiData, setKpiData] = useState({});
     const [chartType, setChartType] = useState('line');
     const [chartTypes, setChartTypes] = useState({});
+    const [histogramData, setHistogramData] = useState({});
 
     const kpiOptions = [
         'averageDailyQueries',
@@ -47,6 +48,8 @@ const KPIDashboard = () => {
         'featureUseFrequencyPrimaryLiteratureVsSource',
         'featureInteractionRateCalculator',
         'newUserSignups',
+        'averageDailyQueriesDistribution',
+        'tokenUsageDistribution',
     ];
     const fetchKPIData = async () => {
         try {
@@ -206,6 +209,78 @@ const KPIDashboard = () => {
         }
     };
 
+    const renderHistogram = (kpi) => {
+        const data = kpi.data;
+        const kpi_name = kpi.kpi;
+
+        if (!data || data.length === 0) {
+            return <div>No data available for {kpi_name}</div>;
+        }
+
+        const series = [{
+            name: 'Count',
+            data: data.map(bin => bin.count)
+        }];
+
+        const options = {
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    endingShape: 'rounded'
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            xaxis: {
+                categories: data.map((bin, index) => {
+                    const minValue = typeof bin.min === 'number' ? bin.min.toFixed(2) : bin.min;
+                    let maxValue;
+                    if (bin.max === "Infinity" || index === data.length - 1) {
+                        return `${minValue}+`;  // Changed this line
+                    } else {
+                        maxValue = typeof bin.max === 'number' ? (bin.max - 1).toFixed(2) : bin.max;
+                        return `${minValue} - ${maxValue}`;
+                    }
+                }),
+                title: {
+                    text: 'Bins'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Count'
+                }
+            },
+            fill: {
+                opacity: 1
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + " users"
+                    }
+                }
+            },
+            title: {
+                text: kpi_name,
+                align: 'center'
+            }
+        };
+
+        return <Chart options={options} series={series} type="bar" height={350} />;
+    };
+
     const renderRawData = (kpi) => {
         const data = kpi.data
         const kpi_name = kpi.kpi
@@ -325,7 +400,13 @@ const KPIDashboard = () => {
                                         {Object.entries(kpiData).map(([kpi, data]) => (
                                             <div key={kpi}>
                                                 <Typography variant="h6" gutterBottom>{data.kpi}</Typography>
-                                                {renderChart(data)}
+                                                {data.kpi === 'Token Usage Distribution' ? (
+                                                    <>
+                                                        {renderHistogram({kpi: 'Tokens In Distribution', data: data.data.tokensInDistribution})}
+                                                        {renderHistogram({kpi: 'Tokens Out Distribution', data: data.data.tokensOutDistribution})}
+                                                        {renderHistogram({kpi: 'Total Tokens Distribution', data: data.data.totalTokensDistribution})}
+                                                    </>
+                                                ) : data.kpi.includes('Distribution') ? renderHistogram(data) : renderChart(data)}
                                                 <Typography variant="h6" gutterBottom>Raw Data</Typography>
                                                 {renderRawData(data)}
                                             </div>
