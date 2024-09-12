@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./Layout";
-import { Modal, Box, Checkbox, FormControlLabel, TextField, Button, Card, CardContent, Tooltip, CardHeader } from '@mui/material';
+import { Modal, Box, Checkbox, FormControlLabel, TextField, Button, Card, CardContent, Tooltip, CardHeader, Fab } from '@mui/material';
 import remarkGfm from 'remark-gfm';
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -23,6 +23,10 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import IconButton from '@mui/material/IconButton';
 import RejectModal from "./rejectModal";
 import ReactMarkdown from 'react-markdown';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import CheckIcon from '@mui/icons-material/Check';
+
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
   
@@ -636,6 +640,15 @@ const getActionType = (tab, action) => {
         {selectedSourceIds.length > 0 && (
           <Box sx={{ position: 'fixed', bottom: 10, right: 10, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.7)', borderRadius: '8px', padding: '10px', color: 'white' }}>
             <Typography variant="body1">{selectedSourceIds.length} items selected</Typography>
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'delete')}>
+              <DeleteIcon />
+            </Fab>  
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'approve')}>
+              <CheckIcon />
+            </Fab>
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'process')}>
+              <PlayArrowIcon />
+            </Fab>
           </Box>
         )}
             <InteractiveTable 
@@ -684,6 +697,15 @@ const getActionType = (tab, action) => {
         {selectedSourceIds.length > 0 && (
           <Box sx={{ position: 'fixed', bottom: 10, right: 10, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.7)', borderRadius: '8px', padding: '10px', color: 'white' }}>
             <Typography variant="body1">{selectedSourceIds.length} items selected</Typography>
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'delete')}>
+              <DeleteIcon />
+            </Fab>  
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'approve')}>
+              <CheckIcon />
+            </Fab>
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'process')}>
+              <PlayArrowIcon />
+            </Fab>
           </Box>
         )}
               <InteractiveTable 
@@ -769,6 +791,15 @@ const getActionType = (tab, action) => {
         {selectedSourceIds.length > 0 && (
           <Box sx={{ position: 'fixed', bottom: 10, right: 10, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.7)', borderRadius: '8px', padding: '10px', color: 'white' }}>
             <Typography variant="body1">{selectedSourceIds.length} items selected</Typography>
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'delete')}>
+              <DeleteIcon />
+            </Fab>  
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'approve')}>
+              <CheckIcon />
+            </Fab>
+            <Fab color="primary" aria-label="add" size="small" onClick={() => handleSourceAction(selectedSourceIds, sourceTypeFilter, tab, 'process')}>
+              <PlayArrowIcon />
+            </Fab>
           </Box>
         )}
           <InteractiveTable 
