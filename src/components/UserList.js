@@ -17,6 +17,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import DeleteConfirmationDialog from "./deleteConfirmationDialog.js";
+
 const UserList = () => {
     const navigate = useNavigate();
 
@@ -725,7 +727,14 @@ const series = [
                                 </div>
                                 </div>
                                 </section>
-
+                                    {deleteConfirmOpen && (
+                                        <DeleteConfirmationDialog
+                                            open={deleteConfirmOpen}
+                                            onClose={handleDeleteCancel}
+                                            onConfirm={handleDeleteConfirmed}
+                                            user={userToDelete}
+                                        />
+                                    )}
                                 </div>
                                 </Layout>
     );
