@@ -12,6 +12,11 @@ import ChartGraph from "./chartGraph";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import InactiveUserTable from "./inactiveUserTable";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 const UserList = () => {
     const navigate = useNavigate();
 
@@ -45,6 +50,8 @@ const UserList = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [loadingData, setLoadingData] = useState(false);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
     const chartOptions = {
 
             chart: {
@@ -355,6 +362,42 @@ const series = [
   
   
 
+  const handleDeleteConfirm = (user) => {
+    setUserToDelete(user);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirmOpen(false);
+    setUserToDelete(null);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (userToDelete) {
+      try {
+        const response = await axios.delete(
+          `${API_BASE_URL}/api/users/delete/${userToDelete._id}`
+        );
+
+        if (response.status === 200) {
+          toast.success("User successfully deleted!", {
+            autoClose: toastDuration,
+          });
+
+          setTimeout(() => {
+            fetchUsers();
+          }, toastDuration);
+        } else {
+          console.error("Failed to delete user:", response.data);
+        }
+      } catch (error) {
+        toast.error("Error deleting the user!", { autoClose: toastDuration });
+        console.error("Error deleting the user:", error);
+      }
+    }
+    setDeleteConfirmOpen(false);
+    setUserToDelete(null);
+  };
 
   return (
     <Layout>
@@ -667,7 +710,7 @@ const series = [
                                     handlePrevPage={handlePreviousPage}
                                     actionButtons={[
                                         { label: 'Edit', onClick: (user) => navigate(`/users/edit/${user._id}`) },
-                                        { label: 'Delete', onClick: (user) => handleDelete(user._id) },
+                                        { label: 'Delete', onClick: (user) => handleDeleteConfirm(user) },
                                         
                                     ]}
                                     loading={loadingData}
