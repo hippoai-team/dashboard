@@ -51,6 +51,7 @@ const KPIDashboard = () => {
         'newUserSignups',
         'averageDailyQueriesDistribution',
         'tokenUsageDistribution',
+        'featureInteractionsPerDay',
     ];
     const fetchKPIData = async () => {
         try {
@@ -66,6 +67,7 @@ const KPIDashboard = () => {
                 })
             );
             const responses = await Promise.all(promises);
+            console.log('responses',responses)
             const newKpiData = {};
             responses.forEach((response, index) => {
                 newKpiData[selectedKPIs[index]] = response.data;
@@ -106,14 +108,22 @@ const KPIDashboard = () => {
             if (Array.isArray(data)) {
                 categories = data.map(item => item.date || item.weekStart || 'Unknown');
 
-                const dataKeys = Object.keys(data[0]).filter(key => 
-                    !['weekStart', 'weekEnd', 'date', 'year', 'week','month', '_id'].includes(key)
-                );
+                if (kpi_name === 'Feature Interactions Per Day') {
+                    const interactionTypes = [...new Set(data.flatMap(day => Object.keys(day.interactions)))];
+                    series = interactionTypes.map(interactionType => ({
+                        name: interactionType,
+                        data: data.map(day => day.interactions[interactionType] || 0)
+                    }));
+                } else {
+                    const dataKeys = Object.keys(data[0]).filter(key => 
+                        !['weekStart', 'weekEnd', 'date', 'year', 'week','month', '_id'].includes(key)
+                    );
 
-                series = dataKeys.map(key => ({
-                    name: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-                    data: data.map(item => roundToOneDecimal(item[key]))
-                }));
+                    series = dataKeys.map(key => ({
+                        name: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+                        data: data.map(item => roundToOneDecimal(item[key]))
+                    }));
+                }
             } else if (typeof data === 'object') {
                 categories = Object.keys(data);
                 series = [{
@@ -318,6 +328,62 @@ const KPIDashboard = () => {
                             </TableContainer>
                         </div>
                     ))}
+                </>
+            );
+        }
+
+        // For Feature Interactions Per Day, handle it separately
+        if (kpi_name === 'Feature Interactions Per Day') {
+            const headers = ['Date', ...new Set(data.flatMap(day => Object.keys(day.interactions)))];
+            
+            const exportToCSV = () => {
+                const csvContent = [
+                    headers.join(','),
+                    ...data.map(day => [
+                        day.date,
+                        ...headers.slice(1).map(header => day.interactions[header] || 0)
+                    ].join(','))
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `${kpi_name}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            };
+
+            return (
+                <>
+                    <Button variant="contained" color="primary" onClick={exportToCSV} style={{ marginBottom: '1rem' }}>
+                        Export to CSV
+                    </Button>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    {headers.map((header, index) => (
+                                        <TableCell key={index}>{header}</TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {data.map((day, rowIndex) => (
+                                    <TableRow key={rowIndex}>
+                                        <TableCell>{day.date}</TableCell>
+                                        {headers.slice(1).map((header, cellIndex) => (
+                                            <TableCell key={cellIndex}>{day.interactions[header] || 0}</TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </>
             );
         }
