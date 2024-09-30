@@ -175,11 +175,8 @@ const KPIDashboard = () => {
                 tooltip: {
                     x: {
                         formatter: function(val, opts) {
-                            const dataPoint = data[opts.dataPointIndex];
-                            if (dataPoint.weekStart && dataPoint.weekEnd) {
-                                return `${dataPoint.weekStart} to ${dataPoint.weekEnd}`;
-                            }
-                            return categories[val];
+                            // Use the category value directly instead of accessing data
+                            return categories[opts.dataPointIndex];
                         }
                     }
                 },

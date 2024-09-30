@@ -121,7 +121,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
         }
       const response = await axios.get(endpoint);
       setLoadingData(false);
-        setUsers(response.data.users.sort((a, b) => new Date(a.signup_date) - new Date(b.signup_date)));
+        setUsers(response.data.users);
         setTotalUsers(response.data.totalUsers);
         //setTotalUsageCount(response.data.totalUsageCount);
         //setTotalFeedbackCount(response.data.totalFeedbackCount);
@@ -688,34 +688,35 @@ const series = [
                                         </div>
 
                                 <div className="card-body">
-                                    <InteractiveTable dataSource={users} columns={[
-                                        { dataIndex: 'email', title: 'Email' },
-                                        { dataIndex: 'signup_date', title: 'Signup Date' },
-                                        { dataIndex: 'status', title: 'Status' },
-                                        { dataIndex: 'usage', title: 'Usage' },
-                                        { dataIndex: 'sourcesCount', title: 'Sources' },
-                                        { dataIndex: 'threadCount', title: 'Threads' },
-                                        { dataIndex: 'follow_up_usage', title: 'Followup Usage' },
-                                        { dataIndex: 'num_logins', title: 'Number of Logins' },
-                                        { dataIndex: 'feedback_count', title: 'Feedback Count' },
-                                        { dataIndex: 'sourceClickCount', title: 'Source Click Count' },
-                                        {dataIndex:'nav_threads', title: 'Navigated To Threads'},
-                                        {dataIndex:'nav_saved_sources', title: 'Navigated To Saved Sources'},
-                                    ]} 
-                                    handleCheckboxChange={handleCheckboxChange}
-                                    handleAllCheckboxChange={handleAllCheckboxChange}
-                                    selectedIds={selectedUserIds}
-                                    totalEntries={totalUsers}
-                                    currentPage={currentPage}
-                                    perPage={perPage}
-                                    handleNextPage={handleNextPage}
-                                    handlePrevPage={handlePreviousPage}
-                                    actionButtons={[
-                                        { label: 'Edit', onClick: (user) => navigate(`/users/edit/${user._id}`) },
-                                        { label: 'Delete', onClick: (user) => handleDeleteConfirm(user) },
-                                        
-                                    ]}
-                                    loading={loadingData}
+                                    <InteractiveTable 
+                                        dataSource={users} 
+                                        columns={[
+                                            { dataIndex: 'email', title: 'Email' },
+                                            { dataIndex: 'name', title: 'Name' },
+                                            { dataIndex:'activeSubscriptionName', title: 'Plan'},
+                                            { dataIndex:'activeSubscriptionStatus', title: 'Status'},
+                                            { dataIndex: 'profession', title: 'Profession' },
+                                            { 
+                                                dataIndex: 'signup_date', 
+                                                title: 'Signup Date',
+                                                render: (date) => new Date(date).toLocaleString()
+                                            },
+                                            { dataIndex: 'threadCount', title: 'Threads' },
+                                            { dataIndex: 'sourcesCount', title: 'Saved Sources' },
+                                        ]} 
+                                        handleCheckboxChange={handleCheckboxChange}
+                                        handleAllCheckboxChange={handleAllCheckboxChange}
+                                        selectedIds={selectedUserIds}
+                                        totalEntries={totalUsers}
+                                        currentPage={currentPage}
+                                        perPage={perPage}
+                                        handleNextPage={handleNextPage}
+                                        handlePrevPage={handlePreviousPage}
+                                        actionButtons={[
+                                            { label: 'Edit', onClick: (user) => navigate(`/users/edit/${user._id}`) },
+                                            { label: 'Delete', onClick: (user) => handleDeleteConfirm(user) },
+                                        ]}
+                                        loading={loadingData}
                                     />
                                       <InactiveUserTable churnData={churnData} />
 
