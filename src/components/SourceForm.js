@@ -195,7 +195,7 @@ function SourceForm() {
     }
     try {
       console.log('Extracting metadata from URL:', sources[index].source_url);
-      const response = await axios.post('http://localhost:8000/extract_metadata_url', { url: sources[index].source_url });
+      const response = await axios.post('https://pendiumdev.com/pipeline-no-pdf/extract_metadata_url', { url: sources[index].source_url });
       // Update the source at the specified index with the new metadata
       const updatedSources = [...sources];
       updatedSources[index] = { ...updatedSources[index], ...response.data.metadata };
@@ -218,7 +218,7 @@ function SourceForm() {
     formData.append("file", sources[index].pdfFile);
 
     try {
-      const response = await axios.post('http://localhost:8000/extract_metadata_file', formData, {
+      const response = await axios.post('https://pendiumdev.com/pipeline-no-pdf/extract_metadata_file', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
