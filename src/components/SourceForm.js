@@ -218,14 +218,17 @@ function SourceForm() {
     formData.append("file", sources[index].pdfFile);
 
     try {
-      const response = await axios.post('https://pendiumdev.com/pipeline-no-pdf/extract_metadata_file', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      const response = await fetch('https://pendiumdev.com/pipeline-no-pdf/extract_metadata_file', {
+        method: 'POST',
+        body: formData,
+        //mode: 'no-cors'
       });
+      
+      console.log(response);
+      const data = await response.json();
       // Update the source at the specified index with the new metadata
       const updatedSources = [...sources];
-      updatedSources[index] = { ...updatedSources[index], ...response.data.metadata };
+      updatedSources[index] = { ...updatedSources[index], ...data.metadata };
       // Update the state to reflect the changes
       setSources(updatedSources);
       setAutoFillLoading(false);
