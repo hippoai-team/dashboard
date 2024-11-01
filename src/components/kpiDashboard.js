@@ -58,9 +58,11 @@ const KPIDashboard = () => {
         'averageDailyQueriesDistribution',
         'tokenUsageDistribution',
         'featureInteractionsPerDay',
-        'userRetentionMetrics'
+        'userRetentionMetrics',
+        'stripeMetrics'
     ];
     const fetchKPIData = async () => {
+        setSelectedUsers([]);
         try {
             let endpoint = `${API_BASE_URL}/api/kpi/get-kpi`
             const promises = selectedKPIs.map(kpi =>
@@ -635,6 +637,104 @@ const KPIDashboard = () => {
         );
     };
 
+    const renderStripeMetrics = (data) => {
+        const metrics = data.data;
+        
+        return (
+            <Grid container spacing={3}>
+                {/* Total Customers */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Total Customers: {metrics.totalCustomers}</Typography>
+                    </Paper>
+                </Grid>
+
+                {/* Pro Subscriptions */}
+                <Grid item xs={12} md={6}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Pro Subscriptions</Typography>
+                        <TableContainer>
+                            <Table size="small">
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell>Active Paid</TableCell>
+                                        <TableCell align="right">{metrics.proSubscriptions.active}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Trial</TableCell>
+                                        <TableCell align="right">{metrics.proSubscriptions.trial}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Cancelled</TableCell>
+                                        <TableCell align="right">{metrics.proSubscriptions.cancelled}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+                </Grid>
+
+                {/* Basic Subscriptions */}
+                <Grid item xs={12} md={6}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Basic Subscriptions</Typography>
+                        <TableContainer>
+                            <Table size="small">
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell>Active Paid</TableCell>
+                                        <TableCell align="right">{metrics.basicSubscriptions.active}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Trial</TableCell>
+                                        <TableCell align="right">{metrics.basicSubscriptions.trial}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Cancelled</TableCell>
+                                        <TableCell align="right">{metrics.basicSubscriptions.cancelled}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+                </Grid>
+
+                {/* Conversion Metrics */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Conversion Metrics</Typography>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} md={4}>
+                                <Typography variant="subtitle2" color="textSecondary">
+                                    Overall Conversion Rate
+                                </Typography>
+                                <Typography variant="h6">
+                                    {metrics.conversionRate.toFixed(1)}%
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={12} md={4}>
+                                <Typography variant="subtitle2" color="textSecondary">
+                                    Trial Conversion Rate
+                                </Typography>
+                                <Typography variant="h6">
+                                    {metrics.trialConversionRate.toFixed(1)}%
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={12} md={4}>
+                                <Typography variant="subtitle2" color="textSecondary">
+                                    No Subscription
+                                </Typography>
+                                <Typography variant="h6">
+                                    {metrics.noSubscription}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
+            </Grid>
+        );
+    };
+
     return (
         <Layout>
             <div className="content-wrapper">
@@ -709,6 +809,8 @@ const KPIDashboard = () => {
                                                 <Typography variant="h6" gutterBottom>{data.kpi}</Typography>
                                                 {data.kpi === 'User Retention Metrics' ? (
                                                     renderRetentionMetrics(data.data)
+                                                ) : data.kpi === 'Stripe Metrics' ? (
+                                                    renderStripeMetrics(data)
                                                 ) : data.kpi === 'Token Usage Distribution' ? (
                                                     <>
                                                         {renderHistogram({kpi: 'Tokens In Distribution', data: data.data.tokensInDistribution})}
@@ -720,7 +822,7 @@ const KPIDashboard = () => {
                                                 ) : (
                                                     renderChart(data)
                                                 )}
-                                                {data.kpi !== 'User Retention Metrics' && (
+                                                {data.kpi !== 'User Retention Metrics' && data.kpi !== 'Stripe Metrics' && (
                                                     <>
                                                         <Typography variant="h6" gutterBottom>Raw Data</Typography>
                                                         {renderRawData(data)}
