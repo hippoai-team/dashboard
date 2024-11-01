@@ -16,7 +16,11 @@ import {
     TableRow,
     TextField,
     ToggleButton,
-    ToggleButtonGroup
+    ToggleButtonGroup,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -37,6 +41,8 @@ const KPIDashboard = () => {
     const [chartTypes, setChartTypes] = useState({});
     const [histogramData, setHistogramData] = useState({});
     const [customBins, setCustomBins] = useState('');
+    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [showUserModal, setShowUserModal] = useState(false);
 
     const kpiOptions = [
         'averageDailyQueries',
@@ -52,6 +58,7 @@ const KPIDashboard = () => {
         'averageDailyQueriesDistribution',
         'tokenUsageDistribution',
         'featureInteractionsPerDay',
+        'userRetentionMetrics'
     ];
     const fetchKPIData = async () => {
         try {
@@ -67,12 +74,12 @@ const KPIDashboard = () => {
                 })
             );
             const responses = await Promise.all(promises);
-            console.log('responses',responses)
             const newKpiData = {};
             responses.forEach((response, index) => {
                 newKpiData[selectedKPIs[index]] = response.data;
             });
             setKpiData(newKpiData);
+            console.log('newKpiData',newKpiData)
         } catch (error) {
             console.error('Error fetching KPI data:', error);
         }
@@ -218,10 +225,22 @@ const KPIDashboard = () => {
         }
     };
 
+   const handleBarClick = (dataPointIndex, kpi) => {
+        if (kpi.data[dataPointIndex].users) {
+            const users = kpi.data[dataPointIndex].users;
+            setSelectedUsers(users.map(user => ({
+                userId: user.email,
+                signupDate: user.signupDate,
+                lastActive: user.lastActive, 
+                daysActive: user.daysActive
+            })));
+            setShowUserModal(true);
+        }
+    };
+
     const renderHistogram = (kpi) => {
         const data = kpi.data;
         const kpi_name = kpi.kpi;
-
         if (!data || data.length === 0) {
             return <div>No data available for {kpi_name}</div>;
         }
@@ -234,7 +253,13 @@ const KPIDashboard = () => {
         const options = {
             chart: {
                 type: 'bar',
-                height: 350
+                height: 350,
+                id: kpi_name,
+                events: {
+                    dataPointSelection: function(event, chartContext, config) {
+                        handleBarClick(config.dataPointIndex, kpi);
+                    }
+                }
             },
             plotOptions: {
                 bar: {
@@ -253,22 +278,20 @@ const KPIDashboard = () => {
             },
             xaxis: {
                 categories: data.map((bin, index) => {
-                    const minValue = typeof bin.min === 'number' ? bin.min.toFixed(2) : bin.min;
-                    let maxValue;
-                    if (bin.max === "Infinity" || index === data.length - 1) {
-                        return `${minValue}+`;
-                    } else {
-                        maxValue = typeof bin.max === 'number' ? (bin.max - 1).toFixed(2) : bin.max;
-                        return `${minValue} - ${maxValue}`;
-                    }
+                    const minValue = bin.min === "Other" ? "365+" : bin.min;
+                    const maxValue = bin.max === "Other" || bin.max === "Infinity" || index === data.length - 1 
+                        ? "+" 
+                        : ` - ${bin.max}`;
+                    
+                    return `${minValue}${maxValue}`;
                 }),
                 title: {
-                    text: 'Bins'
+                    text: 'Days'
                 }
             },
             yaxis: {
                 title: {
-                    text: 'Count'
+                    text: 'Number of Users'
                 }
             },
             fill: {
@@ -287,7 +310,68 @@ const KPIDashboard = () => {
             }
         };
 
-        return <Chart options={options} series={series} type="bar" height={350} />;
+        const exportUsersToCSV = () => {
+            const csvContent = [
+                ['User Email', 'Signup Date', 'Last Active', 'Days Active'].join(','),
+                ...selectedUsers.map(user => [
+                    user.userId,
+                    new Date(user.signupDate).toLocaleDateString(),
+                    user.lastActive ? new Date(user.lastActive).toLocaleDateString() : 'Never active',
+                    user.daysActive
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `users_${kpi_name}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        return (
+            <>
+                <Chart options={options} series={series} type="bar" height={350} />
+                <Dialog 
+                    open={showUserModal} 
+                    onClose={() => setShowUserModal(false)}
+                    maxWidth="md"
+                    fullWidth
+                >
+                    <DialogTitle>Users in Selected Range</DialogTitle>
+                    <DialogContent>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>User Email</TableCell>
+                                        <TableCell>Signup Date</TableCell>
+                                        <TableCell>Last Active</TableCell>
+                                        <TableCell>Days Active</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {selectedUsers.map((user, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{user.userId}</TableCell>
+                                            <TableCell>{new Date(user.signupDate).toLocaleDateString()}</TableCell>
+                                            <TableCell>{user.lastActive ? new Date(user.lastActive).toLocaleDateString() : 'Never active'}</TableCell>
+                                            <TableCell>{user.daysActive}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={exportUsersToCSV}>Export to CSV</Button>
+                        <Button onClick={() => setShowUserModal(false)}>Close</Button>
+                    </DialogActions>
+                </Dialog>
+            </>
+        );
     };
 
     const renderRawData = (kpi) => {
@@ -446,6 +530,111 @@ const KPIDashboard = () => {
 
     const isDistributionKPISelected = selectedKPIs.some(kpi => kpi.includes('Distribution'));
 
+    const renderRetentionMetrics = (data) => {
+        const { lifespanDistribution, daysToChurnDistribution, retentionCohorts, summary } = data;
+        // Add bin min and max fields to days to churn distribution
+        console.log('lifespan distribution',lifespanDistribution)
+        daysToChurnDistribution.forEach((bin, index) => {
+            if (bin._id === "365+") {
+                bin.min = "365+";
+                bin.max = "Infinity";
+            } else {
+                bin.min = bin._id;
+                if (index < daysToChurnDistribution.length - 1) {
+                    const nextBin = daysToChurnDistribution[index + 1];
+                    bin.max = nextBin._id === "365+" ? "365" : nextBin._id;
+                } else {
+                    bin.max = "Infinity";
+                }
+            }
+        });
+
+        lifespanDistribution.forEach((bin, index) => {
+            bin.min = bin._id;
+            if (index < lifespanDistribution.length - 1) {
+                bin.max = lifespanDistribution[index + 1]._id;
+            } else {
+                bin.max = "Infinity";
+            }
+        });
+
+        return (
+            <Grid container spacing={3}>
+                {/* Summary Statistics */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Summary Statistics</Typography>
+                        <Grid container spacing={2}>
+                            {[
+                                { label: 'Total Users', value: summary.totalUsers },
+                                { label: 'Active Users', value: summary.activeUsers },
+                                { label: 'Average Lifespan (days)', value: summary.avgLifespan?.toFixed(1) },
+                                { label: 'Average Days Active', value: summary.avgDaysActive?.toFixed(1) },
+                                { label: 'Median Days to Churn', value: summary.medianDaysToChurn?.toFixed(1) }
+                            ].map((stat, index) => (
+                                <Grid item xs={12} sm={4} md={2.4} key={index}>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        {stat.label}
+                                    </Typography>
+                                    <Typography variant="h6">
+                                        {stat.value || 'N/A'}
+                                    </Typography>
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </Paper>
+                </Grid>
+
+                {/* Lifespan Distribution Chart */}
+                <Grid item xs={12} md={6}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>User Lifespan Distribution</Typography>
+                        {renderHistogram({ kpi: 'User Lifespan Distribution', data: lifespanDistribution })}
+                    </Paper>
+                </Grid>
+
+                {/* Days to Churn Distribution Chart */}
+                <Grid item xs={12} md={6}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Days to Churn Distribution</Typography>
+                        {renderHistogram({ kpi: 'Days to Churn Distribution', data: daysToChurnDistribution })}
+                    </Paper>
+                </Grid>
+
+                {/* Retention Cohorts Table */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Retention Cohorts</Typography>
+                        <TableContainer>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Cohort</TableCell>
+                                        <TableCell align="right">Total Users</TableCell>
+                                        <TableCell align="right">Active Users</TableCell>
+                                        <TableCell align="right">Retention Rate (%)</TableCell>
+                                        <TableCell align="right">Avg Days Active</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {retentionCohorts.map((cohort, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{cohort.cohort}</TableCell>
+                                            <TableCell align="right">{cohort.totalUsers}</TableCell>
+                                            <TableCell align="right">{cohort.activeUsers}</TableCell>
+                                            <TableCell align="right">{cohort.retentionRate.toFixed(1)}%</TableCell>
+                                            <TableCell align="right">{cohort.avgDaysActive}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+                </Grid>
+            </Grid>
+        );
+    };
+
     return (
         <Layout>
             <div className="content-wrapper">
@@ -518,15 +707,25 @@ const KPIDashboard = () => {
                                         {Object.entries(kpiData).map(([kpi, data]) => (
                                             <div key={kpi}>
                                                 <Typography variant="h6" gutterBottom>{data.kpi}</Typography>
-                                                {data.kpi === 'Token Usage Distribution' ? (
+                                                {data.kpi === 'User Retention Metrics' ? (
+                                                    renderRetentionMetrics(data.data)
+                                                ) : data.kpi === 'Token Usage Distribution' ? (
                                                     <>
                                                         {renderHistogram({kpi: 'Tokens In Distribution', data: data.data.tokensInDistribution})}
                                                         {renderHistogram({kpi: 'Tokens Out Distribution', data: data.data.tokensOutDistribution})}
                                                         {renderHistogram({kpi: 'Total Tokens Distribution', data: data.data.totalTokensDistribution})}
                                                     </>
-                                                ) : data.kpi.includes('Distribution') ? renderHistogram(data) : renderChart(data)}
-                                                <Typography variant="h6" gutterBottom>Raw Data</Typography>
-                                                {renderRawData(data)}
+                                                ) : data.kpi.includes('Distribution') ? (
+                                                    renderHistogram(data)
+                                                ) : (
+                                                    renderChart(data)
+                                                )}
+                                                {data.kpi !== 'User Retention Metrics' && (
+                                                    <>
+                                                        <Typography variant="h6" gutterBottom>Raw Data</Typography>
+                                                        {renderRawData(data)}
+                                                    </>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
