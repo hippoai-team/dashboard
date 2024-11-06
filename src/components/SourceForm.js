@@ -592,7 +592,7 @@ function SourceForm() {
               ))}
             </form>
             <Button type="submit" variant="contained" color="success" onClick={handleSubmit} sx={{ backgroundColor: 'success.main', '&:hover': { backgroundColor: 'success.dark' } }}>Submit</Button>
-            <Button component={Link} to="/sources" variant="outlined" color="secondary" sx={{ borderColor: 'secondary.main', color: 'secondary.main', '&:hover': { borderColor: 'secondary.dark', backgroundColor: 'secondary.light' } }}>Cancel</Button>
+            <Button component={Link} to="/mastersources" variant="outlined" color="secondary" sx={{ borderColor: 'secondary.main', color: 'secondary.main', '&:hover': { borderColor: 'secondary.dark', backgroundColor: 'secondary.light' } }}>Cancel</Button>
           </Paper>
         </Box>
       </div>
