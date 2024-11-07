@@ -88,7 +88,11 @@ const UserList = () => {
 const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
   const API_BASE_URL = process.env.REACT_APP_NODE_API_URL ||'https://dashboard-api-woad.vercel.app';
 
+  const [professionFilter, setProfessionFilter] = useState("");
 
+  const handleProfessionChange = (e) => {
+    setProfessionFilter(e.target.value);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -119,6 +123,10 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
         } else if (dateRange) {
             endpoint += `&dateRange=${dateRange}`;
         }
+
+        if (professionFilter) {
+            endpoint += `&profession=${professionFilter}`;
+        }
       const response = await axios.get(endpoint);
       setLoadingData(false);
         setUsers(response.data.users);
@@ -147,7 +155,7 @@ const cohortList = ['A', 'B', 'C', 'D', 'E', 'none'];
     fetchUsers();
   }
 
-    , [currentPage, perPage, search, statusFilter, cohortFilter, selectedUser, selectedUserGroup, selectedDate, dateRange, startDate, endDate]);
+    , [currentPage, perPage, search, statusFilter, cohortFilter, selectedUser, selectedUserGroup, selectedDate, dateRange, startDate, endDate, professionFilter]);
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -672,7 +680,25 @@ const series = [
                                                     </select>
                                                 </div>
                                               </div>
-
+                                              <div className="col-md-2">
+                                                <div className="form-group">
+                                                    <label>Profession</label>
+                                                    <select
+                                                        className="form-control"
+                                                        value={professionFilter}
+                                                        onChange={handleProfessionChange}
+                                                    >
+                                                        <option value="">All Professions</option>
+                                                        <option value="Physician">Physician</option>
+                                                        <option value="Resident">Resident</option>
+                                                        <option value="Medical Student">Medical Student</option>
+                                                        <option value="Nurse Practitioner">Nurse Practitioner</option>
+                                                        <option value="Pharmacist">Pharmacist</option>
+                                                        <option value="Nurse">Nurse</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="row">
                                             <div className="col-md-2">
