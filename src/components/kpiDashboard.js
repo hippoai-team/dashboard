@@ -43,6 +43,7 @@ const KPIDashboard = () => {
     const [customBins, setCustomBins] = useState('');
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [showUserModal, setShowUserModal] = useState(false);
+    const [selectedCaseUser, setSelectedCaseUser] = useState(null);
 
     const kpiOptions = [
         'averageDailyQueries',
@@ -59,7 +60,8 @@ const KPIDashboard = () => {
         'tokenUsageDistribution',
         'featureInteractionsPerDay',
         'userRetentionMetrics',
-        'stripeMetrics'
+        'stripeMetrics',
+        'caseSubmissionAnalytics'
     ];
     const fetchKPIData = async () => {
         setSelectedUsers([]);
@@ -735,6 +737,211 @@ const KPIDashboard = () => {
         );
     };
 
+    const renderCaseSubmissionAnalytics = (data) => {
+        const { dailySubmissions, studyAnalytics, userDailySubmissions } = data.data;
+        
+        // Chart data for daily submissions
+        const chartData = {
+            kpi: 'Case Submissions Over Time',
+            data: dailySubmissions.map(item => ({
+                date: item.date,
+                'Total Submissions': item.totalSubmissions,
+                'Submissions Per User': parseFloat(item.submissionsPerUser.toFixed(2)),
+                'Unique Users': item.uniqueUsers
+            }))
+        };
+
+        const handleUserClick = (user) => {
+            setSelectedCaseUser(selectedCaseUser?.email === user.email ? null : user);
+        };
+
+        const renderUserDetail = (user) => {
+            const userSubmissions = userDailySubmissions[user.email] || [];
+            const userChartData = {
+                kpi: `Daily Submissions - ${user.email}`,
+                data: userSubmissions.map(item => ({
+                    date: item.date,
+                    'Submissions': item.count,
+                }))
+            };
+
+            return (
+                <Paper sx={{ p: 2, mt: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                        User Details - {user.email}
+                    </Typography>
+                    
+                    {/* User Stats */}
+                    <Grid container spacing={2} sx={{ mb: 2 }}>
+                        <Grid item xs={4}>
+                            <Typography variant="subtitle2" color="textSecondary">
+                                Total Cases
+                            </Typography>
+                            <Typography variant="h6">
+                                {user.totalCases}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="subtitle2" color="textSecondary">
+                                Average Score
+                            </Typography>
+                            <Typography variant="h6">
+                                {parseFloat(user.averageScore.toFixed(1))}%
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="subtitle2" color="textSecondary">
+                                Topics Covered
+                            </Typography>
+                            <Typography variant="h6">
+                                {Array.from(new Set(user.topics)).length}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+
+                    {/* User's Daily Submissions Chart */}
+                    <Typography variant="subtitle1" gutterBottom>
+                        Daily Submissions
+                    </Typography>
+                    {renderChart(userChartData)}
+
+                    {/* Detailed Submissions */}
+                    <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                        Recent Submissions
+                    </Typography>
+                    <TableContainer>
+                        <Table size="small">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Date</TableCell>
+                                    <TableCell>Topic</TableCell>
+                                    <TableCell align="right">Score</TableCell>
+                                    <TableCell>Case ID</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {userSubmissions.flatMap(day => 
+                                    day.submissions.map((submission, idx) => (
+                                        <TableRow key={`${day.date}-${idx}`}>
+                                            <TableCell>{day.date}</TableCell>
+                                            <TableCell>{submission.topic}</TableCell>
+                                            <TableCell align="right">
+                                                {submission.score ? `${submission.score.toFixed(1)}%` : 'N/A'}
+                                            </TableCell>
+                                            <TableCell>{submission.caseId}</TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Paper>
+            );
+        };
+
+        return (
+            <Grid container spacing={3}>
+                {/* Overall Summary Statistics */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Overall Study Analytics</Typography>
+                        <Grid container spacing={2}>
+                            {[
+                                { 
+                                    label: 'Total Users', 
+                                    value: studyAnalytics.totalUsers
+                                },
+                                { 
+                                    label: 'Average Cases per User', 
+                                    value: parseFloat(studyAnalytics.averageCasesPerUser.toFixed(1))
+                                },
+                                { 
+                                    label: 'Average Score', 
+                                    value: parseFloat(studyAnalytics.averageScore.toFixed(1)) + '%'
+                                }
+                            ].map((stat, index) => (
+                                <Grid item xs={12} sm={4} key={index}>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        {stat.label}
+                                    </Typography>
+                                    <Typography variant="h6">
+                                        {stat.value || 'N/A'}
+                                    </Typography>
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </Paper>
+                </Grid>
+
+                {/* Daily Submissions Chart */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Daily Case Submissions</Typography>
+                        {renderChart(chartData)}
+                    </Paper>
+                </Grid>
+
+                {/* User Performance Table */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>User Performance</Typography>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>User Email</TableCell>
+                                        <TableCell align="right">Total Cases</TableCell>
+                                        <TableCell align="right">Average Score</TableCell>
+                                        <TableCell>Topics Attempted</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {studyAnalytics.userScores.map((user, index) => (
+                                        <React.Fragment key={index}>
+                                            <TableRow 
+                                                hover
+                                                onClick={() => handleUserClick(user)}
+                                                sx={{ 
+                                                    cursor: 'pointer',
+                                                    backgroundColor: selectedCaseUser?.email === user.email ? 
+                                                        'action.selected' : 'inherit'
+                                                }}
+                                            >
+                                                <TableCell>{user.email}</TableCell>
+                                                <TableCell align="right">{user.totalCases}</TableCell>
+                                                <TableCell align="right">
+                                                    {parseFloat(user.averageScore.toFixed(1))}%
+                                                </TableCell>
+                                                <TableCell>
+                                                    {Array.from(new Set(user.topics)).join(', ')}
+                                                </TableCell>
+                                            </TableRow>
+                                            {selectedCaseUser?.email === user.email && (
+                                                <TableRow>
+                                                    <TableCell colSpan={4} sx={{ py: 0 }}>
+                                                        {renderUserDetail(user)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Paper>
+                </Grid>
+
+                {/* Raw Submission Data */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Raw Submission Data</Typography>
+                        {renderRawData({ kpi: 'Daily Case Submissions', data: dailySubmissions })}
+                    </Paper>
+                </Grid>
+            </Grid>
+        );
+    };
+
     return (
         <Layout>
             <div className="content-wrapper">
@@ -811,6 +1018,8 @@ const KPIDashboard = () => {
                                                     renderRetentionMetrics(data.data)
                                                 ) : data.kpi === 'Stripe Metrics' ? (
                                                     renderStripeMetrics(data)
+                                                ) : data.kpi === 'Case Submission Analytics' ? (
+                                                    renderCaseSubmissionAnalytics(data)
                                                 ) : data.kpi === 'Token Usage Distribution' ? (
                                                     <>
                                                         {renderHistogram({kpi: 'Tokens In Distribution', data: data.data.tokensInDistribution})}
@@ -822,7 +1031,9 @@ const KPIDashboard = () => {
                                                 ) : (
                                                     renderChart(data)
                                                 )}
-                                                {data.kpi !== 'User Retention Metrics' && data.kpi !== 'Stripe Metrics' && (
+                                                {data.kpi !== 'User Retention Metrics' && 
+                                                 data.kpi !== 'Stripe Metrics' && 
+                                                 data.kpi !== 'Case Submission Analytics' && (
                                                     <>
                                                         <Typography variant="h6" gutterBottom>Raw Data</Typography>
                                                         {renderRawData(data)}
