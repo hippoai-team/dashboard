@@ -48,6 +48,10 @@ const ChatLogList = () => {
     const [expandedIds, setExpandedIds] = useState([]);
     const toastDuration = 3000;
     const [feedbackPlotObject, setFeedbackPlotObject] = useState({series: [], labels: []});//[yes, no
+    const [feedbackMap, setFeedbackMap] = useState({});
+    const [hasFeedback, setHasFeedback] = useState(false);
+    const [feedbackBreakdown, setFeedbackBreakdown] = useState({ positive: 0, negative: 0 });
+    const [feedbackCategories, setFeedbackCategories] = useState({});
     const chartOptions = {
         chart: {
           id: "basic-bar",
@@ -91,71 +95,78 @@ const ChatLogList = () => {
         else if (userRatingFilter.length > 0) {
             endpoint += `&userRatingFilter=${userRatingFilter}`;
             }
+        if (hasFeedback) {
+            endpoint += `&hasFeedback=true`;
+        }
 
+        try {
+            const res = await axios.get(endpoint);
+            const { 
+                chatLogs,
+                totalCount,
+                currentPage: page,
+                dateCountObj,
+                users,
+                totalFeedback,
+                numChatsWithClickedSources,
+                feedbackMap,
+                feedbackBreakdown,
+                feedbackCategories
+            } = res.data;
+            console.log('chatLogs', chatLogs)
+            setChatLogs(chatLogs);
+            setTotalLogs(totalCount);
+            setCurrentPage(page);
+            setUserList(users);
+            setDateCountObj(dateCountObj);
+            setFeedBackCount(totalFeedback);
+            setLoading(false);
+            setNumChatsClickedSources(numChatsWithClickedSources);
+            setFeedbackMap(feedbackMap);
+            setFeedbackBreakdown(feedbackBreakdown);
+            setFeedbackCategories(feedbackCategories);
+            setAverageQueryLength(chatLogs.reduce((acc, log) => acc + log.query.split(' ').length, 0) / chatLogs.length);
+            const chatLogsWithRating = chatLogs.filter(log => log.user_rating !== null);
+            const chatLogsWithoutRating = chatLogs.filter(log => log.user_rating === null);
 
-    try {
-        const res = await axios.get(endpoint);
-        const { 
-            chatLogs,
-            totalCount,
-            currentPage: page,
-            dateCountObj,
-            users,
-            totalFeedback,
-            numChatsWithClickedSources,
-
-        } = res.data;
-        console.log('chatLogs', chatLogs)
-        setChatLogs(chatLogs);
-        setTotalLogs(totalCount);
-        setCurrentPage(page);
-        setUserList(users);
-        setDateCountObj(dateCountObj);
-        setFeedBackCount(totalFeedback);
-        setLoading(false);
-        setNumChatsClickedSources(numChatsWithClickedSources);
-        setAverageQueryLength(chatLogs.reduce((acc, log) => acc + log.query.split(' ').length, 0) / chatLogs.length);
-        const chatLogsWithRating = chatLogs.filter(log => log.user_rating !== null);
-        const chatLogsWithoutRating = chatLogs.filter(log => log.user_rating === null);
-
-        const calculateAverageQueryLength = (logs) => {
-            if (logs.length === 0) {
-                return 0;
+            const calculateAverageQueryLength = (logs) => {
+                if (logs.length === 0) {
+                    return 0;
+                }
+                const totalQueryLength = logs.reduce((acc, log) => acc + log.query.split(' ').length, 0);
+                return totalQueryLength / logs.length;
             }
-            const totalQueryLength = logs.reduce((acc, log) => acc + log.query.split(' ').length, 0);
-            return totalQueryLength / logs.length;
-        }
 
-        const averageQueryLengthWithRatingYes = calculateAverageQueryLength(chatLogsWithRating.filter(log => log.user_rating === 'Yes'));
-        const averageQueryLengthWithRatingNo = calculateAverageQueryLength(chatLogsWithRating.filter(log => log.user_rating === 'No'));
-        const averageQueryLengthWithoutRating = calculateAverageQueryLength(chatLogsWithoutRating);
+            const averageQueryLengthWithRatingYes = calculateAverageQueryLength(chatLogsWithRating.filter(log => log.user_rating === 'Yes'));
+            const averageQueryLengthWithRatingNo = calculateAverageQueryLength(chatLogsWithRating.filter(log => log.user_rating === 'No'));
+            const averageQueryLengthWithoutRating = calculateAverageQueryLength(chatLogsWithoutRating);
 
-        const series = [
-            averageQueryLengthWithRatingYes,
-            averageQueryLengthWithRatingNo,
-            averageQueryLengthWithoutRating
-        ];
+            const series = [
+                averageQueryLengthWithRatingYes,
+                averageQueryLengthWithRatingNo,
+                averageQueryLengthWithoutRating
+            ];
 
-        const labels = [
-            'Rated - Helpful',
-            'Rated - Not Helpful',
-            'Without Rating'
-        ];
+            const labels = [
+                'Rated - Helpful',
+                'Rated - Not Helpful',
+                'Without Rating'
+            ];
 
-        setFeedbackPlotObject({series, labels});
-        
-        console.log('feedbackPlotObject', feedbackPlotObject);
+            setFeedbackPlotObject({series, labels});
+            
+            console.log('feedbackPlotObject', feedbackPlotObject);
 
-        }
-    catch (err) {
-        console.log(err);
-        setLoading(false);
-        }
+            }
+        catch (err) {
+            console.log(err);
+            setLoading(false);
+            }
     }
 
     useEffect(() => {
         fetchChatLogs();
-    }, [currentPage, perPage, search, selectedUser, selectedDate, dateRange, userRatingFilter, selectedUserGroup, startDate, endDate, filterOutAdmin]);
+    }, [currentPage, perPage, search, selectedUser, selectedDate, dateRange, userRatingFilter, selectedUserGroup, startDate, endDate, filterOutAdmin, hasFeedback]);
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
@@ -431,21 +442,19 @@ const ChatLogList = () => {
                                                         />
                                                     </div>
                                                 </div>
-                                            {/* <div className="col-md-2">
+                                            <div className="col-md-2">
                                                 <div className="form-group">
-                                                    <label>User Rating</label>
+                                                    <label>Has Feedback</label>
                                                     <select
                                                         className="form-control"
-                                                        onChange={(e) => setUserRatingFilter(e.target.value)}
+                                                        value={hasFeedback}
+                                                        onChange={(e) => setHasFeedback(e.target.value === 'true')}
                                                     >
-                                                        <option value="">No Filter</option>
-                                                        <option value="exists">Exists</option>
-                                                        <option value="Yes">Helpful</option>
-                                                        <option value="No">Not Helpful</option>
+                                                        <option value="false">All</option>
+                                                        <option value="true">With Feedback Only</option>
                                                     </select>
                                                 </div>
-                                            </div> */}
-                                                            
+                                            </div>
                                         </div>
                                     <div className="row">
                                     <div className="col-md-4">
@@ -616,6 +625,7 @@ const ChatLogList = () => {
                                                         <th>Query</th>
                                                         <th style={{minWidth: '500px'}}>Response</th>
                                                         <th>Sources</th>
+                                                        <th>Feedback</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -712,12 +722,105 @@ const ChatLogList = () => {
                                                                             );
                                                                         })}
                                                                     </td>
+                                                                    <td>
+                                                                        {feedbackMap[`${history.thread_uuid}-${history.uuid}`] && (
+                                                                            <div>
+                                                                                {feedbackMap[`${history.thread_uuid}-${history.uuid}`].isLiked !== undefined && (
+                                                                                    <Chip 
+                                                                                        label={feedbackMap[`${history.thread_uuid}-${history.uuid}`].isLiked ? "👍 Liked" : "👎 Disliked"}
+                                                                                        color={feedbackMap[`${history.thread_uuid}-${history.uuid}`].isLiked ? "success" : "error"}
+                                                                                        style={{marginBottom: '5px'}}
+                                                                                    />
+                                                                                )}
+                                                                                {Object.entries(feedbackMap[`${history.thread_uuid}-${history.uuid}`].feedback || {}).map(([key, value]) => {
+                                                                                    if (key === '_id' || !value) return null;
+                                                                                    if (key === 'other' && value) {
+                                                                                        return (
+                                                                                            <div key={key} style={{marginTop: '5px'}}>
+                                                                                                <Typography variant="caption">
+                                                                                                    Other: {value}
+                                                                                                </Typography>
+                                                                                            </div>
+                                                                                        );
+                                                                                    }
+                                                                                    if (value === true) {
+                                                                                        return (
+                                                                                            <Chip 
+                                                                                                key={key}
+                                                                                                label={key.replace(/([A-Z])/g, ' $1').trim()}
+                                                                                                size="small"
+                                                                                                style={{margin: '2px'}}
+                                                                                            />
+                                                                                        );
+                                                                                    }
+                                                                                    return null;
+                                                                                })}
+                                                                            </div>
+                                                                        )}
+                                                                    </td>
                                                                 </tr>
                                                             ))
                                                     )}
                                                 </tbody>
                                             </table>
                                         </div>
+                                        <div className="row">
+                                            <div className="col-md-3">
+                                                <NumDisplay 
+                                                    title="Total Feedback"
+                                                    value={feedbackBreakdown.positive + feedbackBreakdown.negative}
+                                                    sx={{
+                                                        backgroundColor: alpha('#2196F3', 0.1),
+                                                        color: '#2196F3',
+                                                        margin: '10px'
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="col-md-3">
+                                                <NumDisplay 
+                                                    title="Positive Feedback"
+                                                    value={feedbackBreakdown.positive}
+                                                    sx={{
+                                                        backgroundColor: alpha('#4CAF50', 0.1),
+                                                        color: '#4CAF50',
+                                                        margin: '10px'
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="col-md-3">
+                                                <NumDisplay 
+                                                    title="Negative Feedback"
+                                                    value={feedbackBreakdown.negative}
+                                                    sx={{
+                                                        backgroundColor: alpha('#f44336', 0.1),
+                                                        color: '#f44336',
+                                                        margin: '10px'
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                        {feedbackCategories && Object.keys(feedbackCategories).length > 0 && (
+                                            <div className="row mt-3">
+                                                <div className="col-12">
+                                                    <Typography variant="h6" component="div">
+                                                        Feedback Categories Breakdown
+                                                    </Typography>
+                                                    <div className="d-flex flex-wrap">
+                                                        {Object.entries(feedbackCategories)
+                                                            .filter(([key]) => key !== '_id')
+                                                            .map(([category, count]) => (
+                                                                <div key={category} className="m-2">
+                                                                    <Chip
+                                                                        label={`${category.replace(/([A-Z])/g, ' $1').trim()}: ${count}`}
+                                                                        color="primary"
+                                                                        variant="outlined"
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="row">
                                             <div className="col-sm-12 col-md-5">
                                                 <div className="dataTables_info">
