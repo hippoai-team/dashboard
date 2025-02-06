@@ -740,6 +740,39 @@ const KPIDashboard = () => {
     const renderCaseSubmissionAnalytics = (data) => {
         const { dailySubmissions, studyAnalytics, userDailySubmissions } = data.data;
         
+        // Organize submissions by date
+        const getSubmissionsByDate = () => {
+            const submissionsByDate = {};
+            
+            // First, collect all submissions by date
+            Object.entries(userDailySubmissions).forEach(([email, submissions]) => {
+                submissions.forEach(dayData => {
+                    if (!submissionsByDate[dayData.date]) {
+                        submissionsByDate[dayData.date] = [];
+                    }
+                    const userStats = studyAnalytics.userScores.find(u => u.email === email) || {};
+                    submissionsByDate[dayData.date].push({
+                        email,
+                        submissions: dayData.submissions,
+                        count: dayData.count,
+                        averageScore: userStats.averageScore || 0,
+                        totalCases: userStats.totalCases || 0,
+                        topics: userStats.topics || []
+                    });
+                });
+            });
+
+            // Convert to array and sort by date
+            return Object.entries(submissionsByDate)
+                .map(([date, users]) => ({
+                    date,
+                    users: users.sort((a, b) => b.count - a.count) // Sort users by submission count
+                }))
+                .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort dates in descending order
+        };
+
+        const submissionsByDate = getSubmissionsByDate();
+        
         // Chart data for daily submissions
         const chartData = {
             kpi: 'Case Submissions Over Time',
@@ -878,6 +911,69 @@ const KPIDashboard = () => {
                     <Paper sx={{ p: 2 }}>
                         <Typography variant="h6" gutterBottom>Daily Case Submissions</Typography>
                         {renderChart(chartData)}
+                    </Paper>
+                </Grid>
+
+                {/* Daily Users Submissions Table */}
+                <Grid item xs={12}>
+                    <Paper sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Daily User Submissions</Typography>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Date</TableCell>
+                                        <TableCell>Users</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {submissionsByDate.map((dateData) => (
+                                        <React.Fragment key={dateData.date}>
+                                            <TableRow>
+                                                <TableCell 
+                                                    component="th" 
+                                                    scope="row"
+                                                    sx={{ fontWeight: 'bold' }}
+                                                >
+                                                    {dateData.date}
+                                                    <Typography variant="caption" display="block" color="textSecondary">
+                                                        {dateData.users.length} users
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Grid container spacing={1}>
+                                                        {dateData.users.map((user) => (
+                                                            <Grid item key={user.email}>
+                                                                <Button
+                                                                    variant={selectedCaseUser?.email === user.email ? "contained" : "outlined"}
+                                                                    size="small"
+                                                                    onClick={() => handleUserClick({
+                                                                        email: user.email,
+                                                                        averageScore: user.averageScore,
+                                                                        totalCases: user.totalCases,
+                                                                        topics: user.topics
+                                                                    })}
+                                                                    sx={{ mr: 1, mb: 1 }}
+                                                                >
+                                                                    {user.email.split('@')[0]} ({user.count})
+                                                                </Button>
+                                                            </Grid>
+                                                        ))}
+                                                    </Grid>
+                                                </TableCell>
+                                            </TableRow>
+                                            {selectedCaseUser && dateData.users.some(u => u.email === selectedCaseUser.email) && (
+                                                <TableRow>
+                                                    <TableCell colSpan={2} sx={{ py: 0 }}>
+                                                        {renderUserDetail(selectedCaseUser)}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                     </Paper>
                 </Grid>
 
