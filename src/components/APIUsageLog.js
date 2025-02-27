@@ -312,47 +312,56 @@ const APIUsageLog = () => {
         </div>
     );
 
-    const renderRateLimitSection = () => (
-        <div className="card card-info">
-            <div className="card-header">
-                <h3 className="card-title">Usage and Billing Summary</h3>
-            </div>
-            <div className="card-body">
-                <Box sx={{ width: '100%', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
-                        Monthly Usage: {rateLimitUsage.used} / {rateLimitUsage.limit} API calls
-                    </Typography>
-                    <LinearProgress 
-                        variant="determinate" 
-                        value={(rateLimitUsage.used / rateLimitUsage.limit) * 100}
-                        sx={{ height: 10, borderRadius: 5 }}
-                    />
-                </Box>
-                <Typography>
-                    Base Monthly Cost: ${rateLimitUsage.baseCost.toFixed(2)}
-                    <br />
-                    <small className="text-muted">
-                        Includes up to {rateLimitUsage.limit} API calls
-                    </small>
-                </Typography>
-                {rateLimitUsage.overageCount > 0 && (
-                    <Typography color="error">
-                        Overage: {rateLimitUsage.overageCount} API calls over limit
+    const renderRateLimitSection = () => {
+        // Calculate tax
+        const HST_RATE = 0.13; // Ontario HST rate (13%)
+        const taxAmount = rateLimitUsage.totalCost * HST_RATE;
+        const finalTotal = rateLimitUsage.totalCost + taxAmount;
+
+        return (
+            <div className="card card-info">
+                <div className="card-header">
+                    <h3 className="card-title">Usage and Billing Summary</h3>
+                </div>
+                <div className="card-body">
+                    <Box sx={{ width: '100%', mb: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                            Monthly Usage: {rateLimitUsage.used} / {rateLimitUsage.limit} API calls
+                        </Typography>
+                        <LinearProgress 
+                            variant="determinate" 
+                            value={(rateLimitUsage.used / rateLimitUsage.limit) * 100}
+                            sx={{ height: 10, borderRadius: 5 }}
+                        />
+                    </Box>
+                    <Typography>
+                        Base Monthly Cost: ${rateLimitUsage.baseCost.toFixed(2)}
                         <br />
-                        Additional cost at ${selectedCustomer?.rate_limit?.overage_charge_per_use}/call: 
-                        ${rateLimitUsage.overageCost.toFixed(2)}
+                        <small className="text-muted">
+                            Includes up to {rateLimitUsage.limit} API calls
+                        </small>
                     </Typography>
-                )}
-                <Typography variant="h6" sx={{ mt: 2 }}>
-                    Total Monthly Cost: ${rateLimitUsage.totalCost.toFixed(2)}
-                    <br />
-                    <small className="text-muted">
-                        (Base Cost + Overage Charges)
-                    </small>
-                </Typography>
+                    {rateLimitUsage.overageCount > 0 && (
+                        <Typography color="error">
+                            Overage: {rateLimitUsage.overageCount} API calls over limit
+                            <br />
+                            Additional cost at ${selectedCustomer?.rate_limit?.overage_charge_per_use}/call: 
+                            ${rateLimitUsage.overageCost.toFixed(2)}
+                        </Typography>
+                    )}
+                    <Typography sx={{ mt: 2 }}>
+                        Subtotal: ${rateLimitUsage.totalCost.toFixed(2)}
+                    </Typography>
+                    <Typography sx={{ mt: 1 }}>
+                        HST (13%): ${taxAmount.toFixed(2)}
+                    </Typography>
+                    <Typography variant="h6" sx={{ mt: 1 }}>
+                        Total (including tax): ${finalTotal.toFixed(2)}
+                    </Typography>
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     const renderUsageGraphs = () => (
         <div className="card card-primary">
@@ -390,6 +399,11 @@ const APIUsageLog = () => {
             return acc;
         }, {});
 
+        // Calculate tax
+        const HST_RATE = 0.13; // Ontario HST rate (13%)
+        const taxAmount = rateLimitUsage.totalCost * HST_RATE;
+        const finalTotal = rateLimitUsage.totalCost + taxAmount;
+
         return (
             <div className="card card-info">
                 <div className="card-header">
@@ -406,7 +420,9 @@ const APIUsageLog = () => {
                                         <th>Total API Calls</th>
                                         <th>Base Cost</th>
                                         <th>Overage Cost</th>
-                                        <th>Total Cost</th>
+                                        <th>Subtotal</th>
+                                        <th>HST (13%)</th>
+                                        <th>Total (with tax)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -415,6 +431,8 @@ const APIUsageLog = () => {
                                         <td>${rateLimitUsage.baseCost.toFixed(2)}</td>
                                         <td>${rateLimitUsage.overageCost.toFixed(2)}</td>
                                         <td>${rateLimitUsage.totalCost.toFixed(2)}</td>
+                                        <td>${taxAmount.toFixed(2)}</td>
+                                        <td className="font-weight-bold">${finalTotal.toFixed(2)}</td>
                                     </tr>
                                 </tbody>
                             </table>
